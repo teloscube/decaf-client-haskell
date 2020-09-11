@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs                     #-}
 {-# LANGUAGE OverloadedStrings         #-}
 
-module Decaf.Client.Http.Utils where
+module Decaf.Client.Internal.Http where
 
 import           Data.Aeson                  (FromJSON, ToJSON)
 import qualified Data.ByteString             as B
@@ -23,7 +23,6 @@ import           Network.HTTP.Simple
                  , setRequestQueryString
                  )
 import           Network.HTTP.Simple         (parseRequest_)
-import           Network.HTTP.Types.Header   (HeaderName)
 import           Text.Printf                 (printf)
 
 
@@ -43,16 +42,16 @@ type Params = [(B.ByteString, B.ByteString)]
 type ContentType = B.ByteString
 
 
+-- | Data definition for request bodies.
+data Body a = BSBody ContentType B.ByteString | ToJSON a => JsonBody a
+
+
 -- | Type definition for path segment pointing to endpoints.
 data Endpoint = Endpoint String | EndpointPath [String] | TSEndpoint String | TSEndpointPath [String]
 
 
 -- | Available methods.
 data Method = GET | POST | PUT | DELETE deriving (Show)
-
-
--- | Data definition for request bodies.
-data Body a = BSBody ContentType B.ByteString | ToJSON a => JsonBody a
 
 
 -- | Data definition for a generic DECAF API client request.
@@ -79,7 +78,7 @@ requestJson :: FromJSON a => RequestCompiler -> DecafRequest -> IO a
 requestJson requestCompiler decafRequest = getResponseBody <$> httpJSON (requestCompiler decafRequest)
 
 
--- | Prepare the request.
+-- | A 'RequestCompiler' for simple requests without query strings and payload.
 --
 -- >>> prepareRequest $ DecafRequest "http://example.com" "Token XYZ" [("X-Header", "1")] GET (TSEndpoint "/api/version/")
 -- Request {
@@ -96,23 +95,26 @@ requestJson requestCompiler decafRequest = getResponseBody <$> httpJSON (request
 --   responseTimeout      = ResponseTimeoutDefault
 --   requestVersion       = HTTP/1.1
 -- }
-prepareRequest :: DecafRequest -> Request
+prepareRequest :: RequestCompiler
 prepareRequest req@(DecafRequest _ auth headers _ _) =  makeRequest req
   where
     makeRequest = (addHeaders headers . authorizer . addAgent . parseRequest_ . buildBaseRequestUrl)
     authorizer = addAuthorization auth
 
 
-prepareRequestWithParams :: Params -> DecafRequest -> Request
+-- | A 'RequestCompiler' for requests with query strings.
+prepareRequestWithParams :: Params -> RequestCompiler
 prepareRequestWithParams params = addParams params . prepareRequest
 
 
-prepareRequestWithBody :: Body a -> DecafRequest -> Request
+-- | A 'RequestCompiler' for requests with payload.
+prepareRequestWithBody :: Body a -> RequestCompiler
 prepareRequestWithBody (BSBody contentType body) = addRequestHeader "Content-Type" contentType . setRequestBody (RequestBodyBS body) . prepareRequest
 prepareRequestWithBody (JsonBody body) = setRequestBodyJSON body . prepareRequest
 
 
-prepareRequestWithParamsAndBody :: Params -> Body a -> DecafRequest -> Request
+-- | A 'RequestCompiler' for requests with query strings and payloads.
+prepareRequestWithParamsAndBody :: Params -> Body a -> RequestCompiler
 prepareRequestWithParamsAndBody params body = addParams params . prepareRequestWithBody body
 
 
@@ -247,7 +249,7 @@ addParams params = setRequestQueryString $ fmap (\(x, y) -> (x, Just y)) params
 --   responseTimeout      = ResponseTimeoutDefault
 --   requestVersion       = HTTP/1.1
 -- }
-addHeaders :: [(HeaderName, B.ByteString)] -> Request -> Request
+addHeaders :: [Header] -> Request -> Request
 addHeaders pHeaders pRequest = case pHeaders of
   []            -> pRequest
   (hn, hv) : hs -> addHeaders hs (addRequestHeader hn hv pRequest)

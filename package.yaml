@@ -21,6 +21,7 @@ dependencies:
 - bytestring
 - http-conduit
 - http-types
+- unordered-containers
 
 library:
   source-dirs: src
