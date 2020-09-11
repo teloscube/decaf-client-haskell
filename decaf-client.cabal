@@ -1,0 +1,80 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 1780ad4a23be3b4eff8662eec043017acd1717073c5b2005ca176e7575bfd096
+
+name:           decaf-client
+version:        0.0.0.1
+synopsis:       DECAF API Client Suite for Haskell
+description:    Please see the README on GitHub at <https://github.com/teloscube/decaf-client-haskell#readme>
+category:       Web
+homepage:       https://github.com/teloscube/decaf-client-haskell#readme
+bug-reports:    https://github.com/teloscube/decaf-client-haskell/issues
+author:         Vehbi Sinan Tunalioglu
+maintainer:     vst@vsthost.com
+copyright:      2020 Teloscube Pte Ltd
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/teloscube/decaf-client-haskell
+
+library
+  exposed-modules:
+      Decaf.Client
+      Decaf.Client.Http.Utils
+      Decaf.Client.Version
+      Lib
+  other-modules:
+      Paths_decaf_client
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Werror
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , http-conduit
+    , http-types
+  default-language: Haskell2010
+
+executable decaf-client-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_decaf_client
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , decaf-client
+    , http-conduit
+    , http-types
+  default-language: Haskell2010
+
+test-suite decaf-client-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_decaf_client
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , decaf-client
+    , http-conduit
+    , http-types
+  default-language: Haskell2010
