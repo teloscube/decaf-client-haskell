@@ -3,12 +3,11 @@
 module Decaf.Client
   ( Authorization
   , BaseUrl
-  , Gql
-  , GqlQuery(..)
-  , GqlVariables
   , MicrolotClient
+  , MicrolotRequest
   , mkMicrolotClient
+  , runMicrolot
   ) where
 
 import Decaf.Client.Internal.Http     (Authorization, BaseUrl)
-import Decaf.Client.Internal.Microlot (Gql, GqlQuery(..), GqlVariables, MicrolotClient, mkMicrolotClient)
+import Decaf.Client.Internal.Microlot (MicrolotClient, MicrolotRequest, mkMicrolotClient, runMicrolot)

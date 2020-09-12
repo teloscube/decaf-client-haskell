@@ -4,12 +4,12 @@
 
 module Decaf.Client.Internal.Http where
 
-import           Data.Aeson                  (FromJSON, ToJSON)
-import qualified Data.ByteString             as B
-import qualified Data.ByteString.Char8       as BC
-import           Data.List                   (intercalate)
-import           Decaf.Client.Version        (version)
-import           Network.HTTP.Client.Conduit (RequestBody(RequestBodyBS))
+import           Data.Aeson            (FromJSON, ToJSON)
+import qualified Data.ByteString       as B
+import qualified Data.ByteString.Char8 as BC
+import           Data.List             (intercalate)
+import           Decaf.Client.Version  (version)
+import qualified Network.HTTP.Client   as H
 import           Network.HTTP.Simple
                  ( Header
                  , Request
@@ -17,76 +17,64 @@ import           Network.HTTP.Simple
                  , getResponseBody
                  , httpBS
                  , httpJSON
-                 , setRequestBody
+                 , parseRequest_
                  , setRequestBodyJSON
-                 , setRequestHeader
+                 , setRequestMethod
+                 , setRequestPath
                  , setRequestQueryString
                  )
-import           Network.HTTP.Simple         (parseRequest_)
-import           Text.Printf                 (printf)
-
-
--- | Type definition for HTTP @Authorization@ header value.
-type Authorization = B.ByteString
+import           Text.Printf           (printf)
 
 
 -- | Type definition for base URL value.
 type BaseUrl = String
 
 
--- | Type definition for query parameters.
-type Params = [(B.ByteString, B.ByteString)]
+-- | Type definition for HTTP @Authorization@ header value.
+type Authorization = B.ByteString
 
 
--- | Type definition for @Content-Type@ HTTP header value.
-type ContentType = B.ByteString
+-- | Type definition for path segment pointing to endpoints.
+data Endpoint = Endpoint Method Path
+
+
+-- | Available endpoint methods.
+data Method = GET | POST | PUT | DELETE deriving (Show)
+
+
+-- | Type definition for path segments pointing to endpoints.
+data Path = Path String | PathSegments [String] | TSPath String | TSPathSegments [String]
+
+
+-- | Type definition for query string parameter.
+type Param = (B.ByteString, B.ByteString)
+
+
+-- | Type definition for query string parameters.
+type Params = [Param]
 
 
 -- | Data definition for request bodies.
 data Body a = BSBody ContentType B.ByteString | ToJSON a => JsonBody a
 
 
--- | Type definition for path segment pointing to endpoints.
-data Endpoint = Endpoint String | EndpointPath [String] | TSEndpoint String | TSEndpointPath [String]
+-- | Type definition for @Content-Type@ HTTP header value.
+type ContentType = B.ByteString
 
 
--- | Available methods.
-data Method = GET | POST | PUT | DELETE deriving (Show)
+-- | Type definition for DECAF API requests.
+newtype DecafRequest = MkDecafRequest { unDecafRequest :: Request } deriving (Show)
 
 
--- | Data definition for a generic DECAF API client request.
-data DecafRequest = DecafRequest
-  { decafRequestDeploymentUrl :: !BaseUrl
-  , decafRequestAuthorization :: !Authorization
-  , decafRequestHeaders       :: ![Header]
-  , decafRequestMethod        :: !Method
-  , decafRequestEndpoint      :: !Endpoint
-  }
-
-
--- | Type definition for @DecafRequest@ to @Request@ compiler.
-type RequestCompiler = DecafRequest -> Request
-
-
--- | Attempts to consume the remote endpoint with the given @DecafRequest@ and a request compiler.
-requestBS :: DecafRequest -> RequestCompiler -> IO B.ByteString
-requestBS request compiler = getResponseBody <$> httpBS (compiler request)
-
-
--- | Attempts to consume the remote endpoint with the given @DecafRequest@ and a request compiler, and returns a value.
-requestJson :: FromJSON a => RequestCompiler -> DecafRequest -> IO a
-requestJson requestCompiler decafRequest = getResponseBody <$> httpJSON (requestCompiler decafRequest)
-
-
--- | A 'RequestCompiler' for simple requests without query strings and payload.
+-- | Safe constructor to create 'DecafRequest' values.
 --
--- >>> prepareRequest $ DecafRequest "http://example.com" "Token XYZ" [("X-Header", "1")] GET (TSEndpoint "/api/version/")
--- Request {
---   host                 = "example.com"
+-- >>> mkDecafRequest "http://example.com" "Token XYZ" []
+-- MkDecafRequest {unDecafRequest = Request {
+--   host                 = "localhost"
 --   port                 = 80
 --   secure               = False
---   requestHeaders       = [("X-Header","1"),("User-Agent","DECAF API Client/0.0.0.1 (Haskell)"),("Authorization","<REDACTED>")]
---   path                 = "/api/version/"
+--   requestHeaders       = [("Authorization","<REDACTED>"),("User-Agent","DECAF API Client/0.0.0.1 (Haskell)")]
+--   path                 = "http://example.com"
 --   queryString          = ""
 --   method               = "GET"
 --   proxy                = Nothing
@@ -95,58 +83,105 @@ requestJson requestCompiler decafRequest = getResponseBody <$> httpJSON (request
 --   responseTimeout      = ResponseTimeoutDefault
 --   requestVersion       = HTTP/1.1
 -- }
-prepareRequest :: RequestCompiler
-prepareRequest req@(DecafRequest _ auth headers _ _) =  makeRequest req
+-- }
+mkDecafRequest :: BaseUrl -> Authorization -> [Header] -> DecafRequest
+mkDecafRequest baseUrl auth headers =  addHeaders' $ baseRequest
   where
-    makeRequest = (addHeaders headers . authorizer . addAgent . parseRequest_ . buildBaseRequestUrl)
-    authorizer = addAuthorization auth
+    baseRequest = MkDecafRequest $ parseRequest_ ("POST " ++ baseUrl)
+    addHeaders' = addHeaders $ ("Authorization", auth) : ("User-Agent", BC.pack userAgent) : headers
 
 
--- | A 'RequestCompiler' for requests with query strings.
-prepareRequestWithParams :: Params -> RequestCompiler
-prepareRequestWithParams params = addParams params . prepareRequest
-
-
--- | A 'RequestCompiler' for requests with payload.
-prepareRequestWithBody :: Body a -> RequestCompiler
-prepareRequestWithBody (BSBody contentType body) = addRequestHeader "Content-Type" contentType . setRequestBody (RequestBodyBS body) . prepareRequest
-prepareRequestWithBody (JsonBody body) = setRequestBodyJSON body . prepareRequest
-
-
--- | A 'RequestCompiler' for requests with query strings and payloads.
-prepareRequestWithParamsAndBody :: Params -> Body a -> RequestCompiler
-prepareRequestWithParamsAndBody params body = addParams params . prepareRequestWithBody body
-
-
--- | Build request method + URL specification.
+-- | Sets the endpoint of a DECAF Client.
 --
--- >>> buildBaseRequestUrl $ DecafRequest "http://example.com" "Token XYZ" [] GET (Endpoint "/api/version/")
--- "GET http://example.com/api/version"
-buildBaseRequestUrl :: DecafRequest -> String
-buildBaseRequestUrl (DecafRequest baseUrl _ _ method endpoint) = printf "%s %s" (show method) $ buildUrl baseUrl endpoint
+-- >>> setEndpoint (Endpoint POST $ TSPath "/api/upload") $ mkDecafRequest "http://example.com" "Token XYZ" []
+-- MkDecafRequest {unDecafRequest = Request {
+--   host                 = "localhost"
+--   port                 = 80
+--   secure               = False
+--   requestHeaders       = [("Authorization","<REDACTED>"),("User-Agent","DECAF API Client/0.0.0.1 (Haskell)")]
+--   path                 = "http://example.com/api/upload/"
+--   queryString          = ""
+--   method               = "POST"
+--   proxy                = Nothing
+--   rawBody              = False
+--   redirectCount        = 10
+--   responseTimeout      = ResponseTimeoutDefault
+--   requestVersion       = HTTP/1.1
+-- }
+-- }
+setEndpoint :: Endpoint -> DecafRequest -> DecafRequest
+setEndpoint (Endpoint method path) = setMethod method . appendPath path
+
+
+-- | Sets the HTTP VERB of the 'DecafRequest'.
+--
+-- >>> setMethod POST $ mkDecafRequest "http://example.com" "Token XYZ" []
+-- MkDecafRequest {unDecafRequest = Request {
+--   host                 = "localhost"
+--   port                 = 80
+--   secure               = False
+--   requestHeaders       = [("Authorization","<REDACTED>"),("User-Agent","DECAF API Client/0.0.0.1 (Haskell)")]
+--   path                 = "http://example.com"
+--   queryString          = ""
+--   method               = "POST"
+--   proxy                = Nothing
+--   rawBody              = False
+--   redirectCount        = 10
+--   responseTimeout      = ResponseTimeoutDefault
+--   requestVersion       = HTTP/1.1
+-- }
+-- }
+setMethod :: Method -> DecafRequest -> DecafRequest
+setMethod method (MkDecafRequest request)= MkDecafRequest $ (setRequestMethod (BC.pack $ show method)) request
+
+
+-- | Appends given path to an 'DecafRequest' value and return a new 'DecafRequest' value.
+--
+-- >>> appendPath (TSPath "api/version") $ mkDecafRequest "http://example.com" "Token XYZ" []
+-- MkDecafRequest {unDecafRequest = Request {
+--   host                 = "localhost"
+--   port                 = 80
+--   secure               = False
+--   requestHeaders       = [("Authorization","<REDACTED>"),("User-Agent","DECAF API Client/0.0.0.1 (Haskell)")]
+--   path                 = "http://example.com/api/version/"
+--   queryString          = ""
+--   method               = "GET"
+--   proxy                = Nothing
+--   rawBody              = False
+--   redirectCount        = 10
+--   responseTimeout      = ResponseTimeoutDefault
+--   requestVersion       = HTTP/1.1
+-- }
+-- }
+appendPath :: Path -> DecafRequest -> DecafRequest
+appendPath path (MkDecafRequest request) = addPath' request
+  where
+    basePath' = buildUrl (BC.unpack $ H.path request) path
+    setPath' = setRequestPath . BC.pack $ basePath'
+    addPath' = MkDecafRequest . setPath'
 
 
 -- | Builds the remote URL.
 --
--- >>> buildUrl "http://example" $ TSEndpoint "/api//version/"
+-- >>> buildUrl "http://example" $ TSPath "/api//version/"
 -- "http://example/api/version/"
--- >>> buildUrl "http://example" $ TSEndpointPath ["/api/", "///", "/", "/version/"]
+-- >>> buildUrl "http://example" $ TSPathSegments ["/api/", "///", "/", "/version/"]
 -- "http://example/api/version/"
--- >>> buildUrl "http://example" $ Endpoint ""
+-- >>> buildUrl "http://example" $ Path ""
 -- "http://example"
--- >>> buildUrl "http://example" $ Endpoint "/"
+-- >>> buildUrl "http://example" $ Path "/"
 -- "http://example"
--- >>> buildUrl "http://example" $ EndpointPath []
+-- >>> buildUrl "http://example" $ PathSegments []
 -- "http://example"
--- >>> buildUrl "http://example" $ EndpointPath [""]
+-- >>> buildUrl "http://example" $ PathSegments [""]
 -- "http://example"
--- >>> buildUrl "http://example" $ EndpointPath ["/"]
+-- >>> buildUrl "http://example" $ PathSegments ["/"]
 -- "http://example"
-buildUrl :: BaseUrl -> Endpoint -> String
-buildUrl baseUrl (Endpoint endpoint) = buildUrl baseUrl $ EndpointPath $ splitWhen (== '/') endpoint
-buildUrl baseUrl (EndpointPath path) = (intercalate "/" $ baseUrl : (concat $ fmap (splitWhen (== '/')) path))
-buildUrl baseUrl (TSEndpoint endpoint) = buildUrl baseUrl $ TSEndpointPath $ splitWhen (== '/') endpoint
-buildUrl baseUrl (TSEndpointPath path) = (intercalate "/" $ baseUrl : (concat $ fmap (splitWhen (== '/')) path)) ++ "/"
+buildUrl :: BaseUrl -> Path -> String
+buildUrl baseUrl (Path path) = buildUrl baseUrl $ PathSegments $ splitWhen (== '/') path
+buildUrl baseUrl (PathSegments segments) = (intercalate "/" $ baseUrl : (concat $ fmap (splitWhen (== '/')) segments))
+buildUrl baseUrl (TSPath path) = buildUrl baseUrl $ TSPathSegments $ splitWhen (== '/') path
+buildUrl baseUrl (TSPathSegments segments) = (buildUrl baseUrl $ PathSegments segments) ++ "/"
 
 
 -- | Splits the @String@ by the given predicate.
@@ -170,66 +205,12 @@ splitWhen p s =  case dropWhile p s of
     where (w, s'') = break p s'
 
 
--- | Adds @Authorization@ header to the request.
+-- | User agent value definition for the library.
 --
--- >>> addAuthorization "Token XYZ" $ parseRequest_ "http://example"
--- Request {
---   host                 = "example"
---   port                 = 80
---   secure               = False
---   requestHeaders       = [("Authorization","<REDACTED>")]
---   path                 = "/"
---   queryString          = ""
---   method               = "GET"
---   proxy                = Nothing
---   rawBody              = False
---   redirectCount        = 10
---   responseTimeout      = ResponseTimeoutDefault
---   requestVersion       = HTTP/1.1
--- }
-addAuthorization :: B.ByteString -> Request -> Request
-addAuthorization auth = setRequestHeader "Authorization" [auth]
-
--- | Adds custom @User-Agent@ header to the request.
---
--- >>> addAgent $ parseRequest_ "http://example"
--- Request {
---   host                 = "example"
---   port                 = 80
---   secure               = False
---   requestHeaders       = [("User-Agent","DECAF API Client/0.0.0.1 (Haskell)")]
---   path                 = "/"
---   queryString          = ""
---   method               = "GET"
---   proxy                = Nothing
---   rawBody              = False
---   redirectCount        = 10
---   responseTimeout      = ResponseTimeoutDefault
---   requestVersion       = HTTP/1.1
--- }
-addAgent :: Request -> Request
-addAgent = setRequestHeader "User-Agent" [BC.pack $ printf "DECAF API Client/%s (Haskell)" version]
-
-
--- | Add query string parameters to the request.
---
--- >>> addParams [("a", "1"), ("b", "2"), ("b", "3")] $ parseRequest_ "http://example"
--- Request {
---   host                 = "example"
---   port                 = 80
---   secure               = False
---   requestHeaders       = []
---   path                 = "/"
---   queryString          = "?a=1&b=2&b=3"
---   method               = "GET"
---   proxy                = Nothing
---   rawBody              = False
---   redirectCount        = 10
---   responseTimeout      = ResponseTimeoutDefault
---   requestVersion       = HTTP/1.1
--- }
-addParams :: Params -> Request -> Request
-addParams params = setRequestQueryString $ fmap (\(x, y) -> (x, Just y)) params
+-- >>> userAgent
+-- "DECAF API Client/0.0.0.1 (Haskell)"
+userAgent :: String
+userAgent = printf "DECAF API Client/%s (Haskell)" version
 
 
 -- | Adds headers to the request.
@@ -249,7 +230,43 @@ addParams params = setRequestQueryString $ fmap (\(x, y) -> (x, Just y)) params
 --   responseTimeout      = ResponseTimeoutDefault
 --   requestVersion       = HTTP/1.1
 -- }
-addHeaders :: [Header] -> Request -> Request
-addHeaders pHeaders pRequest = case pHeaders of
-  []            -> pRequest
-  (hn, hv) : hs -> addHeaders hs (addRequestHeader hn hv pRequest)
+addHeaders :: [Header] -> DecafRequest -> DecafRequest
+addHeaders headers decafRequest@(MkDecafRequest request) = case headers of
+  []            -> decafRequest
+  (hn, hv) : hs -> addHeaders hs (MkDecafRequest (addRequestHeader hn hv request))
+
+
+-- | Add query string parameters to a 'DecafRequest'.
+--
+-- >>> addParams [("a", "1"), ("b", "2"), ("b", "3")] $ mkDecafRequest "http://example.com" "Token XYZ" []
+-- Request {
+--   host                 = "example"
+--   port                 = 80
+--   secure               = False
+--   requestHeaders       = []
+--   path                 = "/"
+--   queryString          = "?a=1&b=2&b=3"
+--   method               = "GET"
+--   proxy                = Nothing
+--   rawBody              = False
+--   redirectCount        = 10
+--   responseTimeout      = ResponseTimeoutDefault
+--   requestVersion       = HTTP/1.1
+-- }
+addParams :: Params -> DecafRequest -> DecafRequest
+addParams params (MkDecafRequest request) = MkDecafRequest $ setRequestQueryString (fmap (\(x, y) -> (x, Just y)) params) request
+
+
+-- | Adds JSON body to a 'DecafRequest'
+addJsonBody :: ToJSON a => a -> DecafRequest -> DecafRequest
+addJsonBody body (MkDecafRequest request) = MkDecafRequest $ setRequestBodyJSON body request
+
+
+-- | Attempts to perform a 'DecafRequest' that returns 'B.ByteString'.
+performRequestBS :: DecafRequest -> IO B.ByteString
+performRequestBS (MkDecafRequest request) = getResponseBody <$> httpBS request
+
+
+-- | Attempts to perform a 'DecafRequest' that returns a value decoded from a JSON response body.
+performRequestJson :: FromJSON a => DecafRequest -> IO a
+performRequestJson (MkDecafRequest request) = getResponseBody <$> httpJSON request

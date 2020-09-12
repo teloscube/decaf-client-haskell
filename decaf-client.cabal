@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fc21eb3bf87bbfcc1211c8b60a112532e379c544f34bb2ecff555be7e2ac1e62
+-- hash: 08a008636bd31ce1e0069ecd4c741ba5b994b8c5204d99b69a2fadcd1f4e9414
 
 name:           decaf-client
 version:        0.0.0.1
@@ -43,6 +43,7 @@ library
       aeson
     , base >=4.7 && <5
     , bytestring
+    , http-client
     , http-conduit
     , http-types
     , unordered-containers
@@ -60,6 +61,7 @@ executable decaf-client-exe
     , base >=4.7 && <5
     , bytestring
     , decaf-client
+    , http-client
     , http-conduit
     , http-types
     , unordered-containers
@@ -78,6 +80,7 @@ test-suite decaf-client-test
     , base >=4.7 && <5
     , bytestring
     , decaf-client
+    , http-client
     , http-conduit
     , http-types
     , unordered-containers

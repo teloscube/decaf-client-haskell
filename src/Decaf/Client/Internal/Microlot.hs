@@ -5,49 +5,42 @@
 
 module Decaf.Client.Internal.Microlot where
 
-import Data.Aeson                 (FromJSON, Object, Value, object, (.=))
-import Data.HashMap.Strict        (empty)
+import Data.Aeson                 (FromJSON, ToJSON(..), object, (.=))
 import Decaf.Client.Internal.Http
        ( Authorization
        , BaseUrl
-       , Body(JsonBody)
-       , DecafRequest(DecafRequest)
+       , DecafRequest
        , Endpoint(Endpoint)
        , Method(POST)
-       , prepareRequestWithBody
-       , requestJson
+       , Path(..)
+       , addJsonBody
+       , mkDecafRequest
+       , performRequestJson
+       , setEndpoint
        )
 
 
--- | Microlot client.
-type MicrolotClient a = (FromJSON a) => GqlQuery -> IO a
+-- | DECAF Microlot API client type.
+newtype MicrolotClient = MkMicrolotClient DecafRequest
 
 
--- | GraphQL query type.
-type Gql = String
+-- | Builds a DECAF Microlot API client.
+mkMicrolotClient :: BaseUrl -> Authorization -> MicrolotClient
+mkMicrolotClient baseUrl auth = MkMicrolotClient $ setEndpoint microlotEndpoint $ mkDecafRequest baseUrl auth []
 
 
--- | GraphQL query variables type.
-type GqlVariables = Object
+-- | Microlot request type.
+data MicrolotRequest a = ToJSON a => MkMicrolotRequest (String, a)
+
+instance ToJSON (MicrolotRequest a) where
+  toJSON (MkMicrolotRequest (gql, vars)) = object ["query" .= gql, "variables" .= vars]
 
 
--- | Data definition for GraphQL query.
-data GqlQuery = GqlQuery Gql GqlVariables | GqlJustQuery Gql
+-- | Performs a DECAF Microlot API request.
+runMicrolot :: (ToJSON a, FromJSON b) => MicrolotClient -> MicrolotRequest a -> IO b
+runMicrolot (MkMicrolotClient decafRequest) request = performRequestJson $ addJsonBody request decafRequest
 
 
--- | Creates a function which acts as a DECAF Microlot client.
-mkMicrolotClient :: (FromJSON a) => BaseUrl -> Authorization -> MicrolotClient a
-mkMicrolotClient baseUrl auth = runQuery baseRequest
-  where
-    baseRequest = DecafRequest baseUrl auth [] POST (Endpoint "/apis/microlot/v1/graphql")
-
-
--- | Auxiliary function which runs a GraphQL query over a 'DecafRequest'.
-runQuery :: (FromJSON a) => DecafRequest -> GqlQuery -> IO a
-runQuery request query = requestJson (prepareRequestWithBody $ compileGqlToBody query) request
-
-
--- | Compiles 'GqlQuery' to request body.
-compileGqlToBody :: GqlQuery -> Body Value
-compileGqlToBody (GqlJustQuery gql)  = compileGqlToBody (GqlQuery gql empty)
-compileGqlToBody (GqlQuery gql vars) = JsonBody $ object [ "query" .= gql, "variables" .= vars]
+-- | DECAF Microlot API endpoint.
+microlotEndpoint :: Endpoint
+microlotEndpoint = Endpoint POST $ Path "/apis/microlot/v1/graphql"
