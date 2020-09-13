@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 08a008636bd31ce1e0069ecd4c741ba5b994b8c5204d99b69a2fadcd1f4e9414
+-- hash: b5964949e407af6aaa0fbfbf91cb347119e7f29e605cfec9a975fc14be41e7a3
 
 name:           decaf-client
 version:        0.0.0.1
@@ -30,10 +30,11 @@ source-repository head
 library
   exposed-modules:
       Decaf.Client
+      Decaf.Client.Internal.Barista
       Decaf.Client.Internal.Http
       Decaf.Client.Internal.Microlot
+      Decaf.Client.Internal.Utils
       Decaf.Client.Version
-      Lib
   other-modules:
       Paths_decaf_client
   hs-source-dirs:
@@ -42,6 +43,7 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , base64-bytestring
     , bytestring
     , http-client
     , http-conduit
@@ -59,6 +61,7 @@ executable decaf-client-exe
   build-depends:
       aeson
     , base >=4.7 && <5
+    , base64-bytestring
     , bytestring
     , decaf-client
     , http-client
@@ -78,6 +81,7 @@ test-suite decaf-client-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , base64-bytestring
     , bytestring
     , decaf-client
     , http-client

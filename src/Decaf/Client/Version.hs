@@ -1,3 +1,4 @@
+-- | This module provides library version information.
 module Decaf.Client.Version where
 
 import           Data.Version       (showVersion)
