@@ -36,4 +36,4 @@ splitWhen p s =  case dropWhile p s of
 -- "/a"
 removeTrailingChar :: Char -> String -> String
 removeTrailingChar _ [] = []
-removeTrailingChar c x = if last x == c then removeTrailingChar c $ init x else x
+removeTrailingChar c x  = if last x == c then removeTrailingChar c $ init x else x
