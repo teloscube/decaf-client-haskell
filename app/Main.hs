@@ -1,13 +1,34 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
-import qualified Data.ByteString.Char8         as BC
-import           Decaf.Client.Internal.Barista (get, mkBaristaClient)
-import           Decaf.Client.Internal.Http    (Credentials(BasicCredentials))
-import           System.Environment            (getArgs)
+import           Data.Aeson                        (Value)
+import qualified Data.Text                         as T
+import qualified Decaf.Client.Internal.Barista     as Barista
+import           Decaf.Client.Internal.Combinators (Combinator, path)
+import qualified Decaf.Client.Internal.Microlot    as Microlot
+import           Decaf.Client.Internal.Types       (Credentials(BasicCredentials))
+import           System.Environment                (getArgs)
+import           System.Exit                       (die)
 
 
 main :: IO ()
 main = do
   args <- getArgs
-  let client = mkBaristaClient (args !! 0) (BasicCredentials (BC.pack $ args !! 1) (BC.pack $ args !! 2))
-  BC.putStrLn =<< get [] ["version"] [] client
+  let ebclient = Barista.mkClient (T.pack $ args !! 0) (BasicCredentials (T.pack $ args !! 1) (T.pack $ args !! 2))
+  case ebclient of
+    Left err     -> die $ err ++ "\nExiting..."
+    Right client -> print client >> (print =<< (Barista.runClient' baristaVersion client :: IO Value))
+
+  let emclient = Microlot.mkClient (T.pack $ args !! 0) (BasicCredentials (T.pack $ args !! 1) (T.pack $ args !! 2))
+  case emclient of
+    Left err     -> die $ err ++ "\nExiting..."
+    Right client -> print client >> (print =<< (Microlot.runClient microlotPrincipals client :: IO Value))
+
+
+microlotPrincipals :: Microlot.MicrolotQuery Value
+microlotPrincipals = Microlot.mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }"
+
+
+baristaVersion :: Combinator
+baristaVersion = path "version"

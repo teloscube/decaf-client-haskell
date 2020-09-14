@@ -1,89 +1,63 @@
 -- | This module provides a DECAF Barista API client implementation.
+--
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
 
 module Decaf.Client.Internal.Barista where
 
-import           Data.Aeson                 (FromJSON, ToJSON)
-import qualified Data.ByteString            as B
-import qualified Decaf.Client.Internal.Http as H
+import           Data.Aeson                        (FromJSON)
+import qualified Data.ByteString                   as B
+import qualified Data.Text                         as T
+import qualified Decaf.Client.Internal.Combinators as IC
+import qualified Decaf.Client.Internal.Http        as IH
+import qualified Decaf.Client.Internal.Request     as IR
+import qualified Decaf.Client.Internal.Types       as IT
 
 
 -- | DECAF Barista API client type.
-newtype BaristaClient = MkBaristaClient { unBaristaClient :: H.Request }
+newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } deriving Show
 
 
--- | Builds a DECAF Barista API client.
-mkBaristaClient :: H.Url -> H.Credentials -> BaristaClient
-mkBaristaClient baseUrl credentials = MkBaristaClient request
-  where
-    auth = H.mkAuthorization credentials
-    request = H.setEndpoint baristaEndpoint $ H.mkRequest (H.mkBaseUrl baseUrl) auth []
+-- | Attempts to build a 'BaristaClient' with the given DECAF deployment and credentials information.
+--
+-- >>> mkClient "https://example.com" (IT.HeaderCredentials "OUCH")
+-- Right (MkBaristaClient {unBaristaClient = Request {
+--   requestHost              = "example.com"
+--   requestPort              = Nothing
+--   requestNamespace         = MkPath {unPath = ["api"]}
+--   requestIsSecure          = True
+--   requestCredentials       = <********>
+--   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestHttpHeaders       = [("X-DECAF-URL","https://example.com")]
+--   requestHttpMethod        = GET
+--   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpTrailingSlash = True
+--   requestHttpParams        = []
+--   requestHttpPayload       = Nothing
+-- }
+-- })
+mkClient :: T.Text -> IT.Credentials -> Either String BaristaClient
+mkClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequest d c
 
 
-modifyClient :: (H.Request -> H.Request) -> BaristaClient -> BaristaClient
-modifyClient modifier = MkBaristaClient . modifier . unBaristaClient
+runClient :: IC.Combinator -> BaristaClient -> IO B.ByteString
+runClient cmb cli = IH.runRequest $ mkRequest cmb cli
+
+runClient' :: FromJSON a => IC.Combinator -> BaristaClient -> IO a
+runClient' cmb cli = IH.runRequest' $ mkRequest cmb cli
 
 
-mkPath :: [String] -> H.Path
-mkPath = H.mkPath True
+--------------------
+-- BEGIN INTERNAL --
+--------------------
 
 
-setEndpoint :: H.Method -> [String] -> BaristaClient -> BaristaClient
-setEndpoint method path = modifyClient $ H.setEndpoint (H.Endpoint method (mkPath path))
+-- | Builds an 'IT.Request' from a 'BaristaClient' while applying a 'IC.Combinator'.
+mkRequest :: IC.Combinator -> BaristaClient -> IT.Request
+mkRequest c = c . unBaristaClient
 
 
-setParams :: H.Params -> BaristaClient -> BaristaClient
-setParams = modifyClient . H.setParams
-
-
-addParams :: H.Params -> BaristaClient -> BaristaClient
-addParams = modifyClient . H.addParams
-
-
-addHeaders :: H.Headers -> BaristaClient -> BaristaClient
-addHeaders = modifyClient . H.addHeaders
-
-
-addPath :: [String] -> BaristaClient -> BaristaClient
-addPath = modifyClient . H.addPath . H.mkPath True
-
-
--- | Add 'ByteString' payload to 'Request' along with its content-type.
-addPayload :: H.ContentType -> B.ByteString -> BaristaClient -> BaristaClient
-addPayload ctype = modifyClient . H.addPayload ctype
-
-
--- | Add JSON payload to 'Request'.
-addJsonPayload :: ToJSON a =>  a -> BaristaClient -> BaristaClient
-addJsonPayload = modifyClient . H.addJsonPayload
-
-
--- | Attempts to perform a Barista request that returns 'B.ByteString'.
-perform :: BaristaClient -> IO B.ByteString
-perform (MkBaristaClient request) = H.perform request
-
-
--- | Attempts to perform a Barista request that returns returns a value decoded from a JSON response body.
-performJson :: FromJSON a => BaristaClient -> IO a
-performJson (MkBaristaClient request) = H.performJson request
-
-
--- | Prepares a get request.
-prepareGet :: H.Params ->  [String] -> H.Headers -> BaristaClient -> BaristaClient
-prepareGet params path headers = addParams params . setEndpoint H.GET path . addHeaders headers
-
--- | Attempt to perform a GET request.
-get :: H.Params ->  [String] -> H.Headers -> BaristaClient -> IO B.ByteString
-get params path headers = perform . prepareGet params path headers
-
-
--- | Attempt to perform a GET request that returns a value decoded from the JSON response body.
-getJson :: FromJSON a => H.Params -> [String] -> H.Headers -> BaristaClient -> IO a
-getJson params path headers = performJson . prepareGet params path headers
-
-
--- | Base Barista endpoint.
-baristaEndpoint :: H.Endpoint
-baristaEndpoint = H.Endpoint H.GET (mkPath ["api"])
+------------------
+-- END INTERNAL --
+------------------
