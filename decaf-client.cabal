@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1a54ab1343dc25cf9cab04db08ee4e15ba4e732b324dce59a965e03fb3a94e65
+-- hash: 8fc30d602a6226f269e446181dc5b64f5991a1a25784666c9532a8abfd14d1d6
 
 name:           decaf-client
 version:        0.0.0.1
@@ -71,6 +71,30 @@ executable decaf-client-exe
     , bytestring
     , case-insensitive
     , decaf-client
+    , http-client
+    , http-conduit
+    , http-types
+    , network-uri
+    , text
+    , unordered-containers
+  default-language: Haskell2010
+
+test-suite decaf-client-doctest
+  type: exitcode-stdio-1.0
+  main-is: doctest.hs
+  other-modules:
+      Paths_decaf_client
+  hs-source-dirs:
+      ./.
+  ghc-options: -threaded
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , case-insensitive
+    , decaf-client
+    , doctest
     , http-client
     , http-conduit
     , http-types

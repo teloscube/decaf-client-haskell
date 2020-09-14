@@ -5,8 +5,9 @@
 
 module Decaf.Client.Internal.Types where
 
-import qualified Data.ByteString.Lazy as BL
-import qualified Data.Text            as T
+import qualified Data.ByteString.Lazy        as BL
+import qualified Data.Text                   as T
+import           Decaf.Client.Internal.Utils (dropTrailing)
 
 
 data Request = Request
@@ -25,7 +26,7 @@ data Request = Request
   }
 
 instance Show Request where
-  show x = unlines
+  show x = dropTrailing '\n' $ unlines
     [ "Request {"
     , "  requestHost              = " ++ show (requestHost x)
     , "  requestPort              = " ++ show (requestPort x)

@@ -55,3 +55,12 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+
+  decaf-client-doctest:
+    main:                doctest.hs
+    source-dirs:         .
+    ghc-options:
+    - -threaded
+    dependencies:
+    - decaf-client
+    - doctest

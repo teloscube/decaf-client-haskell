@@ -35,8 +35,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestHttpTrailingSlash = True
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
--- }
--- })
+-- }})
 mkClient :: T.Text -> IT.Credentials -> Either String BaristaClient
 mkClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequest d c
 

@@ -34,8 +34,7 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } der
 --   requestHttpTrailingSlash = False
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
--- }
--- })
+-- }})
 mkClient :: T.Text -> IT.Credentials -> Either String MicrolotClient
 mkClient d c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot/v1/graphql" . IC.withoutTrailingSlash <$> IR.initRequest d c
 

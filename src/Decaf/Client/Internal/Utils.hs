@@ -37,7 +37,7 @@ splitWhen p s =  case dropWhile p s of
 -- >>> dropLeading ':' ":a:"
 -- "a:"
 -- >>> dropLeading ':' "::a::"
--- "da::"
+-- "a::"
 dropLeading :: Eq a => a -> [a] -> [a]
 dropLeading c = dropWhile (c ==)
 
