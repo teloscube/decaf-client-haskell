@@ -4,9 +4,16 @@ module Main where
 
 import           Data.Aeson                        (Value)
 import qualified Data.Text                         as T
-import qualified Decaf.Client.Internal.Barista     as Barista
+import           Decaf.Client.Internal.Barista     (mkBaristaClient, runBarista)
 import           Decaf.Client.Internal.Combinators (Combinator, path)
-import qualified Decaf.Client.Internal.Microlot    as Microlot
+import           Decaf.Client.Internal.Microlot
+                 ( MicrolotQuery
+                 , MicrolotResponse
+                 , mkMicrolotClient
+                 , mkMicrolotQuery'
+                 , runMicrolot
+                 )
+import           Decaf.Client.Internal.Response    (Response)
 import           Decaf.Client.Internal.Types       (Credentials(BasicCredentials))
 import           System.Environment                (getArgs)
 import           System.Exit                       (die)
@@ -15,19 +22,23 @@ import           System.Exit                       (die)
 main :: IO ()
 main = do
   args <- getArgs
-  let ebclient = Barista.mkClient (T.pack $ args !! 0) (BasicCredentials (T.pack $ args !! 1) (T.pack $ args !! 2))
+  let deployment = (T.pack $ args !! 0)
+  let username = (T.pack $ args !! 1)
+  let password = (T.pack $ args !! 2)
+  let credentials = (BasicCredentials username password)
+  let ebclient = mkBaristaClient deployment credentials
   case ebclient of
     Left err     -> die $ err ++ "\nExiting..."
-    Right client -> print client >> (print =<< (Barista.runClient' baristaVersion client :: IO Value))
+    Right client -> print client >> (print =<< (runBarista baristaVersion client :: IO (Response Value)))
 
-  let emclient = Microlot.mkClient (T.pack $ args !! 0) (BasicCredentials (T.pack $ args !! 1) (T.pack $ args !! 2))
+  let emclient = mkMicrolotClient deployment credentials
   case emclient of
     Left err     -> die $ err ++ "\nExiting..."
-    Right client -> print client >> (print =<< (Microlot.runClient microlotPrincipals client :: IO Value))
+    Right client -> print client >> (print =<< (runMicrolot microlotPrincipals client :: IO (Response (MicrolotResponse Value))))
 
 
-microlotPrincipals :: Microlot.MicrolotQuery Value
-microlotPrincipals = Microlot.mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }"
+microlotPrincipals :: MicrolotQuery Value
+microlotPrincipals = mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }"
 
 
 baristaVersion :: Combinator

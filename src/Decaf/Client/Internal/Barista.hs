@@ -6,12 +6,14 @@
 
 module Decaf.Client.Internal.Barista where
 
+import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson                        (FromJSON)
 import qualified Data.ByteString                   as B
 import qualified Data.Text                         as T
 import qualified Decaf.Client.Internal.Combinators as IC
 import qualified Decaf.Client.Internal.Http        as IH
 import qualified Decaf.Client.Internal.Request     as IR
+import qualified Decaf.Client.Internal.Response    as IV
 import qualified Decaf.Client.Internal.Types       as IT
 
 
@@ -21,7 +23,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 
 -- | Attempts to build a 'BaristaClient' with the given DECAF deployment and credentials information.
 --
--- >>> mkClient "https://example.com" (IT.HeaderCredentials "OUCH")
+-- >>> mkBaristaClient "https://example.com" (IT.HeaderCredentials "OUCH")
 -- Right (MkBaristaClient {unBaristaClient = Request {
 --   requestHost              = "example.com"
 --   requestPort              = Nothing
@@ -36,15 +38,20 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkClient :: T.Text -> IT.Credentials -> Either String BaristaClient
-mkClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequest d c
+mkBaristaClient :: T.Text -> IT.Credentials -> Either String BaristaClient
+mkBaristaClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequest d c
 
 
-runClient :: IC.Combinator -> BaristaClient -> IO B.ByteString
-runClient cmb cli = IH.runRequest $ mkRequest cmb cli
+-- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
+-- returns a 'IV.Response' value JSON-decoded from the response body.
+runBarista :: (MonadIO m, FromJSON a) => IC.Combinator -> BaristaClient -> m (IV.Response a)
+runBarista cmb cli = IH.runRequest $ mkRequest cmb cli
 
-runClient' :: FromJSON a => IC.Combinator -> BaristaClient -> IO a
-runClient' cmb cli = IH.runRequest' $ mkRequest cmb cli
+
+-- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
+-- returns a 'Response' with 'B.ByteString' value.
+runBaristaBS :: MonadIO m => IC.Combinator -> BaristaClient -> m (IV.Response B.ByteString)
+runBaristaBS cmb cli = IH.runRequestBS $ mkRequest cmb cli
 
 
 --------------------
