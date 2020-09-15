@@ -178,3 +178,8 @@ setNoPayload request = request { requestHttpPayload = Nothing }
 
 noPayload :: Combinator
 noPayload = setNoPayload
+
+
+-- TODO: See and follow https://github.com/haskell/haddock/issues/958
+dummyDef :: ()
+dummyDef = undefined
