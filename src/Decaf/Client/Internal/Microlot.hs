@@ -25,7 +25,6 @@ import qualified Data.Text                         as T
 import qualified Decaf.Client.Internal.Combinators as IC
 import qualified Decaf.Client.Internal.Http        as IH
 import qualified Decaf.Client.Internal.Request     as IR
-import qualified Decaf.Client.Internal.Response    as IV
 import qualified Decaf.Client.Internal.Types       as IT
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
@@ -60,7 +59,7 @@ mkMicrolotClient d c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 
 -- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
 -- returns a 'IV.Response' value JSON-decoded from the response body.
-runMicrolot :: (MonadIO m, ToJSON a, Show b, FromJSON b) => MicrolotQuery a -> MicrolotClient-> m (IV.Response (MicrolotResponse b))
+runMicrolot :: (MonadIO m, ToJSON a, Show b, FromJSON b) => MicrolotQuery a -> MicrolotClient-> m (IT.Response (MicrolotResponse b))
 runMicrolot query cli = IH.runRequest $ mkRequest (IC.jsonPayload query) cli
 
 

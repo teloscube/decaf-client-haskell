@@ -5,28 +5,27 @@
 
 module Decaf.Client.Internal.Http where
 
-import           Control.Monad.IO.Class         (MonadIO)
-import           Data.Aeson                     (FromJSON)
-import qualified Data.ByteString                as B
-import           Data.ByteString.Base64         (encode)
-import qualified Data.ByteString.Char8          as BC
-import qualified Data.CaseInsensitive           as CI
-import           Data.Maybe                     (fromMaybe)
-import qualified Data.Text.Encoding             as TE
-import           Decaf.Client.Internal.Response (Response(..))
-import qualified Decaf.Client.Internal.Types    as IT
-import           Decaf.Client.Internal.Utils    (compose)
-import qualified Network.HTTP.Client            as H
-import qualified Network.HTTP.Simple            as HS
+import           Control.Monad.IO.Class      (MonadIO)
+import           Data.Aeson                  (FromJSON)
+import qualified Data.ByteString             as B
+import           Data.ByteString.Base64      (encode)
+import qualified Data.ByteString.Char8       as BC
+import qualified Data.CaseInsensitive        as CI
+import           Data.Maybe                  (fromMaybe)
+import qualified Data.Text.Encoding          as TE
+import qualified Decaf.Client.Internal.Types as IT
+import           Decaf.Client.Internal.Utils (compose)
+import qualified Network.HTTP.Client         as H
+import qualified Network.HTTP.Simple         as HS
 
 
 -- | Runs a request and returns a 'Response' value JSON-decoded from the response body.
-runRequest :: (MonadIO m, FromJSON a) => IT.Request -> m (Response a)
+runRequest :: (MonadIO m, FromJSON a) => IT.Request -> m (IT.Response a)
 runRequest r = mkResponse <$> (HS.httpJSON . compileRequest) r
 
 
 -- | Runs a request and returns a 'Response' with 'B.ByteString' value.
-runRequestBS :: MonadIO m => IT.Request -> m (Response B.ByteString)
+runRequestBS :: MonadIO m => IT.Request -> m (IT.Response B.ByteString)
 runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 
 
@@ -35,8 +34,8 @@ runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 --------------------
 
 
-mkResponse :: HS.Response a -> Response a
-mkResponse = Response
+mkResponse :: HS.Response a -> IT.Response a
+mkResponse = IT.Response
   <$> HS.getResponseStatusCode
   <*> (fmap (\(x, y) -> (TE.decodeUtf8 . CI.foldedCase $ x, TE.decodeUtf8 y)) . HS.getResponseHeaders)
   <*> HS.getResponseBody

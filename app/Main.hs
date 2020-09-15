@@ -13,8 +13,7 @@ import           Decaf.Client.Internal.Microlot
                  , mkMicrolotQuery'
                  , runMicrolot
                  )
-import           Decaf.Client.Internal.Response    (Response)
-import           Decaf.Client.Internal.Types       (Credentials(BasicCredentials))
+import           Decaf.Client.Internal.Types       (Credentials(BasicCredentials), Response)
 import           System.Environment                (getArgs)
 import           System.Exit                       (die)
 

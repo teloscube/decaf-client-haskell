@@ -44,6 +44,14 @@ instance Show Request where
     ]
 
 
+-- | Data definition for DECAF API response values.
+data Response a = Response
+  { responseStatus  :: !Int
+  , responseHeaders :: Headers
+  , responseValue   :: !a
+  } deriving Show
+
+
 type Header = (T.Text, T.Text)
 
 
