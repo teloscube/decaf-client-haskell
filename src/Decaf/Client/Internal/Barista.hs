@@ -1,6 +1,7 @@
 -- | This module provides a DECAF Barista API client implementation.
 --
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
 
@@ -37,7 +38,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClient :: T.Text -> IT.Credentials -> Either String BaristaClient
+mkBaristaClient :: IR.RequestErrorM m => T.Text -> IT.Credentials -> m BaristaClient
 mkBaristaClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequest d c
 
 

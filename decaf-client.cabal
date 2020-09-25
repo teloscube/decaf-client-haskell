@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8fc30d602a6226f269e446181dc5b64f5991a1a25784666c9532a8abfd14d1d6
+-- hash: 35e12c96473759a879f94b094cd786a42d2791ebedc5e2fda1e5f002bc82a916
 
 name:           decaf-client
 version:        0.0.0.1
@@ -52,6 +52,7 @@ library
     , http-client
     , http-conduit
     , http-types
+    , mtl
     , network-uri
     , text
     , unordered-containers
@@ -74,7 +75,9 @@ executable decaf-client-exe
     , http-client
     , http-conduit
     , http-types
+    , mtl
     , network-uri
+    , optparse-applicative
     , text
     , unordered-containers
   default-language: Haskell2010
@@ -98,6 +101,7 @@ test-suite decaf-client-doctest
     , http-client
     , http-conduit
     , http-types
+    , mtl
     , network-uri
     , text
     , unordered-containers
@@ -121,6 +125,7 @@ test-suite decaf-client-test
     , http-client
     , http-conduit
     , http-types
+    , mtl
     , network-uri
     , text
     , unordered-containers

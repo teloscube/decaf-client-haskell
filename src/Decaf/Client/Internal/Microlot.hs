@@ -1,7 +1,8 @@
-{-# LANGUAGE DeriveGeneric             #-}
 -- | This module provides a DECAF Microlot client implementation.
 --
+{-# LANGUAGE DeriveGeneric             #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE OverloadedStrings         #-}
 {-# LANGUAGE RankNTypes                #-}
 
@@ -53,7 +54,7 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } der
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkMicrolotClient :: T.Text -> IT.Credentials -> Either String MicrolotClient
+mkMicrolotClient :: IR.RequestErrorM m => T.Text -> IT.Credentials -> m MicrolotClient
 mkMicrolotClient d c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot/v1/graphql" . IC.withoutTrailingSlash <$> IR.initRequest d c
 
 

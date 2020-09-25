@@ -24,6 +24,7 @@ dependencies:
 - http-client
 - http-conduit
 - http-types
+- mtl
 - network-uri
 - text
 - unordered-containers
@@ -44,6 +45,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - optparse-applicative
 
 tests:
   decaf-client-test:
