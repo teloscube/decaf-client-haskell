@@ -4,16 +4,7 @@ module Main where
 
 import           Data.Aeson                        (Value)
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Barista     (mkBaristaClient, runBarista)
-import           Decaf.Client.Internal.Combinators (Combinator, path)
-import           Decaf.Client.Internal.Microlot
-                 ( MicrolotQuery
-                 , MicrolotResponse
-                 , mkMicrolotClient
-                 , mkMicrolotQuery'
-                 , runMicrolot
-                 )
-import           Decaf.Client.Internal.Types       (Credentials(BasicCredentials), Response)
+import           Decaf.Client
 import           System.Environment                (getArgs)
 import           System.Exit                       (die)
 
@@ -21,24 +12,9 @@ import           System.Exit                       (die)
 main :: IO ()
 main = do
   args <- getArgs
-  let deployment = (T.pack $ args !! 0)
-  let username = (T.pack $ args !! 1)
-  let password = (T.pack $ args !! 2)
-  let credentials = (BasicCredentials username password)
-  let ebclient = mkBaristaClient deployment credentials
-  case ebclient of
+  let eClient = mkDecafClient (T.pack $ args !! 0) (BasicCredentials (T.pack $ args !! 1) (T.pack $ args !! 2))
+  case eClient of
     Left err     -> die $ err ++ "\nExiting..."
-    Right client -> print client >> (print =<< (runBarista baristaVersion client :: IO (Response Value)))
-
-  let emclient = mkMicrolotClient deployment credentials
-  case emclient of
-    Left err     -> die $ err ++ "\nExiting..."
-    Right client -> print client >> (print =<< (runMicrolot microlotPrincipals client :: IO (Response (MicrolotResponse Value))))
-
-
-microlotPrincipals :: MicrolotQuery Value
-microlotPrincipals = mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }"
-
-
-baristaVersion :: Combinator
-baristaVersion = path "version"
+    Right (DecafClient barista microlot) -> do
+      (print =<< (runBarista (path "version") barista :: IO (Response Value)))
+      (print =<< (runMicrolot (mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }") microlot :: IO (Response (MicrolotResponse Value))))
