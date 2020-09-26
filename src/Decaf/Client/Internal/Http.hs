@@ -52,9 +52,7 @@ compileRequest request = compiler request HS.defaultRequest
 
 compiler :: RequestFieldSetter
 compiler r = compose $ fmap (\x -> x r)
-   [ setHost
-   , setPort
-   , setSecure
+   [ setRemote
    , setMethod
    , setPath
    , setHeaders
@@ -63,16 +61,13 @@ compiler r = compose $ fmap (\x -> x r)
    ]
 
 
-setHost :: RequestFieldSetter
-setHost = HS.setRequestHost . TE.encodeUtf8 . IT.requestHost
-
-
-setPort :: RequestFieldSetter
-setPort r = HS.setRequestPort . fromMaybe (if IT.requestIsSecure r then 443 else 80) $ IT.requestPort r
-
-
-setSecure :: RequestFieldSetter
-setSecure = HS.setRequestSecure . IT.requestIsSecure
+setRemote :: RequestFieldSetter
+setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure s'
+  where
+    r' = IT.requestRemote r
+    h' = TE.encodeUtf8 $ IT.remoteHost r'
+    p' = fromMaybe (if IT.remoteSecure r' then 443 else 80) $ IT.remotePort r'
+    s' = IT.remoteSecure r'
 
 
 setMethod :: RequestFieldSetter

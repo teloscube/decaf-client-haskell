@@ -16,6 +16,7 @@ import           Decaf.Client.Internal.Types
                  , Params
                  , Path
                  , Payload(Payload)
+                 , Remote
                  , Request(..)
                  , mkPath
                  )
@@ -25,20 +26,12 @@ import           Decaf.Client.Internal.Types
 type Combinator = Request -> Request
 
 
-setHost :: T.Text -> Combinator
-setHost h request = request { requestHost = h }
+setRemote :: Remote -> Combinator
+setRemote h request = request { requestRemote = h }
 
 
-host :: T.Text -> Combinator
-host = setHost
-
-
-setPort :: Maybe Int -> Combinator
-setPort p request = request { requestPort = p }
-
-
-port :: Maybe Int -> Combinator
-port = setPort
+remote :: Remote -> Combinator
+remote = setRemote
 
 
 setNamespace :: Path -> Combinator
@@ -47,14 +40,6 @@ setNamespace n request = request { requestNamespace = n }
 
 namespace :: T.Text -> Combinator
 namespace = setNamespace . mkPath
-
-
-setSecure :: Bool -> Combinator
-setSecure s request = request { requestIsSecure = s }
-
-
-secure :: Bool -> Combinator
-secure = setSecure
 
 
 setCredentials :: Credentials -> Combinator

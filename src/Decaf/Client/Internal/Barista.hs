@@ -23,23 +23,21 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 
 -- | Attempts to build a 'BaristaClient' with the given DECAF deployment and credentials information.
 --
--- >>> mkBaristaClient "https://example.com" (IT.HeaderCredentials "OUCH")
+-- >>> mkBaristaClient "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError BaristaClient
 -- Right (MkBaristaClient {unBaristaClient = Request {
---   requestHost              = "example.com"
---   requestPort              = Nothing
+--   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
---   requestIsSecure          = True
 --   requestCredentials       = <********>
 --   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
---   requestHttpHeaders       = [("X-DECAF-URL","https://example.com")]
+--   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
 --   requestHttpTrailingSlash = True
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClient :: IR.RequestErrorM m => T.Text -> IT.Credentials -> m BaristaClient
-mkBaristaClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequest d c
+mkBaristaClient :: IT.DecafClientM m => T.Text -> IT.Credentials -> m BaristaClient
+mkBaristaClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequestM d c
 
 
 -- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and

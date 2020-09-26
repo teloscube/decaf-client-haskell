@@ -1,20 +1,63 @@
 -- | This module provides types and functions to transcode DECAF API requests.
 --
+{-# LANGUAGE ConstraintKinds           #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE OverloadedStrings         #-}
 
 module Decaf.Client.Internal.Types where
 
+import           Control.Monad.Except        (MonadError, throwError)
 import qualified Data.ByteString.Lazy        as BL
+import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
 import           Decaf.Client.Internal.Utils (dropTrailing)
+import           Text.Printf                 (printf)
+
+
+-- | Type definition for DECAF client errors.
+newtype DecafClientError = DecafClientError String deriving (Show)
+
+
+-- | Type client monad.
+type DecafClientM m = (MonadError DecafClientError m)
+
+
+-- | Throws a DECAF client error.
+--
+-- >>> throwDecafClientError "Invalid request" :: Either DecafClientError ()
+-- Left (DecafClientError "Invalid request")
+throwDecafClientError :: DecafClientM m => String -> m a
+throwDecafClientError = throwError . DecafClientError
+
+
+-- | Type definition for addressing a remote deployment.
+--
+-- >>> Remote "example.com" Nothing False
+-- [http]://[example.com]:[80]
+-- >>> Remote "example.com" Nothing True
+-- [https]://[example.com]:[443]
+-- >>> Remote "example.com" (Just 8080) False
+-- [http]://[example.com]:[8080]
+-- >>> Remote "example.com" (Just 8443) True
+-- [https]://[example.com]:[8443]
+data Remote = Remote
+  { remoteHost   :: !T.Text
+  , remotePort   :: !(Maybe Int)
+  , remoteSecure :: !Bool
+  }
+
+instance Show Remote where
+  show (Remote h p s) = printf "[%s]://[%s]:[%d]" s' h' p'
+    where
+      s' = (if s then "https" else "http") :: String
+      h' = T.unpack h
+      p' = fromMaybe (if s then 443 else 80) p
 
 
 data Request = Request
-  { requestHost              :: !T.Text
-  , requestPort              :: !(Maybe Int)
+  { requestRemote            :: !Remote
   , requestNamespace         :: !Path
-  , requestIsSecure          :: !Bool
   , requestCredentials       :: !Credentials
   , requestUserAgent         :: !T.Text
   , requestHttpHeaders       :: !Headers
@@ -28,10 +71,8 @@ data Request = Request
 instance Show Request where
   show x = dropTrailing '\n' $ unlines
     [ "Request {"
-    , "  requestHost              = " ++ show (requestHost x)
-    , "  requestPort              = " ++ show (requestPort x)
+    , "  requestRemote            = " ++ show (requestRemote x)
     , "  requestNamespace         = " ++ show (requestNamespace x)
-    , "  requestIsSecure          = " ++ show (requestIsSecure x)
     , "  requestCredentials       = " ++ show (requestCredentials x)
     , "  requestUserAgent         = " ++ show (requestUserAgent x)
     , "  requestHttpHeaders       = " ++ show (requestHttpHeaders x)

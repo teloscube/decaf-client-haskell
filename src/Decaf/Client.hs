@@ -7,8 +7,6 @@ module Decaf.Client
 
     DecafClient(..)
   , mkDecafClient
-  , RequestError
-  , RequestErrorM
 
     -- * Barista Client
 
@@ -43,7 +41,6 @@ import Decaf.Client.Internal.Barista
 import Decaf.Client.Internal.Combinators hiding (dummyDef)
 import Decaf.Client.Internal.Microlot
 import Decaf.Client.Internal.Types       hiding (mkPath)
-import Decaf.Client.Internal.Request
 
 
 -- | Data definition for a collection of various DECAF API clients.
@@ -55,5 +52,5 @@ data DecafClient = DecafClient
 
 -- | Attempts to build a 'DecafClient' with given remote DECAF deployment URL
 -- and authentication credentials.
-mkDecafClient :: RequestErrorM m => Text -> Credentials -> m DecafClient
+mkDecafClient :: DecafClientM m => Text -> Credentials -> m DecafClient
 mkDecafClient d c = DecafClient <$> mkBaristaClient d c <*> mkMicrolotClient d c
