@@ -25,8 +25,8 @@ import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
 import qualified Decaf.Client.Internal.Combinators as IC
 import qualified Decaf.Client.Internal.Http        as IH
+import qualified Decaf.Client.Internal.Remote      as IRemote
 import qualified Decaf.Client.Internal.Request     as IR
-import qualified Decaf.Client.Internal.Remote     as IRemote
 import qualified Decaf.Client.Internal.Types       as IT
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)

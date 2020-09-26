@@ -235,7 +235,7 @@ noPayload = setNoPayload
 
 
 -- | /Dummy definition./
--- 
+--
 -- __TODO:__ See and follow https://github.com/haskell/haddock/issues/958
 _dummyDef :: ()
 _dummyDef = undefined

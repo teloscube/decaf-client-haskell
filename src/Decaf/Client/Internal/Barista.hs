@@ -13,8 +13,8 @@ import qualified Data.ByteString                   as B
 import qualified Data.Text                         as T
 import qualified Decaf.Client.Internal.Combinators as IC
 import qualified Decaf.Client.Internal.Http        as IH
-import qualified Decaf.Client.Internal.Request     as IR
 import qualified Decaf.Client.Internal.Remote      as IRemote
+import qualified Decaf.Client.Internal.Request     as IR
 import qualified Decaf.Client.Internal.Types       as IT
 
 

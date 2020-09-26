@@ -46,13 +46,13 @@ main = program =<< mkDecafClient' =<< execParser opts
 
 program :: DecafClient -> IO ()
 program (DecafClient barista microlot) = do
-  (print =<< (runBarista (path "version") barista :: IO (Response Value)))
-  (print =<< (runMicrolot (mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }") microlot :: IO (Response (MicrolotResponse Value))))
+  print =<< (runBarista (path "version") barista :: IO (Response Value))
+  print =<< (runMicrolot (mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }") microlot :: IO (Response (MicrolotResponse Value)))
 
 
 mkDecafClient' :: (T.Text, T.Text, T.Text) -> IO DecafClient
 mkDecafClient' (d, u, p) = case mkDecafClient d (BasicCredentials u p) of
-  Left err -> die $ (show err) ++ "\nExiting..."
+  Left err -> die $ show err ++ "\nExiting..."
   Right dc -> pure dc
 
 
