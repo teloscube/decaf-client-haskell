@@ -14,6 +14,7 @@ import qualified Data.Text                         as T
 import qualified Decaf.Client.Internal.Combinators as IC
 import qualified Decaf.Client.Internal.Http        as IH
 import qualified Decaf.Client.Internal.Request     as IR
+import qualified Decaf.Client.Internal.Remote      as IRemote
 import qualified Decaf.Client.Internal.Types       as IT
 
 
@@ -21,9 +22,28 @@ import qualified Decaf.Client.Internal.Types       as IT
 newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } deriving Show
 
 
--- | Attempts to build a 'BaristaClient' with the given DECAF deployment and credentials information.
+-- | Builds a 'BaristaClient' with the given DECAF deployment 'Remote' and credentials.
 --
--- >>> mkBaristaClient "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError BaristaClient
+-- >>> mkBaristaClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: BaristaClient
+-- MkBaristaClient {unBaristaClient = Request {
+--   requestRemote            = [https]://[example.com]:[443]
+--   requestNamespace         = MkPath {unPath = ["api"]}
+--   requestCredentials       = <********>
+--   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
+--   requestHttpMethod        = GET
+--   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpTrailingSlash = True
+--   requestHttpParams        = []
+--   requestHttpPayload       = Nothing
+-- }}
+mkBaristaClient :: IT.Remote -> IT.Credentials -> BaristaClient
+mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash $ IR.initRequest r c
+
+
+-- | Attempts to build a 'BaristaClient' with the given DECAF deployment URL and credentials.
+--
+-- >>> mkBaristaClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError BaristaClient
 -- Right (MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
@@ -36,8 +56,8 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClient :: IT.DecafClientM m => T.Text -> IT.Credentials -> m BaristaClient
-mkBaristaClient d c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash <$> IR.initRequestM d c
+mkBaristaClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m BaristaClient
+mkBaristaClientM d c = (`mkBaristaClient` c) <$> IRemote.parseRemote d
 
 
 -- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and

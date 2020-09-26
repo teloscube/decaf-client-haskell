@@ -26,6 +26,7 @@ import qualified Data.Text                         as T
 import qualified Decaf.Client.Internal.Combinators as IC
 import qualified Decaf.Client.Internal.Http        as IH
 import qualified Decaf.Client.Internal.Request     as IR
+import qualified Decaf.Client.Internal.Remote     as IRemote
 import qualified Decaf.Client.Internal.Types       as IT
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
@@ -37,10 +38,10 @@ import           GHC.Generics                      (Generic)
 newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } deriving Show
 
 
--- | Attempts to build a 'MicrolotClient' with the given DECAF deployment and credentials information.
+-- | Builds a 'MicrolotClient' with the given DECAF deployment 'Remote' and credentials.
 --
--- >>> mkMicrolotClient "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError MicrolotClient
--- Right (MkMicrolotClient {unMicrolotClient = Request {
+-- >>> mkMicrolotClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: MicrolotClient
+-- MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
@@ -51,9 +52,28 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } der
 --   requestHttpTrailingSlash = False
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
+-- }}
+mkMicrolotClient :: IT.Remote -> IT.Credentials -> MicrolotClient
+mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot/v1/graphql" . IC.withoutTrailingSlash $ IR.initRequest r c
+
+
+-- | Attempts to build a 'MicrolotClient' with the given DECAF deployment URL and credentials.
+--
+-- >>> mkMicrolotClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError MicrolotClient
+-- Right (MkMicrolotClient {unMicrolotClient = Request {
+--   requestRemote            = [https]://[aexample.com]:[443]
+--   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
+--   requestCredentials       = <********>
+--   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestHttpHeaders       = [("X-DECAF-URL","https://aexample.com:443")]
+--   requestHttpMethod        = POST
+--   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpTrailingSlash = False
+--   requestHttpParams        = []
+--   requestHttpPayload       = Nothing
 -- }})
-mkMicrolotClient :: IT.DecafClientM m => T.Text -> IT.Credentials -> m MicrolotClient
-mkMicrolotClient d c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot/v1/graphql" . IC.withoutTrailingSlash <$> IR.initRequestM d c
+mkMicrolotClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m MicrolotClient
+mkMicrolotClientM d c = (`mkMicrolotClient` c) <$> IRemote.parseRemote d
 
 
 -- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and

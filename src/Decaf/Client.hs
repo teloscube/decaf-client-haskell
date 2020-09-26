@@ -40,6 +40,7 @@ import Data.Text                         (Text)
 import Decaf.Client.Internal.Barista
 import Decaf.Client.Internal.Combinators hiding (dummyDef)
 import Decaf.Client.Internal.Microlot
+import Decaf.Client.Internal.Remote      (parseRemote)
 import Decaf.Client.Internal.Types       hiding (mkPath)
 
 
@@ -53,4 +54,4 @@ data DecafClient = DecafClient
 -- | Attempts to build a 'DecafClient' with given remote DECAF deployment URL
 -- and authentication credentials.
 mkDecafClient :: DecafClientM m => Text -> Credentials -> m DecafClient
-mkDecafClient d c = DecafClient <$> mkBaristaClient d c <*> mkMicrolotClient d c
+mkDecafClient d c = (DecafClient <$> (`mkBaristaClient` c) <*> (`mkMicrolotClient` c)) <$> parseRemote d
