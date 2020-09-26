@@ -83,26 +83,31 @@ parseUri' x = maybe err pure $ U.parseAbsoluteURI x
     err = throwDecafClientError $ "Can not parse remote url: '" ++ x ++ "'"
 
 
+-- | Attempts to find out if the 'U.URI' scheme is secure HTTP or not.
 parseIsSecure' :: DecafClientM m => U.URI -> m Bool
 parseIsSecure' = isSecureHttp' . U.uriScheme
 
 
+-- | Attempts to get the host and port values from the given 'U.URI'.
 parseHostPort' :: DecafClientM m => U.URI -> m (T.Text, Maybe Int)
 parseHostPort' uri = (\auth -> (,) <$> parseHost' auth <*> parsePort' auth) =<< parseAuthority' uri
 
 
+-- | Attempts to extrat the URI authority ('U.URIAuth') from the given 'U.URI'.
 parseAuthority' :: DecafClientM m => U.URI -> m U.URIAuth
 parseAuthority' uri = maybe err pure $ U.uriAuthority uri
   where
     err = throwDecafClientError $ "Can not parse authority from URI: '" ++ show uri ++ "'"
 
 
+-- | Attempts to get a non-empty 'T.Text' value as the host from the given 'U.URIAuth'.
 parseHost' :: DecafClientM m => U.URIAuth -> m T.Text
 parseHost' a = maybe err pure $ T.pack <$> (nonEmptyString . U.uriRegName) a
   where
     err = throwDecafClientError "Empty host value"
 
 
+-- | Attempts to get the port from the given 'U.URIAuth'.
 parsePort' :: DecafClientM m => U.URIAuth -> m (Maybe Int)
 parsePort' uri = maybe err pure $ sequence $ readMaybe . dropLeading ':' <$> (nonEmptyString . U.uriPort) uri
   where

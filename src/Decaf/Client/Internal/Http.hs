@@ -19,12 +19,12 @@ import qualified Network.HTTP.Client         as H
 import qualified Network.HTTP.Simple         as HS
 
 
--- | Runs a request and returns a 'Response' value JSON-decoded from the response body.
+-- | Runs a request and returns a 'IT.Response' value JSON-decoded from the response body.
 runRequest :: (MonadIO m, FromJSON a) => IT.Request -> m (IT.Response a)
 runRequest r = mkResponse <$> (HS.httpJSON . compileRequest) r
 
 
--- | Runs a request and returns a 'Response' with 'B.ByteString' value.
+-- | Runs a request and returns a 'IT.Response' with 'B.ByteString' value.
 runRequestBS :: MonadIO m => IT.Request -> m (IT.Response B.ByteString)
 runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 
@@ -34,6 +34,7 @@ runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 --------------------
 
 
+-- | Converts the underlying 'HS.Response' value into a DECAF client 'IT.Response' value.
 mkResponse :: HS.Response a -> IT.Response a
 mkResponse = IT.Response
   <$> HS.getResponseStatusCode
@@ -50,6 +51,7 @@ compileRequest :: IT.Request -> H.Request
 compileRequest request = compiler request HS.defaultRequest
 
 
+-- | Request compiler.
 compiler :: RequestFieldSetter
 compiler r = compose $ fmap (\x -> x r)
    [ setRemote
@@ -61,6 +63,7 @@ compiler r = compose $ fmap (\x -> x r)
    ]
 
 
+-- | Sets the request's remote information.
 setRemote :: RequestFieldSetter
 setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure s'
   where
@@ -70,10 +73,12 @@ setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure 
     s' = IT.remoteSecure r'
 
 
+-- | Sets the request method.
 setMethod :: RequestFieldSetter
 setMethod = HS.setRequestMethod . BC.pack . show . IT.requestHttpMethod
 
 
+-- | Sets the request path.
 setPath :: RequestFieldSetter
 setPath r = HS.setRequestPath c
   where
@@ -83,6 +88,7 @@ setPath r = HS.setRequestPath c
     c = t b
 
 
+-- | Sets request headers.
 setHeaders :: RequestFieldSetter
 setHeaders r = HS.setRequestHeaders h''
   where
@@ -93,15 +99,17 @@ setHeaders r = HS.setRequestHeaders h''
     h'' = a : u : p ++ h'
 
 
+-- | Sets request querystring parameters.
 setParams :: RequestFieldSetter
 setParams r = HS.setRequestQueryString $ fmap (\(x, y) -> (TE.encodeUtf8 x, Just . TE.encodeUtf8 $ y)). IT.requestHttpParams $ r
 
 
+-- | Sets request payload.
 setPayload :: RequestFieldSetter
 setPayload r = maybe id (HS.setRequestBody . H.RequestBodyLBS . IT.payloadContent) $ IT.requestHttpPayload r
 
 
--- | Builds a 'Authorization' value from given 'Credentials'
+-- | Builds an HTTP @Authorization@ header value from given 'IT.Credentials'.
 --
 -- >>> mkAuthorization $ IT.HeaderCredentials "Token XYZ"
 -- "Token XYZ"

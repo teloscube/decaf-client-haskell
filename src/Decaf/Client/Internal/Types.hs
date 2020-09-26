@@ -55,6 +55,7 @@ instance Show Remote where
       p' = fromMaybe (if s then 443 else 80) p
 
 
+-- | Type definition for high-level encoding of DECAF client requests.
 data Request = Request
   { requestRemote            :: !Remote
   , requestNamespace         :: !Path
@@ -93,18 +94,23 @@ data Response a = Response
   } deriving Show
 
 
+-- | Type definition for DECAF client request header key/value pair.
 type Header = (T.Text, T.Text)
 
 
+-- | Type definition for a list of DECAF client request 'Header's.
 type Headers = [Header]
 
 
+-- | Type definition for DECAF client request querystring parameter.
 type Param = (T.Text, T.Text)
 
 
+-- | Type definition for a list of DECAF client request 'Param's.
 type Params = [Param]
 
 
+-- | Type definition for a list of DECAF client request HTTP path segments.
 newtype Path = MkPath { unPath :: [T.Text] } deriving Show
 
 -- >>> mkPath "/a/b" <> mkPath "/c/d"
@@ -120,7 +126,7 @@ instance Monoid Path where
   mconcat ps = MkPath $ concatMap unPath ps
 
 
--- Sanitizes the given 'T.Text' into 'PathSegment' values and builds a 'Path' value.
+-- | Sanitizes the given 'T.Text' into path segments and builds a 'Path' value.
 --
 -- >>> mkPath ""
 -- MkPath {unPath = []}
@@ -159,9 +165,10 @@ instance Show Credentials where
 data Method = GET | POST | PUT | DELETE deriving (Show)
 
 
+-- | Data definition for DECAF client request payloads.
 data Payload = Payload
-  { payloadType    :: !T.Text
-  , payloadContent :: !BL.ByteString
+  { payloadType    :: !T.Text         -- ^ HTTP content type.
+  , payloadContent :: !BL.ByteString  -- ^ HTTP payload body.
   }
 
 instance Show Payload where

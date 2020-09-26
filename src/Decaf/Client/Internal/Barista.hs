@@ -22,7 +22,7 @@ import qualified Decaf.Client.Internal.Types       as IT
 newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } deriving Show
 
 
--- | Builds a 'BaristaClient' with the given DECAF deployment 'Remote' and credentials.
+-- | Builds a 'BaristaClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
 --
 -- >>> mkBaristaClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: BaristaClient
 -- MkBaristaClient {unBaristaClient = Request {
@@ -67,7 +67,7 @@ runBarista cmb cli = IH.runRequest $ mkRequest cmb cli
 
 
 -- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
--- returns a 'Response' with 'B.ByteString' value.
+-- returns a 'IT.Response' with 'B.ByteString' value.
 runBaristaBS :: MonadIO m => IC.Combinator -> BaristaClient -> m (IT.Response B.ByteString)
 runBaristaBS cmb cli = IH.runRequestBS $ mkRequest cmb cli
 

@@ -38,7 +38,7 @@ import           GHC.Generics                      (Generic)
 newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } deriving Show
 
 
--- | Builds a 'MicrolotClient' with the given DECAF deployment 'Remote' and credentials.
+-- | Builds a 'MicrolotClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
 --
 -- >>> mkMicrolotClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: MicrolotClient
 -- MkMicrolotClient {unMicrolotClient = Request {
@@ -61,11 +61,11 @@ mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 --
 -- >>> mkMicrolotClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError MicrolotClient
 -- Right (MkMicrolotClient {unMicrolotClient = Request {
---   requestRemote            = [https]://[aexample.com]:[443]
+--   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
 --   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
---   requestHttpHeaders       = [("X-DECAF-URL","https://aexample.com:443")]
+--   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}
 --   requestHttpTrailingSlash = False
@@ -76,7 +76,7 @@ mkMicrolotClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m Microlot
 mkMicrolotClientM d c = (`mkMicrolotClient` c) <$> IRemote.parseRemote d
 
 
--- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
+-- | Runs the 'MicrolotClient' along with given 'IR.Request' combinators and
 -- returns a 'IV.Response' value JSON-decoded from the response body.
 runMicrolot :: (MonadIO m, ToJSON a, Show b, FromJSON b) => MicrolotQuery a -> MicrolotClient-> m (IT.Response (MicrolotResponse b))
 runMicrolot query cli = IH.runRequest $ mkRequest (IC.jsonPayload query) cli
@@ -89,10 +89,12 @@ instance ToJSON (MicrolotQuery a) where
   toJSON (MkMicrolotQuery q v) = object ["query" .= q, "variables" .= v]
 
 
+-- | Builds a 'MicrolotQuery' with the given GraphQL query and GraphQL query variables.
 mkMicrolotQuery :: ToJSON a => String -> a -> MicrolotQuery a
 mkMicrolotQuery = MkMicrolotQuery
 
 
+-- | Builds a 'MicrolotQuery' with the given GraphQL query (without GraphQL query variables).
 mkMicrolotQuery' :: String -> MicrolotQuery Value
 mkMicrolotQuery' = flip MkMicrolotQuery $ object []
 

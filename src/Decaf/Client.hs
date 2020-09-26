@@ -38,7 +38,7 @@ module Decaf.Client
 
 import Data.Text                         (Text)
 import Decaf.Client.Internal.Barista
-import Decaf.Client.Internal.Combinators hiding (dummyDef)
+import Decaf.Client.Internal.Combinators hiding (_dummyDef)
 import Decaf.Client.Internal.Microlot
 import Decaf.Client.Internal.Remote      (parseRemote)
 import Decaf.Client.Internal.Types       hiding (mkPath)
