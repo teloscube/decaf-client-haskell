@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 390fbeca819c1959d044a3936cf2e449d28ef07fc26841d3fcdc8a3a969a5573
+-- hash: df4f432208817572168c86b98063f87a816865b3f51828edc402df943dd0418a
 
 name:           decaf-client
-version:        0.0.0.1
+version:        0.0.0.2
 synopsis:       DECAF API Client Suite for Haskell
 description:    Please see the README on GitHub at <https://github.com/teloscube/decaf-client-haskell#readme>
 category:       Web
