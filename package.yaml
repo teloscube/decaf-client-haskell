@@ -47,6 +47,16 @@ executables:
     - decaf-client
     - optparse-applicative
 
+  decaf-client-examples-accountinfo-exe:
+    main:                Main.hs
+    source-dirs:         examples/accountinfo
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - decaf-client
+
 tests:
   decaf-client-test:
     main:                Spec.hs
