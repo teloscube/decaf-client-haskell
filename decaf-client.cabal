@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 898f373f98ee26f8e587bcfa20233e5e3919788367e1f0c4d31e3cb0ebc83436
+-- hash: 65199515415de6b83da2c6a266faa1ab32e7db420e1743be8f7bc1ffd42d433e
 
 name:           decaf-client
 version:        0.0.0.2
@@ -34,6 +34,7 @@ library
       Decaf.Client.Internal.Combinators
       Decaf.Client.Internal.Http
       Decaf.Client.Internal.Microlot
+      Decaf.Client.Internal.Pdms
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
       Decaf.Client.Internal.Types
