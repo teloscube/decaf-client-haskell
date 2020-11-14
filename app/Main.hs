@@ -45,7 +45,7 @@ main = program =<< mkDecafClient' =<< execParser opts
 
 
 program :: DecafClient -> IO ()
-program (DecafClient barista microlot) = do
+program (DecafClient barista microlot _) = do
   print =<< (runBarista (path "version") barista :: IO (Response Value))
   print =<< (runMicrolot (mkMicrolotQuery' "query {\n principal {\nid\nusername\n} }") microlot :: IO (Response (MicrolotResponse Value)))
 

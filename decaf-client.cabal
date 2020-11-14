@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: df4f432208817572168c86b98063f87a816865b3f51828edc402df943dd0418a
+-- hash: 65199515415de6b83da2c6a266faa1ab32e7db420e1743be8f7bc1ffd42d433e
 
 name:           decaf-client
 version:        0.0.0.2
@@ -34,6 +34,7 @@ library
       Decaf.Client.Internal.Combinators
       Decaf.Client.Internal.Http
       Decaf.Client.Internal.Microlot
+      Decaf.Client.Internal.Pdms
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
       Decaf.Client.Internal.Types
@@ -50,6 +51,29 @@ library
     , base64-bytestring
     , bytestring
     , case-insensitive
+    , http-client
+    , http-conduit
+    , http-types
+    , mtl
+    , network-uri
+    , text
+    , unordered-containers
+  default-language: Haskell2010
+
+executable decaf-client-examples-accountinfo-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_decaf_client
+  hs-source-dirs:
+      examples/accountinfo
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bytestring
+    , case-insensitive
+    , decaf-client
     , http-client
     , http-conduit
     , http-types
