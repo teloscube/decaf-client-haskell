@@ -3,7 +3,12 @@
 
 module Main where
 
-import           Data.Aeson                        (defaultOptions, FromJSON(..), genericParseJSON, Options(fieldLabelModifier))
+import           Data.Aeson
+                 ( FromJSON(..)
+                 , Options(fieldLabelModifier)
+                 , defaultOptions
+                 , genericParseJSON
+                 )
 import           Data.Char                         (toLower)
 import qualified Data.Text                         as T
 import           Decaf.Client
@@ -13,10 +18,10 @@ import           Decaf.Client
                  , decafClientMicrolot
                  , decafClientPdms
                  , microlotResponseData
-                 , pdmsResponseData
                  , mkDecafClient
                  , mkMicrolotQuery'
                  , mkPdmsQuery'
+                 , pdmsResponseData
                  , responseValue
                  , runBarista
                  , runMicrolot
@@ -112,4 +117,4 @@ printPolicies client = do
   putStrLn "Policies:"
   mapM_ printPolicy (enumerate pols)
   where
-    printPolicy (count, PolicyResponseItem policyid code) = putStrLn $ printf "%d. [%s] %s" count policyid (T.unpack code) 
+    printPolicy (count, PolicyResponseItem policyid code) = putStrLn $ printf "%d. [%s] %s" count policyid (T.unpack code)

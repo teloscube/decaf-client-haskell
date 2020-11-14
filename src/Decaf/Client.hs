@@ -34,7 +34,7 @@ module Decaf.Client
   , mkPdmsQuery
   , mkPdmsQuery'
   , PdmsQuery(..)
-  , PdmsResponse(..) 
+  , PdmsResponse(..)
 
     -- * Request Combinators
 
@@ -60,7 +60,7 @@ import Decaf.Client.Internal.Types       hiding (mkPath)
 data DecafClient = DecafClient
   { decafClientBarista  :: !BaristaClient   -- ^ DECAF Barista API client.
   , decafClientMicrolot :: !MicrolotClient  -- ^ DECAF Microlot API client.
-  , decafClientPdms     :: !PdmsClient      -- ^ DECAF Pdms API client.
+  , decafClientPdms     :: !PdmsClient      -- ^ DECAF PDMS Module API client.
   }
 
 

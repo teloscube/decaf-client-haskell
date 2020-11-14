@@ -1,4 +1,4 @@
--- | This module provides a DECAF Pdms client implementation.
+-- | This module provides a DECAF PDMS module client implementation.
 --
 {-# LANGUAGE DeriveGeneric             #-}
 {-# LANGUAGE ExistentialQuantification #-}
@@ -32,7 +32,7 @@ import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
 
--- | DECAF Pdms API client type.
+-- | DECAF PDMS API client type.
 --
 -- This is a _wrapper_ around 'IT.Request'.
 newtype PdmsClient = MkPdmsClient { unPdmsClient :: IT.Request } deriving Show
@@ -43,9 +43,9 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: IT.Request } deriving Show
 -- >>> mkPdmsClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
---   requestNamespace         = MkPath {unPath = ["apis","pdms","v1","graphql"]}
+--   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}
@@ -62,9 +62,9 @@ mkPdmsClient r c = MkPdmsClient . IC.post . IC.namespace "/apis/modules/pdms/v1/
 -- >>> mkPdmsClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
---   requestNamespace         = MkPath {unPath = ["apis","pdms","v1","graphql"]}
+--   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}
@@ -82,7 +82,7 @@ runPdms :: (MonadIO m, ToJSON a, Show b, FromJSON b) => PdmsQuery a -> PdmsClien
 runPdms query cli = IH.runRequest $ mkRequest (IC.jsonPayload query) cli
 
 
--- | Pdms query type as a sealed query/variables tuple.
+-- | PDMS query type as a sealed query/variables tuple.
 data PdmsQuery a = ToJSON a => MkPdmsQuery !String !a
 
 instance ToJSON (PdmsQuery a) where
@@ -99,7 +99,7 @@ mkPdmsQuery' :: String -> PdmsQuery Value
 mkPdmsQuery' = flip MkPdmsQuery $ object []
 
 
--- | Pdms response definition.
+-- | PDMS response definition.
 data PdmsResponse a = PdmsResponse
   { pdmsResponseData   :: !a
   , pdmsResponseErrors :: !(Maybe (NonEmpty Object))
