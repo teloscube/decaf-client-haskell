@@ -36,7 +36,7 @@ library:
   - -Werror
 
 executables:
-  decaf-client-exe:
+  decafcli:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
