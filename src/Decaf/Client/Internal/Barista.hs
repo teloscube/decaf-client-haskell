@@ -2,6 +2,7 @@
 --
 module Decaf.Client.Internal.Barista where
 
+import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson                        (FromJSON)
 import qualified Data.ByteString                   as B
@@ -51,7 +52,7 @@ mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlas
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m BaristaClient
+mkBaristaClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m BaristaClient
 mkBaristaClientM d c = (`mkBaristaClient` c) <$> IRemote.parseRemote d
 
 

@@ -2,14 +2,15 @@
 --
 module Decaf.Client.Internal.Request where
 
+import           Control.Monad.Except              (MonadError)
 import qualified Data.Text                         as T
 import           Decaf.Client.Internal.Combinators (credentials, header, remote)
 import           Decaf.Client.Internal.Remote      (parseRemote, remoteUrl)
 import           Decaf.Client.Internal.Types
-                 ( Credentials(HeaderCredentials)
-                 , DecafClientM
-                 , Method(GET)
-                 , Remote(Remote)
+                 ( Credentials(..)
+                 , DecafClientError
+                 , Method(..)
+                 , Remote(..)
                  , Request(..)
                  )
 import           Decaf.Client.Version              (version)
@@ -51,7 +52,7 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }
-initRequestM :: DecafClientM m => T.Text -> Credentials -> m Request
+initRequestM :: MonadError DecafClientError m => T.Text -> Credentials -> m Request
 initRequestM deployment c = (`initRequest` c) <$> parseRemote deployment
 
 

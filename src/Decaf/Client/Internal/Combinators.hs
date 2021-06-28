@@ -13,7 +13,7 @@ import           Decaf.Client.Internal.Types
                  , Param
                  , Params
                  , Path
-                 , Payload(Payload)
+                 , Payload(..)
                  , Remote
                  , Request(..)
                  , mkPath

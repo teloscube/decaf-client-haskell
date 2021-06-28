@@ -2,6 +2,7 @@
 --
 module Decaf.Client.Internal.Pdms where
 
+import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson
                  ( FromJSON(..)
@@ -66,7 +67,7 @@ mkPdmsClient r c = MkPdmsClient . IC.post . IC.namespace "/apis/modules/pdms/v1/
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkPdmsClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m PdmsClient
+mkPdmsClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m PdmsClient
 mkPdmsClientM d c = (`mkPdmsClient` c) <$> IRemote.parseRemote d
 
 

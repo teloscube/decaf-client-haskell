@@ -2,10 +2,11 @@
 --
 module Decaf.Client.Internal.Remote where
 
+import           Control.Monad.Except        (MonadError)
 import qualified Data.Char                   as C
 import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Types (DecafClientM, Remote(Remote), throwDecafClientError)
+import           Decaf.Client.Internal.Types (DecafClientError, Remote(Remote), throwDecafClientError)
 import           Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
 import qualified Network.URI                 as U
 import           Text.Printf                 (printf)
@@ -57,7 +58,7 @@ remoteUrl (Remote h p s) = T.pack $ printf "%s://%s:%d" s' h' p'
 -- Left (DecafClientError "Empty host value")
 -- >>> parseRemote "http://a:" :: Either DecafClientError Remote
 -- Left (DecafClientError "Can not parse port from URI: 'URIAuth {uriUserInfo = \"\", uriRegName = \"a\", uriPort = \":\"}'")
-parseRemote :: DecafClientM m => T.Text -> m Remote
+parseRemote :: MonadError DecafClientError m => T.Text -> m Remote
 parseRemote url = do
   uri <- parseUri' $ T.unpack url
   (h, p) <- parseHostPort' uri
@@ -76,38 +77,38 @@ parseRemote url = do
 -- Right http://localhost
 -- >>> parseUri' "https://localhost:8443" :: Either DecafClientError U.URI
 -- Right https://localhost:8443
-parseUri' :: DecafClientM m => String -> m U.URI
+parseUri' :: MonadError DecafClientError m => String -> m U.URI
 parseUri' x = maybe err pure $ U.parseAbsoluteURI x
   where
     err = throwDecafClientError $ "Can not parse remote url: '" ++ x ++ "'"
 
 
 -- | Attempts to find out if the 'U.URI' scheme is secure HTTP or not.
-parseIsSecure' :: DecafClientM m => U.URI -> m Bool
+parseIsSecure' :: MonadError DecafClientError m => U.URI -> m Bool
 parseIsSecure' = isSecureHttp' . U.uriScheme
 
 
 -- | Attempts to get the host and port values from the given 'U.URI'.
-parseHostPort' :: DecafClientM m => U.URI -> m (T.Text, Maybe Int)
+parseHostPort' :: MonadError DecafClientError m => U.URI -> m (T.Text, Maybe Int)
 parseHostPort' uri = (\auth -> (,) <$> parseHost' auth <*> parsePort' auth) =<< parseAuthority' uri
 
 
 -- | Attempts to extrat the URI authority ('U.URIAuth') from the given 'U.URI'.
-parseAuthority' :: DecafClientM m => U.URI -> m U.URIAuth
+parseAuthority' :: MonadError DecafClientError m => U.URI -> m U.URIAuth
 parseAuthority' uri = maybe err pure $ U.uriAuthority uri
   where
     err = throwDecafClientError $ "Can not parse authority from URI: '" ++ show uri ++ "'"
 
 
 -- | Attempts to get a non-empty 'T.Text' value as the host from the given 'U.URIAuth'.
-parseHost' :: DecafClientM m => U.URIAuth -> m T.Text
+parseHost' :: MonadError DecafClientError m => U.URIAuth -> m T.Text
 parseHost' a = maybe err pure $ T.pack <$> (nonEmptyString . U.uriRegName) a
   where
     err = throwDecafClientError "Empty host value"
 
 
 -- | Attempts to get the port from the given 'U.URIAuth'.
-parsePort' :: DecafClientM m => U.URIAuth -> m (Maybe Int)
+parsePort' :: MonadError DecafClientError m => U.URIAuth -> m (Maybe Int)
 parsePort' uri = maybe err pure $ sequence $ readMaybe . dropLeading ':' <$> (nonEmptyString . U.uriPort) uri
   where
     err = throwDecafClientError $ "Can not parse port from URI: '" ++ show uri ++ "'"
@@ -126,7 +127,7 @@ parsePort' uri = maybe err pure $ sequence $ readMaybe . dropLeading ':' <$> (no
 -- [Left (DecafClientError "Unknown protocol: htt"),Left (DecafClientError "Unknown protocol: htts"),Left (DecafClientError "Unknown protocol: htp"),Left (DecafClientError "Unknown protocol: htp"),Left (DecafClientError "Unknown protocol: htps"),Left (DecafClientError "Unknown protocol: htps")]
 -- >>> fmap isSecureHttp' ["htt", "htts"] :: [Either DecafClientError Bool]
 -- [Left (DecafClientError "Unknown protocol: htt"),Left (DecafClientError "Unknown protocol: htts")]
-isSecureHttp' :: DecafClientM m => String -> m Bool
+isSecureHttp' :: MonadError DecafClientError m => String -> m Bool
 isSecureHttp' = isSecure' . fmap C.toLower . dropTrailing ':'
   where
     isSecure' "http"  = pure False

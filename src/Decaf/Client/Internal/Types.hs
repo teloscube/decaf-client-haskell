@@ -14,15 +14,11 @@ import           Text.Printf                 (printf)
 newtype DecafClientError = DecafClientError String deriving (Show)
 
 
--- | Type client monad.
-type DecafClientM m = (MonadError DecafClientError m)
-
-
 -- | Throws a DECAF client error.
 --
 -- >>> throwDecafClientError "Invalid request" :: Either DecafClientError ()
 -- Left (DecafClientError "Invalid request")
-throwDecafClientError :: DecafClientM m => String -> m a
+throwDecafClientError :: MonadError DecafClientError m => String -> m a
 throwDecafClientError = throwError . DecafClientError
 
 

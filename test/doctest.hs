@@ -1,4 +1,4 @@
-import Test.DocTest ( doctest )
+import Test.DocTest (doctest)
 
 
 main :: IO ()

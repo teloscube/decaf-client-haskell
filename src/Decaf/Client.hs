@@ -44,6 +44,7 @@ module Decaf.Client
   ) where
 
 
+import Control.Monad.Except              (MonadError)
 import Data.Text                         (Text)
 import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, runBarista, runBaristaBS)
 import Decaf.Client.Internal.Combinators
@@ -105,7 +106,6 @@ import Decaf.Client.Internal.Remote      (parseRemote)
 import Decaf.Client.Internal.Types
        ( Credentials(..)
        , DecafClientError(..)
-       , DecafClientM
        , Header
        , Headers
        , Method(..)
@@ -130,5 +130,9 @@ data DecafClient = DecafClient
 
 -- | Attempts to build a 'DecafClient' with given remote DECAF deployment URL
 -- and authentication credentials.
-mkDecafClient :: DecafClientM m => Text -> Credentials -> m DecafClient
+mkDecafClient
+  :: MonadError DecafClientError m
+  => Text            -- ^ Base URL of remote DECAF deployment
+  -> Credentials     -- ^ Credentials for authenticating requests to remote DECAF deployment
+  -> m DecafClient
 mkDecafClient d c = (DecafClient <$> (`mkBaristaClient` c) <*> (`mkMicrolotClient` c) <*> (`mkPdmsClient` c)) <$> parseRemote d

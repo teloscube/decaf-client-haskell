@@ -2,6 +2,7 @@
 --
 module Decaf.Client.Internal.Microlot where
 
+import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson
                  ( FromJSON(..)
@@ -66,7 +67,7 @@ mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkMicrolotClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m MicrolotClient
+mkMicrolotClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m MicrolotClient
 mkMicrolotClientM d c = (`mkMicrolotClient` c) <$> IRemote.parseRemote d
 
 
