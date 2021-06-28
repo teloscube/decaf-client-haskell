@@ -1,0 +1,6 @@
+query {
+  principals: principal {
+    id
+    username
+  }
+}

@@ -1,5 +1,5 @@
 name:                decaf-client
-version:             0.0.0.1
+version:             0.0.0.2
 github:              "teloscube/decaf-client-haskell"
 license:             BSD3
 author:              "Vehbi Sinan Tunalioglu"
@@ -34,9 +34,21 @@ library:
   ghc-options:
   - -Wall
   - -Werror
+  default-extensions:
+  ## GHC 2021 extensions (see https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0380-ghc2021.rst):
+  - ConstraintKinds
+  - DeriveGeneric
+  - ExistentialQuantification
+  - FlexibleContexts
+  - GeneralizedNewtypeDeriving
+  - RankNTypes
+  - ScopedTypeVariables
+  - TupleSections
+  ## Project specific:
+  - OverloadedStrings
 
 executables:
-  decaf-client-exe:
+  decafcli:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -47,9 +59,19 @@ executables:
     - decaf-client
     - optparse-applicative
 
+  decaf-client-examples-accountinfo-exe:
+    main:                Main.hs
+    source-dirs:         examples/accountinfo
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - decaf-client
+
 tests:
   decaf-client-test:
-    main:                Spec.hs
+    main:                Main.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -60,7 +82,7 @@ tests:
 
   decaf-client-doctest:
     main:                doctest.hs
-    source-dirs:         .
+    source-dirs:         test
     ghc-options:
     - -threaded
     dependencies:

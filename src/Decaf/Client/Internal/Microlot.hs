@@ -1,13 +1,8 @@
 -- | This module provides a DECAF Microlot client implementation.
 --
-{-# LANGUAGE DeriveGeneric             #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RankNTypes                #-}
-
 module Decaf.Client.Internal.Microlot where
 
+import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson
                  ( FromJSON(..)
@@ -45,7 +40,7 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } der
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}
@@ -64,7 +59,7 @@ mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}
@@ -72,7 +67,7 @@ mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkMicrolotClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m MicrolotClient
+mkMicrolotClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m MicrolotClient
 mkMicrolotClientM d c = (`mkMicrolotClient` c) <$> IRemote.parseRemote d
 
 

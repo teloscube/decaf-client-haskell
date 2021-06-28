@@ -1,15 +1,18 @@
 -- | This module provides auxiliaries to build and work with 'Request' values.
 --
-{-# LANGUAGE ConstraintKinds   #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Decaf.Client.Internal.Request where
 
+import           Control.Monad.Except              (MonadError)
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Combinators
-import           Decaf.Client.Internal.Remote
+import           Decaf.Client.Internal.Combinators (credentials, header, remote)
+import           Decaf.Client.Internal.Remote      (parseRemote, remoteUrl)
 import           Decaf.Client.Internal.Types
+                 ( Credentials(..)
+                 , DecafClientError
+                 , Method(..)
+                 , Remote(..)
+                 , Request(..)
+                 )
 import           Decaf.Client.Version              (version)
 import           Text.Printf                       (printf)
 
@@ -21,7 +24,7 @@ import           Text.Printf                       (printf)
 --   requestRemote            = [http]://[example.com]:[80]
 --   requestNamespace         = MkPath {unPath = []}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","http://example.com:80")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -35,12 +38,13 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 
 -- | Initializes a request with deployment URL and authentication credentials.
 --
+-- >>> import Decaf.Client
 -- >>> initRequestM "http://example.com" (HeaderCredentials "OUCH") :: Either DecafClientError Request
 -- Right Request {
 --   requestRemote            = [http]://[example.com]:[80]
 --   requestNamespace         = MkPath {unPath = []}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","http://example.com:80")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -48,7 +52,7 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }
-initRequestM :: DecafClientM m => T.Text -> Credentials -> m Request
+initRequestM :: MonadError DecafClientError m => T.Text -> Credentials -> m Request
 initRequestM deployment c = (`initRequest` c) <$> parseRemote deployment
 
 
@@ -77,6 +81,6 @@ defaultRequest = Request
 -- | User agent value definition for the library.
 --
 -- >>> defaultUserAgent
--- "DECAF API Client/0.0.0.1 (Haskell)"
+-- "DECAF API Client/0.0.0.2 (Haskell)"
 defaultUserAgent :: T.Text
 defaultUserAgent = T.pack $ printf "DECAF API Client/%s (Haskell)" version
