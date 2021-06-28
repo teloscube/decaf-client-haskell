@@ -46,6 +46,33 @@ instance Show Remote where
       p' = fromMaybe (if s then 443 else 80) p
 
 
+-- | Converts the 'Remote' to a sanitized url.
+--
+-- >>> remoteToUrl (Remote "localhost" (Just 8000) False)
+-- "http://localhost:8000"
+-- >>> remoteToUrl (Remote "localhost" (Just 9443) True)
+-- "https://localhost:9443"
+-- >>> remoteToUrl (Remote "localhost" (Just 80) False)
+-- "http://localhost"
+-- >>> remoteToUrl (Remote "localhost" (Just 443) False)
+-- "http://localhost:443"
+-- >>> remoteToUrl (Remote "localhost" (Just 80) True)
+-- "https://localhost:80"
+-- >>> remoteToUrl (Remote "localhost" (Just 443) True)
+-- "https://localhost"
+-- >>> remoteToUrl (Remote "localhost" Nothing False)
+-- "http://localhost"
+-- >>> remoteToUrl (Remote "localhost" Nothing True)
+-- "https://localhost"
+remoteToUrl :: Remote -> T.Text
+remoteToUrl (Remote h (Just 80) False) = "http://" <> h
+remoteToUrl (Remote h (Just 443) True) = "https://" <> h
+remoteToUrl (Remote h Nothing False)   = "http://" <> h
+remoteToUrl (Remote h Nothing True)    = "https://" <> h
+remoteToUrl (Remote h (Just p) False)  = "http://" <> h <> ":" <> T.pack (show p)
+remoteToUrl (Remote h (Just p) True)   = "https://" <> h <> ":" <> T.pack (show p)
+
+
 -- | Type definition for high-level encoding of DECAF client requests.
 data Request = Request
   { requestRemote            :: !Remote
