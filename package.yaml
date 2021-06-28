@@ -34,6 +34,18 @@ library:
   ghc-options:
   - -Wall
   - -Werror
+  default-extensions:
+  ## GHC 2021 extensions (see https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0380-ghc2021.rst):
+  - ConstraintKinds
+  - DeriveGeneric
+  - ExistentialQuantification
+  - FlexibleContexts
+  - GeneralizedNewtypeDeriving
+  - RankNTypes
+  - ScopedTypeVariables
+  - TupleSections
+  ## Project specific:
+  - OverloadedStrings
 
 executables:
   decafcli:

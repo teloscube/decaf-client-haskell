@@ -1,7 +1,5 @@
 -- | @TODO: Provide documentation.@
 --
-{-# LANGUAGE FlexibleContexts #-}
-
 module Decaf.Client
   ( -- * Client
 
@@ -25,7 +23,6 @@ module Decaf.Client
   , MicrolotQuery(..)
   , MicrolotResponse(..)
 
-
     -- * Pdms Client
 
   , PdmsClient
@@ -48,12 +45,79 @@ module Decaf.Client
 
 
 import Data.Text                         (Text)
-import Decaf.Client.Internal.Barista
-import Decaf.Client.Internal.Combinators hiding (_dummyDef)
+import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, runBarista, runBaristaBS)
+import Decaf.Client.Internal.Combinators
+       ( Combinator
+       , addHeader
+       , addHeaders
+       , addParam
+       , addParams
+       , addPath
+       , credentials
+       , delete
+       , get
+       , header
+       , headers
+       , jsonPayload
+       , namespace
+       , noPayload
+       , param
+       , params
+       , path
+       , payload
+       , post
+       , put
+       , remote
+       , setCredentials
+       , setHeaders
+       , setMethod
+       , setNamespace
+       , setNoPayload
+       , setParams
+       , setPath
+       , setPayload
+       , setRemote
+       , setTrailingSlash
+       , setUserAgent
+       , userAgent
+       , withTrailingSlash
+       , withoutTrailingSlash
+       )
 import Decaf.Client.Internal.Microlot
+       ( MicrolotClient
+       , MicrolotQuery(..)
+       , MicrolotResponse(..)
+       , mkMicrolotClient
+       , mkMicrolotQuery
+       , mkMicrolotQuery'
+       , runMicrolot
+       )
 import Decaf.Client.Internal.Pdms
+       ( PdmsClient
+       , PdmsQuery(..)
+       , PdmsResponse(..)
+       , mkPdmsClient
+       , mkPdmsQuery
+       , mkPdmsQuery'
+       , runPdms
+       )
 import Decaf.Client.Internal.Remote      (parseRemote)
-import Decaf.Client.Internal.Types       hiding (mkPath)
+import Decaf.Client.Internal.Types
+       ( Credentials(..)
+       , DecafClientError(..)
+       , DecafClientM
+       , Header
+       , Headers
+       , Method(..)
+       , Param
+       , Params
+       , Path(..)
+       , Payload(..)
+       , Remote(..)
+       , Request(..)
+       , Response(..)
+       , throwDecafClientError
+       )
 
 
 -- | Data definition for a collection of various DECAF API clients.

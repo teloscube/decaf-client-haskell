@@ -1,15 +1,17 @@
 -- | This module provides auxiliaries to build and work with 'Request' values.
 --
-{-# LANGUAGE ConstraintKinds   #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Decaf.Client.Internal.Request where
 
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Combinators
-import           Decaf.Client.Internal.Remote
+import           Decaf.Client.Internal.Combinators (credentials, header, remote)
+import           Decaf.Client.Internal.Remote      (parseRemote, remoteUrl)
 import           Decaf.Client.Internal.Types
+                 ( Credentials(HeaderCredentials)
+                 , DecafClientM
+                 , Method(GET)
+                 , Remote(Remote)
+                 , Request(..)
+                 )
 import           Decaf.Client.Version              (version)
 import           Text.Printf                       (printf)
 

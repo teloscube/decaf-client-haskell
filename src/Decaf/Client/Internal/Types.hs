@@ -1,10 +1,5 @@
 -- | This module provides types and functions to transcode DECAF API requests.
 --
-{-# LANGUAGE ConstraintKinds           #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE OverloadedStrings         #-}
-
 module Decaf.Client.Internal.Types where
 
 import           Control.Monad.Except        (MonadError, throwError)

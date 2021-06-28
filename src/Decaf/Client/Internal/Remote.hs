@@ -1,14 +1,11 @@
 -- | This module provides auxiliaries to parse 'Remote's.
 --
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Decaf.Client.Internal.Remote where
 
 import qualified Data.Char                   as C
 import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Types
+import           Decaf.Client.Internal.Types (DecafClientM, Remote(Remote), throwDecafClientError)
 import           Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
 import qualified Network.URI                 as U
 import           Text.Printf                 (printf)

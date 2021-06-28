@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2e2c023d4d5b4c966812c68bfcff2d2660a777e7286be835f6b788ad5441a8c2
+-- hash: 214d2f7219de4b2cc9a0929d2b245b612e31955b3d7fb51d0d524cb90074c599
 
 name:           decaf-client
 version:        0.0.0.2
@@ -44,6 +44,16 @@ library
       Paths_decaf_client
   hs-source-dirs:
       src
+  default-extensions:
+      ConstraintKinds
+      DeriveGeneric
+      ExistentialQuantification
+      FlexibleContexts
+      GeneralizedNewtypeDeriving
+      RankNTypes
+      ScopedTypeVariables
+      TupleSections
+      OverloadedStrings
   ghc-options: -Wall -Werror
   build-depends:
       aeson

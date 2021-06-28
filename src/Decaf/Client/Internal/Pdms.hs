@@ -1,11 +1,5 @@
 -- | This module provides a DECAF PDMS module client implementation.
 --
-{-# LANGUAGE DeriveGeneric             #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RankNTypes                #-}
-
 module Decaf.Client.Internal.Pdms where
 
 import           Control.Monad.IO.Class            (MonadIO)

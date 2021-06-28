@@ -1,12 +1,9 @@
 -- | This module provides generic auxiliaries.
 --
-{-# LANGUAGE OverloadedStrings #-}
-
 module Decaf.Client.Internal.Utils where
 
 import Data.ByteString (ByteString)
 import Data.List       (dropWhileEnd)
-
 
 
 -- | Splits the 'String' by the given predicate.

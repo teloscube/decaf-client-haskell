@@ -1,7 +1,5 @@
 -- | This module provides combinators to modify 'Request' values.
 --
-{-# LANGUAGE OverloadedStrings #-}
-
 module Decaf.Client.Internal.Combinators where
 
 import           Data.Aeson                  (ToJSON, encode)

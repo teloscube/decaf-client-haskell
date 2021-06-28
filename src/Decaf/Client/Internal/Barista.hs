@@ -1,10 +1,5 @@
 -- | This module provides a DECAF Barista API client implementation.
 --
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RankNTypes                #-}
-
 module Decaf.Client.Internal.Barista where
 
 import           Control.Monad.IO.Class            (MonadIO)

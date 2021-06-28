@@ -1,11 +1,5 @@
 -- | This module provides a DECAF Microlot client implementation.
 --
-{-# LANGUAGE DeriveGeneric             #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RankNTypes                #-}
-
 module Decaf.Client.Internal.Microlot where
 
 import           Control.Monad.IO.Class            (MonadIO)
