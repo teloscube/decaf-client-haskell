@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c9005b80ba67ca68378212a7054e39081c2b24d25279aca16fbe075a170916b3
+-- hash: 0e96d9a527aa7f7f98340b0b3d4b7c372bc86e8e35bcc9032d20afccc594d28e
 
 name:           decaf-client
 version:        0.0.0.2
@@ -44,6 +44,16 @@ library
       Paths_decaf_client
   hs-source-dirs:
       src
+  default-extensions:
+      ConstraintKinds
+      DeriveGeneric
+      ExistentialQuantification
+      FlexibleContexts
+      GeneralizedNewtypeDeriving
+      RankNTypes
+      ScopedTypeVariables
+      TupleSections
+      OverloadedStrings
   ghc-options: -Wall -Werror
   build-depends:
       aeson
@@ -111,9 +121,10 @@ test-suite decaf-client-doctest
   type: exitcode-stdio-1.0
   main-is: doctest.hs
   other-modules:
+      Main
       Paths_decaf_client
   hs-source-dirs:
-      ./.
+      test
   ghc-options: -threaded
   build-depends:
       aeson
@@ -134,7 +145,7 @@ test-suite decaf-client-doctest
 
 test-suite decaf-client-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Main.hs
   other-modules:
       Paths_decaf_client
   hs-source-dirs:

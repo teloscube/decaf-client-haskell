@@ -1,7 +1,5 @@
 -- | This module provides combinators to modify 'Request' values.
 --
-{-# LANGUAGE OverloadedStrings #-}
-
 module Decaf.Client.Internal.Combinators where
 
 import           Data.Aeson                  (ToJSON, encode)
@@ -15,7 +13,7 @@ import           Decaf.Client.Internal.Types
                  , Param
                  , Params
                  , Path
-                 , Payload(Payload)
+                 , Payload(..)
                  , Remote
                  , Request(..)
                  , mkPath
@@ -45,7 +43,7 @@ remote = setRemote
 --   requestRemote            = [http]://[localhost]:[80]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = []
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -65,7 +63,7 @@ setNamespace n request = request { requestNamespace = n }
 --   requestRemote            = [http]://[localhost]:[80]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = []
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}

@@ -1,12 +1,8 @@
 -- | This module provides a DECAF Barista API client implementation.
 --
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE RankNTypes                #-}
-
 module Decaf.Client.Internal.Barista where
 
+import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson                        (FromJSON)
 import qualified Data.ByteString                   as B
@@ -29,7 +25,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -48,7 +44,7 @@ mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlas
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -56,7 +52,7 @@ mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlas
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClientM :: IT.DecafClientM m => T.Text -> IT.Credentials -> m BaristaClient
+mkBaristaClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m BaristaClient
 mkBaristaClientM d c = (`mkBaristaClient` c) <$> IRemote.parseRemote d
 
 

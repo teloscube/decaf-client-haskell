@@ -1,8 +1,7 @@
 -- | This module provides machinery to abstract over underlying HTTP client.
 --
 -- @TODO: Choose a proper monad to work with, handle various HTTP return codes for errors. @
-{-# LANGUAGE OverloadedStrings #-}
-
+--
 module Decaf.Client.Internal.Http where
 
 import           Control.Monad.IO.Class      (MonadIO)
