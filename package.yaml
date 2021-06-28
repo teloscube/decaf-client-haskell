@@ -71,7 +71,7 @@ executables:
 
 tests:
   decaf-client-test:
-    main:                Spec.hs
+    main:                Main.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -82,7 +82,7 @@ tests:
 
   decaf-client-doctest:
     main:                doctest.hs
-    source-dirs:         .
+    source-dirs:         test
     ghc-options:
     - -threaded
     dependencies:

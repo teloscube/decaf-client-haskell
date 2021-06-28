@@ -24,7 +24,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -43,7 +43,7 @@ mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlas
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.1 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}

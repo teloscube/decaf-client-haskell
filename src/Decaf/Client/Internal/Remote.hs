@@ -32,6 +32,7 @@ remoteUrl (Remote h p s) = T.pack $ printf "%s://%s:%d" s' h' p'
 
 -- | Attempts to parse a given URL as a DECAF deployment 'Remote'.
 --
+-- >>> import Decaf.Client
 -- >>> parseRemote "http://localhost" :: Either DecafClientError Remote
 -- Right [http]://[localhost]:[80]
 -- >>> parseRemote "https://localhost" :: Either DecafClientError Remote
@@ -66,6 +67,7 @@ parseRemote url = do
 
 -- | Parses the remote URI.
 --
+-- >>> import Decaf.Client
 -- >>> parseUri' "" :: Either DecafClientError U.URI
 -- Left (DecafClientError "Can not parse remote url: ''")
 -- >>> parseUri' "/" :: Either DecafClientError U.URI
@@ -113,6 +115,7 @@ parsePort' uri = maybe err pure $ sequence $ readMaybe . dropLeading ':' <$> (no
 
 -- | Predicate to define if the URI indicates secure HTTP or not.
 --
+-- >>> import Decaf.Client
 -- >>> isSecureHttp' "http" :: Either DecafClientError Bool
 -- Right False
 -- >>> isSecureHttp' "https" :: Either DecafClientError Bool
