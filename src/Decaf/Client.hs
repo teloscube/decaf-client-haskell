@@ -29,6 +29,7 @@ module Decaf.Client
 
   , PdmsClient
   , mkPdmsClient
+  , mkPdmsClientM
   , runPdms
   , mkPdmsQuery
   , mkPdmsQuery'
@@ -101,6 +102,7 @@ import Decaf.Client.Internal.Pdms
        , PdmsQuery(..)
        , PdmsResponse(..)
        , mkPdmsClient
+       , mkPdmsClientM
        , mkPdmsQuery
        , mkPdmsQuery'
        , runPdms
