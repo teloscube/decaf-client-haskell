@@ -1,6 +1,6 @@
 -- | This module provides a DECAF Barista API client implementation.
 
-module Decaf.Client.Internal.Barista where
+module Decaf.Client.Internal.Apis.Barista where
 
 import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)

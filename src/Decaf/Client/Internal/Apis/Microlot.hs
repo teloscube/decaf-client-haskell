@@ -1,6 +1,6 @@
 -- | This module provides a DECAF Microlot client implementation.
 
-module Decaf.Client.Internal.Microlot where
+module Decaf.Client.Internal.Apis.Microlot where
 
 import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)

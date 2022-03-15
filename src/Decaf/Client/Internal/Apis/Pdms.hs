@@ -1,6 +1,6 @@
 -- | This module provides a DECAF PDMS module client implementation.
 --
-module Decaf.Client.Internal.Pdms where
+module Decaf.Client.Internal.Apis.Pdms where
 
 import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)

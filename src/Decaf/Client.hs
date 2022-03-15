@@ -47,9 +47,29 @@ module Decaf.Client
   ) where
 
 
-import Control.Monad.Except              (MonadError)
-import Data.Text                         (Text)
-import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
+import Control.Monad.Except                (MonadError)
+import Data.Text                           (Text)
+import Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
+import Decaf.Client.Internal.Apis.Microlot
+       ( MicrolotClient
+       , MicrolotQuery(..)
+       , MicrolotResponse(..)
+       , mkMicrolotClient
+       , mkMicrolotClientM
+       , mkMicrolotQuery
+       , mkMicrolotQuery'
+       , runMicrolot
+       )
+import Decaf.Client.Internal.Apis.Pdms
+       ( PdmsClient
+       , PdmsQuery(..)
+       , PdmsResponse(..)
+       , mkPdmsClient
+       , mkPdmsClientM
+       , mkPdmsQuery
+       , mkPdmsQuery'
+       , runPdms
+       )
 import Decaf.Client.Internal.Combinators
        ( Combinator
        , addHeader
@@ -87,27 +107,7 @@ import Decaf.Client.Internal.Combinators
        , withTrailingSlash
        , withoutTrailingSlash
        )
-import Decaf.Client.Internal.Microlot
-       ( MicrolotClient
-       , MicrolotQuery(..)
-       , MicrolotResponse(..)
-       , mkMicrolotClient
-       , mkMicrolotClientM
-       , mkMicrolotQuery
-       , mkMicrolotQuery'
-       , runMicrolot
-       )
-import Decaf.Client.Internal.Pdms
-       ( PdmsClient
-       , PdmsQuery(..)
-       , PdmsResponse(..)
-       , mkPdmsClient
-       , mkPdmsClientM
-       , mkPdmsQuery
-       , mkPdmsQuery'
-       , runPdms
-       )
-import Decaf.Client.Internal.Remote      (parseRemote)
+import Decaf.Client.Internal.Remote        (parseRemote)
 import Decaf.Client.Internal.Types
        ( BasicCredentials(..)
        , Credentials(..)
