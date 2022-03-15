@@ -38,7 +38,7 @@ library
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
       Decaf.Client.Internal.Response
-      Decaf.Client.Internal.Types
+      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Utils
       Decaf.Client.Version
   other-modules:

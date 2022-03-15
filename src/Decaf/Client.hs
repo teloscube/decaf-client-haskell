@@ -36,10 +36,9 @@ module Decaf.Client
   , PdmsQuery(..)
   , PdmsResponse(..)
 
-    -- * Errors
+    -- * Remotes
 
-  , DecafClientError(..)
-  , throwDecafClientError
+  , module Decaf.Client.Internal.Remote
 
     -- * Requests
 
@@ -49,11 +48,13 @@ module Decaf.Client
 
   , module Decaf.Client.Internal.Response
 
-    -- * Common Types
+    -- * Credentials
 
-  , Remote(..)
-  , remoteToUrl
-  , module Decaf.Client.Internal.Types
+  , module Decaf.Client.Internal.Credentials
+
+    -- * Errors
+
+  , module Decaf.Client.Internal.Error
 
   ) where
 
@@ -81,11 +82,11 @@ import Decaf.Client.Internal.Apis.Pdms
        , mkPdmsQuery'
        , runPdms
        )
-import Decaf.Client.Internal.Error         (DecafClientError(..), throwDecafClientError)
-import Decaf.Client.Internal.Remote        (Remote(..), parseRemote, remoteToUrl)
+import Decaf.Client.Internal.Credentials
+import Decaf.Client.Internal.Error
+import Decaf.Client.Internal.Remote
 import Decaf.Client.Internal.Request
 import Decaf.Client.Internal.Response
-import Decaf.Client.Internal.Types         (BasicCredentials(..), Credentials(..), KeyCredentials(..))
 
 
 -- | Data definition for a collection of various DECAF API clients.

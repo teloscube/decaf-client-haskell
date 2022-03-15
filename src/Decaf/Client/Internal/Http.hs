@@ -7,26 +7,26 @@
 
 module Decaf.Client.Internal.Http where
 
-import           Control.Monad.IO.Class         (MonadIO)
-import           Data.Aeson                     (FromJSON)
-import           Data.Bifunctor                 (bimap)
-import qualified Data.ByteString                as B
-import           Data.ByteString.Base64         (encode)
-import qualified Data.ByteString.Char8          as BC
-import qualified Data.CaseInsensitive           as CI
-import           Data.Maybe                     (fromMaybe)
-import qualified Data.Text.Encoding             as TE
-import           Decaf.Client.Internal.Remote
-import           Decaf.Client.Internal.Request  (Payload(..), Request(..), unPath)
-import           Decaf.Client.Internal.Response
-import           Decaf.Client.Internal.Types
+import           Control.Monad.IO.Class            (MonadIO)
+import           Data.Aeson                        (FromJSON)
+import           Data.Bifunctor                    (bimap)
+import qualified Data.ByteString                   as B
+import           Data.ByteString.Base64            (encode)
+import qualified Data.ByteString.Char8             as BC
+import qualified Data.CaseInsensitive              as CI
+import           Data.Maybe                        (fromMaybe)
+import qualified Data.Text.Encoding                as TE
+import           Decaf.Client.Internal.Credentials
                  ( BasicCredentials(BasicCredentials)
                  , Credentials(..)
                  , KeyCredentials(KeyCredentials)
                  )
-import           Decaf.Client.Internal.Utils    (compose)
-import qualified Network.HTTP.Client.Conduit    as HC
-import qualified Network.HTTP.Simple            as HS
+import           Decaf.Client.Internal.Remote
+import           Decaf.Client.Internal.Request     (Payload(..), Request(..), unPath)
+import           Decaf.Client.Internal.Response
+import           Decaf.Client.Internal.Utils       (compose)
+import qualified Network.HTTP.Client.Conduit       as HC
+import qualified Network.HTTP.Simple               as HS
 
 
 -- * HTTP Request Runners
@@ -126,7 +126,7 @@ setPayload r = maybe id (HS.setRequestBody . HC.RequestBodyLBS . payloadContent)
 
 -- | Builds an HTTP @Authorization@ header value from given 'Credentials'.
 --
--- >>> import Decaf.Client.Internal.Types
+-- >>> import Decaf.Client.Internal.Credentials
 -- >>> mkAuthorization $ CredentialsHeader "Token XYZ"
 -- "Token XYZ"
 -- >>> mkAuthorization $ CredentialsBasic (BasicCredentials "username" "password")

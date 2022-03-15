@@ -3,7 +3,7 @@
 {-# LANGUAGE DataKinds   #-}
 {-# LANGUAGE DerivingVia #-}
 
-module Decaf.Client.Internal.Types where
+module Decaf.Client.Internal.Credentials where
 
 import qualified Data.Text            as T
 import qualified Deriving.Aeson       as DA

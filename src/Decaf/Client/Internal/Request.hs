@@ -3,16 +3,16 @@
 
 module Decaf.Client.Internal.Request where
 
-import           Control.Monad.Except         (MonadError)
-import qualified Data.Aeson                   as Aeson
-import qualified Data.ByteString.Lazy         as BL
-import qualified Data.Text                    as T
-import           Decaf.Client.Internal.Error  (DecafClientError)
-import           Decaf.Client.Internal.Remote (Remote(..), parseRemote, remoteUrl)
-import           Decaf.Client.Internal.Types
-import           Decaf.Client.Internal.Utils  (dropTrailing)
-import           Decaf.Client.Version         (version)
-import           Text.Printf                  (printf)
+import           Control.Monad.Except              (MonadError)
+import qualified Data.Aeson                        as Aeson
+import qualified Data.ByteString.Lazy              as BL
+import qualified Data.Text                         as T
+import           Decaf.Client.Internal.Credentials
+import           Decaf.Client.Internal.Error       (DecafClientError)
+import           Decaf.Client.Internal.Remote      (Remote(..), parseRemote, remoteUrl)
+import           Decaf.Client.Internal.Utils       (dropTrailing)
+import           Decaf.Client.Version              (version)
+import           Text.Printf                       (printf)
 
 
 -- * Data Definition
