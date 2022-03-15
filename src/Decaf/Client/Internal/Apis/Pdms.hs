@@ -2,8 +2,8 @@
 --
 module Decaf.Client.Internal.Apis.Pdms where
 
-import           Control.Monad.Except              (MonadError)
-import           Control.Monad.IO.Class            (MonadIO)
+import           Control.Monad.Except           (MonadError)
+import           Control.Monad.IO.Class         (MonadIO)
 import           Data.Aeson
                  ( FromJSON(..)
                  , Object
@@ -15,17 +15,17 @@ import           Data.Aeson
                  , object
                  , (.=)
                  )
-import           Data.Char                         (toLower)
-import           Data.List.NonEmpty                (NonEmpty)
-import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Combinators
-import           Decaf.Client.Internal.Error       (DecafClientError)
+import           Data.Char                      (toLower)
+import           Data.List.NonEmpty             (NonEmpty)
+import qualified Data.Text                      as T
+import           Decaf.Client.Internal.Error    (DecafClientError)
 import           Decaf.Client.Internal.Http
 import           Decaf.Client.Internal.Remote
 import           Decaf.Client.Internal.Request
+import           Decaf.Client.Internal.Response
 import           Decaf.Client.Internal.Types
-import           Decaf.Client.Internal.Utils       (applyFirst)
-import           GHC.Generics                      (Generic)
+import           Decaf.Client.Internal.Utils    (applyFirst)
+import           GHC.Generics                   (Generic)
 
 
 -- * Data Definition

@@ -41,9 +41,13 @@ module Decaf.Client
   , DecafClientError(..)
   , throwDecafClientError
 
-    -- * Request Combinators
+    -- * Requests
 
-  , module Decaf.Client.Internal.Combinators
+  , module Decaf.Client.Internal.Request
+
+    -- * Responses
+
+  , module Decaf.Client.Internal.Response
 
     -- * Common Types
 
@@ -77,59 +81,11 @@ import Decaf.Client.Internal.Apis.Pdms
        , mkPdmsQuery'
        , runPdms
        )
-import Decaf.Client.Internal.Combinators
-       ( Combinator
-       , addHeader
-       , addHeaders
-       , addParam
-       , addParams
-       , addPath
-       , credentials
-       , delete
-       , get
-       , header
-       , headers
-       , jsonPayload
-       , namespace
-       , noPayload
-       , param
-       , params
-       , path
-       , payload
-       , post
-       , put
-       , remote
-       , setCredentials
-       , setHeaders
-       , setMethod
-       , setNamespace
-       , setNoPayload
-       , setParams
-       , setPath
-       , setPayload
-       , setRemote
-       , setTrailingSlash
-       , setUserAgent
-       , userAgent
-       , withTrailingSlash
-       , withoutTrailingSlash
-       )
 import Decaf.Client.Internal.Error         (DecafClientError(..), throwDecafClientError)
 import Decaf.Client.Internal.Remote        (Remote(..), parseRemote, remoteToUrl)
-import Decaf.Client.Internal.Types
-       ( BasicCredentials(..)
-       , Credentials(..)
-       , Header
-       , Headers
-       , KeyCredentials(..)
-       , Method(..)
-       , Param
-       , Params
-       , Path(..)
-       , Payload(..)
-       , Request(..)
-       , Response(..)
-       )
+import Decaf.Client.Internal.Request
+import Decaf.Client.Internal.Response
+import Decaf.Client.Internal.Types         (BasicCredentials(..), Credentials(..), KeyCredentials(..))
 
 
 -- | Data definition for a collection of various DECAF API clients.

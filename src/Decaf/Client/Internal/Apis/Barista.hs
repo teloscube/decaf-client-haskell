@@ -2,17 +2,17 @@
 
 module Decaf.Client.Internal.Apis.Barista where
 
-import           Control.Monad.Except              (MonadError)
-import           Control.Monad.IO.Class            (MonadIO)
-import           Data.Aeson                        (FromJSON)
-import qualified Data.ByteString                   as B
-import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Combinators (Combinator, namespace, withTrailingSlash)
-import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http        (runRequest, runRequestBS)
-import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
-import           Decaf.Client.Internal.Request     (initRequest)
-import           Decaf.Client.Internal.Types       (Credentials, Request, Response)
+import           Control.Monad.Except           (MonadError)
+import           Control.Monad.IO.Class         (MonadIO)
+import           Data.Aeson                     (FromJSON)
+import qualified Data.ByteString                as B
+import qualified Data.Text                      as T
+import           Decaf.Client.Internal.Error    (DecafClientError)
+import           Decaf.Client.Internal.Http     (runRequest, runRequestBS)
+import           Decaf.Client.Internal.Remote   (Remote, parseRemote)
+import           Decaf.Client.Internal.Request  (Combinator, Request, initRequest, namespace, withTrailingSlash)
+import           Decaf.Client.Internal.Response (Response)
+import           Decaf.Client.Internal.Types    (Credentials)
 
 
 -- * Data Definition
