@@ -29,6 +29,7 @@ dependencies:
 - network-uri
 - text
 - unordered-containers
+- yaml
 
 library:
   source-dirs: src

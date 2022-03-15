@@ -52,6 +52,11 @@ module Decaf.Client
 
   , module Decaf.Client.Internal.Credentials
 
+
+    -- * Profiles
+
+  , module Decaf.Client.Internal.Profile
+
     -- * Errors
 
   , module Decaf.Client.Internal.Error
@@ -89,6 +94,7 @@ import Decaf.Client.Internal.Apis.Pdms
 import Decaf.Client.Internal.Credentials
 import Decaf.Client.Internal.Error
 import Decaf.Client.Internal.Exception
+import Decaf.Client.Internal.Profile
 import Decaf.Client.Internal.Remote
 import Decaf.Client.Internal.Request
 import Decaf.Client.Internal.Response

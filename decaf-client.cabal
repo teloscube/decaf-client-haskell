@@ -3,8 +3,6 @@ cabal-version: 1.12
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 90f836bda379684c199708d787f74e3d2e29bf5ada683fe6f9fdd0e73ae4a518
 
 name:           decaf-client
 version:        0.0.0.3
@@ -37,6 +35,7 @@ library
       Decaf.Client.Internal.Error
       Decaf.Client.Internal.Exception
       Decaf.Client.Internal.Http
+      Decaf.Client.Internal.Profile
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
       Decaf.Client.Internal.Response
@@ -99,6 +98,7 @@ library
     , network-uri
     , text
     , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 executable decaf-client-examples-accountinfo-exe
@@ -123,6 +123,7 @@ executable decaf-client-examples-accountinfo-exe
     , network-uri
     , text
     , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 executable decafcli
@@ -148,6 +149,7 @@ executable decafcli
     , optparse-applicative
     , text
     , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-doctest
@@ -174,6 +176,7 @@ test-suite decaf-client-doctest
     , network-uri
     , text
     , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-test
@@ -199,4 +202,5 @@ test-suite decaf-client-test
     , network-uri
     , text
     , unordered-containers
+    , yaml
   default-language: Haskell2010
