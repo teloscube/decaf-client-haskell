@@ -19,7 +19,7 @@ import           Text.Printf                       (printf)
 
 -- | Initializes a request with deployment URL and authentication credentials.
 --
--- >>> initRequest (Remote "example.com" Nothing False) (HeaderCredentials "OUCH")
+-- >>> initRequest (Remote "example.com" Nothing False) (CredentialsHeader "OUCH")
 -- Request {
 --   requestRemote            = [http]://[example.com]:[80]
 --   requestNamespace         = MkPath {unPath = []}
@@ -39,7 +39,7 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 -- | Initializes a request with deployment URL and authentication credentials.
 --
 -- >>> import Decaf.Client
--- >>> initRequestM "http://example.com" (HeaderCredentials "OUCH") :: Either DecafClientError Request
+-- >>> initRequestM "http://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError Request
 -- Right Request {
 --   requestRemote            = [http]://[example.com]:[80]
 --   requestNamespace         = MkPath {unPath = []}
@@ -67,7 +67,7 @@ defaultRequest :: Request
 defaultRequest = Request
   { requestRemote = Remote "localhost" Nothing False
   , requestNamespace = mempty
-  , requestCredentials = HeaderCredentials "UNKNOWN"
+  , requestCredentials = CredentialsHeader "UNKNOWN"
   , requestUserAgent = defaultUserAgent
   , requestHttpHeaders = []
   , requestHttpMethod = GET

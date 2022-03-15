@@ -35,7 +35,7 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } der
 
 -- | Builds a 'MicrolotClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
 --
--- >>> mkMicrolotClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: MicrolotClient
+-- >>> mkMicrolotClient (IT.Remote "example.com" Nothing True) (IT.CredentialsHeader "OUCH") :: MicrolotClient
 -- MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
@@ -54,7 +54,7 @@ mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 
 -- | Attempts to build a 'MicrolotClient' with the given DECAF deployment URL and credentials.
 --
--- >>> mkMicrolotClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError MicrolotClient
+-- >>> mkMicrolotClientM "https://example.com" (IT.CredentialsHeader "OUCH") :: Either IT.DecafClientError MicrolotClient
 -- Right (MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}

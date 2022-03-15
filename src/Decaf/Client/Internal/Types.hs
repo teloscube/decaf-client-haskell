@@ -170,10 +170,10 @@ mkPath = MkPath . filter ("" /=) . T.split ('/' ==)
 
 -- | Data definition for available DECAF credentials types.
 data Credentials =
-    HeaderCredentials !T.Text
-  | BasicCredentials !T.Text !T.Text
-  | KeyCredentials !T.Text !T.Text
-  | TokenCredentials !T.Text
+    CredentialsHeader !T.Text
+  | CredentialsBasic !T.Text !T.Text
+  | CredentialsKey !T.Text !T.Text
+  | CredentialsToken !T.Text
 
 instance Show Credentials where
   show _ = "<********>"

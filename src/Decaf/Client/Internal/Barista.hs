@@ -20,7 +20,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 
 -- | Builds a 'BaristaClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
 --
--- >>> mkBaristaClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: BaristaClient
+-- >>> mkBaristaClient (IT.Remote "example.com" Nothing True) (IT.CredentialsHeader "OUCH") :: BaristaClient
 -- MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
@@ -39,7 +39,7 @@ mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlas
 
 -- | Attempts to build a 'BaristaClient' with the given DECAF deployment URL and credentials.
 --
--- >>> mkBaristaClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError BaristaClient
+-- >>> mkBaristaClientM "https://example.com" (IT.CredentialsHeader "OUCH") :: Either IT.DecafClientError BaristaClient
 -- Right (MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}

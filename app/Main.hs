@@ -57,7 +57,7 @@ microlotCommandProgram (MicrolotCommandParameters fileConfig profileName fileQue
     Left x -> hPutStrLn stderr ("Can not read the configuration file: " <> x) >> exitFailure
     Right c -> case HM.lookup profileName (decafConfigProfiles c) of
       Nothing -> hPutStrLn stderr ("Can not find the profile: " <> T.unpack profileName) >> exitFailure
-      Just (DecafConfigProfile _ u k s) -> case DC.mkDecafClient u (DC.KeyCredentials k s) of
+      Just (DecafConfigProfile _ u k s) -> case DC.mkDecafClient u (DC.CredentialsKey k s) of
         Left err -> hPutStrLn stderr ("Can not create the DECAF client: " <> show err) >> exitFailure
         Right dc -> do
           query <- readFile fileQuery

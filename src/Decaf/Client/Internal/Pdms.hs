@@ -35,7 +35,7 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: IT.Request } deriving Show
 
 -- | Builds a 'PdmsClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
 --
--- >>> mkPdmsClient (IT.Remote "example.com" Nothing True) (IT.HeaderCredentials "OUCH") :: PdmsClient
+-- >>> mkPdmsClient (IT.Remote "example.com" Nothing True) (IT.CredentialsHeader "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
@@ -54,7 +54,7 @@ mkPdmsClient r c = MkPdmsClient . IC.post . IC.namespace "/apis/modules/pdms/v1/
 
 -- | Attempts to build a 'PdmsClient' with the given DECAF deployment URL and credentials.
 --
--- >>> mkPdmsClientM "https://example.com" (IT.HeaderCredentials "OUCH") :: Either IT.DecafClientError PdmsClient
+-- >>> mkPdmsClientM "https://example.com" (IT.CredentialsHeader "OUCH") :: Either IT.DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
