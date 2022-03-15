@@ -18,10 +18,10 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Credentials
+import           Decaf.Client.Internal.Credentials (Credentials)
 import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http
-import           Decaf.Client.Internal.Remote
+import           Decaf.Client.Internal.Http        (runRequest)
+import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 import           Decaf.Client.Internal.Request
                  ( Combinator
                  , Request
@@ -31,7 +31,7 @@ import           Decaf.Client.Internal.Request
                  , post
                  , withoutTrailingSlash
                  )
-import           Decaf.Client.Internal.Response
+import           Decaf.Client.Internal.Response    (Response)
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
@@ -50,6 +50,7 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: Request } derivi
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.Internal.Remote
 -- >>> mkMicrolotClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: MicrolotClient
 -- MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
@@ -75,6 +76,7 @@ mkMicrolotClient r c = MkMicrolotClient . post . namespace "/apis/microlot/v1/gr
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.Internal.Remote
 -- >>> mkMicrolotClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError MicrolotClient
 -- Right (MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]

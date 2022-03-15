@@ -7,7 +7,7 @@ import           Control.Monad.Except              (MonadError)
 import qualified Data.Aeson                        as Aeson
 import qualified Data.ByteString.Lazy              as BL
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Credentials
+import           Decaf.Client.Internal.Credentials (Credentials(CredentialsHeader))
 import           Decaf.Client.Internal.Error       (DecafClientError)
 import           Decaf.Client.Internal.Remote      (Remote(..), parseRemote, remoteUrl)
 import           Decaf.Client.Internal.Utils       (dropTrailing)

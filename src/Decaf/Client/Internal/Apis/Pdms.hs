@@ -18,12 +18,20 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Credentials
+import           Decaf.Client.Internal.Credentials (Credentials)
 import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http
-import           Decaf.Client.Internal.Remote
+import           Decaf.Client.Internal.Http        (runRequest)
+import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 import           Decaf.Client.Internal.Request
-import           Decaf.Client.Internal.Response
+                 ( Combinator
+                 , Request
+                 , initRequest
+                 , jsonPayload
+                 , namespace
+                 , post
+                 , withoutTrailingSlash
+                 )
+import           Decaf.Client.Internal.Response    (Response)
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
@@ -46,6 +54,7 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: Request } deriving Show
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.Internal.Remote
 -- >>> mkPdmsClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
@@ -66,6 +75,7 @@ mkPdmsClient r c = MkPdmsClient . post . namespace "/apis/modules/pdms/v1/graphq
 -- | Attempts to build a 'PdmsClient' with the given DECAF Instance URL and credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.Internal.Remote
 -- >>> mkPdmsClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]

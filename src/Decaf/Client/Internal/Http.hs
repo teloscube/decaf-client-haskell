@@ -21,9 +21,9 @@ import           Decaf.Client.Internal.Credentials
                  , Credentials(..)
                  , KeyCredentials(KeyCredentials)
                  )
-import           Decaf.Client.Internal.Remote
+import           Decaf.Client.Internal.Remote      (Remote(remoteHost, remotePort, remoteSecure))
 import           Decaf.Client.Internal.Request     (Payload(..), Request(..), unPath)
-import           Decaf.Client.Internal.Response
+import           Decaf.Client.Internal.Response    (Response(Response))
 import           Decaf.Client.Internal.Utils       (compose)
 import qualified Network.HTTP.Client.Conduit       as HC
 import qualified Network.HTTP.Simple               as HS
