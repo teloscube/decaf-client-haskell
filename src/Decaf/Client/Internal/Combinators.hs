@@ -43,7 +43,7 @@ remote = setRemote
 --   requestRemote            = [http]://[localhost]:[80]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = []
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -63,7 +63,7 @@ setNamespace n request = request { requestNamespace = n }
 --   requestRemote            = [http]://[localhost]:[80]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = []
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -106,7 +106,7 @@ setHeaders hs request = request { requestHttpHeaders = hs }
 --
 -- This combinator does NOT remove existing user-set headers, but overwrites if keys match.
 addHeaders :: Headers -> Combinator
-addHeaders hs request = setHeaders (existing ++ hs) request
+addHeaders hs request = setHeaders (existing <> hs) request
   where
     headkeys = fmap fst hs
     existing = filter (\x -> fst x `notElem` headkeys) . requestHttpHeaders $ request
@@ -189,7 +189,7 @@ setParams ps request = request { requestHttpParams = ps}
 
 -- | Appends more 'Params' to the 'Request'\'s 'Params'.
 addParams :: Params -> Combinator
-addParams ps request = setParams (requestHttpParams request ++ ps) request
+addParams ps request = setParams (requestHttpParams request <> ps) request
 
 
 -- | Alias to 'addParams'.

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c476fb7346009598acb4f31bcb84d432f8f3542db1fd3661868c091a39a64e63
+-- hash: fd5d41a3f1f1c02d465bbafb9ce32b7b530500e6eb5c51416761e86a3ba1e102
 
 name:           decaf-client
 version:        0.0.0.3
@@ -15,13 +15,13 @@ homepage:       https://github.com/teloscube/decaf-client-haskell#readme
 bug-reports:    https://github.com/teloscube/decaf-client-haskell/issues
 author:         Vehbi Sinan Tunalioglu
 maintainer:     vst@vsthost.com
-copyright:      2020 Teloscube Pte Ltd
+copyright:      2020-2022 Teloscube Pte Ltd
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
+    CHANGELOG.md
 
 source-repository head
   type: git
@@ -121,10 +121,9 @@ test-suite decaf-client-doctest
   type: exitcode-stdio-1.0
   main-is: doctest.hs
   other-modules:
-      Main
       Paths_decaf_client
   hs-source-dirs:
-      test
+      ./
   ghc-options: -threaded
   build-depends:
       aeson

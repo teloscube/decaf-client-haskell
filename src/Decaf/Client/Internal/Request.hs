@@ -24,7 +24,7 @@ import           Text.Printf                       (printf)
 --   requestRemote            = [http]://[example.com]:[80]
 --   requestNamespace         = MkPath {unPath = []}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","http://example.com:80")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -44,7 +44,7 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 --   requestRemote            = [http]://[example.com]:[80]
 --   requestNamespace         = MkPath {unPath = []}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","http://example.com:80")]
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -81,6 +81,6 @@ defaultRequest = Request
 -- | User agent value definition for the library.
 --
 -- >>> defaultUserAgent
--- "DECAF API Client/0.0.0.2 (Haskell)"
+-- "DECAF API Client/... (Haskell)"
 defaultUserAgent :: T.Text
 defaultUserAgent = T.pack $ printf "DECAF API Client/%s (Haskell)" version

@@ -33,3 +33,7 @@ Dump FX rates for a given FX pair:
 ```
 decafcli microlot --config ~/.decaf.json --profile telosinvest --query examples/microlot/queries/fxrates.gql --params '{"pair": "EURUSD"}'
 ```
+
+## License
+
+[BSD 3-Clause License](./LICENSE). Copyright (c) 2020-2022, Teloscube Pte Ltd.
