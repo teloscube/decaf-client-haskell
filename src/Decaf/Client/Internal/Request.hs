@@ -6,8 +6,8 @@ import           Control.Monad.Except              (MonadError)
 import qualified Data.Text                         as T
 import           Decaf.Client.Internal.Combinators (credentials, header, remote)
 import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Remote      (parseRemote, remoteUrl)
-import           Decaf.Client.Internal.Types       (Credentials(..), Method(..), Remote(..), Request(..))
+import           Decaf.Client.Internal.Remote      (Remote(..), parseRemote, remoteUrl)
+import           Decaf.Client.Internal.Types       (Credentials(..), Method(..), Request(..))
 import           Decaf.Client.Version              (version)
 import           Text.Printf                       (printf)
 

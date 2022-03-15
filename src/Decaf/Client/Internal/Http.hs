@@ -7,28 +7,28 @@
 
 module Decaf.Client.Internal.Http where
 
-import           Control.Monad.IO.Class      (MonadIO)
-import           Data.Aeson                  (FromJSON)
-import           Data.Bifunctor              (bimap)
-import qualified Data.ByteString             as B
-import           Data.ByteString.Base64      (encode)
-import qualified Data.ByteString.Char8       as BC
-import qualified Data.CaseInsensitive        as CI
-import           Data.Maybe                  (fromMaybe)
-import qualified Data.Text.Encoding          as TE
+import           Control.Monad.IO.Class       (MonadIO)
+import           Data.Aeson                   (FromJSON)
+import           Data.Bifunctor               (bimap)
+import qualified Data.ByteString              as B
+import           Data.ByteString.Base64       (encode)
+import qualified Data.ByteString.Char8        as BC
+import qualified Data.CaseInsensitive         as CI
+import           Data.Maybe                   (fromMaybe)
+import qualified Data.Text.Encoding           as TE
+import           Decaf.Client.Internal.Remote
 import           Decaf.Client.Internal.Types
                  ( BasicCredentials(BasicCredentials)
                  , Credentials(..)
                  , KeyCredentials(KeyCredentials)
                  , Path(unPath)
                  , Payload(payloadContent, payloadType)
-                 , Remote(remoteHost, remotePort, remoteSecure)
                  , Request(..)
                  , Response(Response)
                  )
-import           Decaf.Client.Internal.Utils (compose)
-import qualified Network.HTTP.Client.Conduit as HC
-import qualified Network.HTTP.Simple         as HS
+import           Decaf.Client.Internal.Utils  (compose)
+import qualified Network.HTTP.Client.Conduit  as HC
+import qualified Network.HTTP.Simple          as HS
 
 
 -- * HTTP Request Runners

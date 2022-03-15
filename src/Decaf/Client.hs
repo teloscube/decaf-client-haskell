@@ -47,6 +47,8 @@ module Decaf.Client
 
     -- * Common Types
 
+  , Remote(..)
+  , remoteToUrl
   , module Decaf.Client.Internal.Types
 
   ) where
@@ -113,7 +115,7 @@ import Decaf.Client.Internal.Combinators
        , withoutTrailingSlash
        )
 import Decaf.Client.Internal.Error         (DecafClientError(..), throwDecafClientError)
-import Decaf.Client.Internal.Remote        (parseRemote)
+import Decaf.Client.Internal.Remote        (Remote(..), parseRemote, remoteToUrl)
 import Decaf.Client.Internal.Types
        ( BasicCredentials(..)
        , Credentials(..)
@@ -125,10 +127,8 @@ import Decaf.Client.Internal.Types
        , Params
        , Path(..)
        , Payload(..)
-       , Remote(..)
        , Request(..)
        , Response(..)
-       , remoteToUrl
        )
 
 

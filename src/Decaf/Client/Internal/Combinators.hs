@@ -2,9 +2,10 @@
 
 module Decaf.Client.Internal.Combinators where
 
-import           Data.Aeson                  (ToJSON, encode)
-import qualified Data.ByteString.Lazy        as BL
-import qualified Data.Text                   as T
+import           Data.Aeson                   (ToJSON, encode)
+import qualified Data.ByteString.Lazy         as BL
+import qualified Data.Text                    as T
+import           Decaf.Client.Internal.Remote (Remote)
 import           Decaf.Client.Internal.Types
                  ( Credentials
                  , Header
@@ -14,7 +15,6 @@ import           Decaf.Client.Internal.Types
                  , Params
                  , Path
                  , Payload(..)
-                 , Remote
                  , Request(..)
                  , mkPath
                  )

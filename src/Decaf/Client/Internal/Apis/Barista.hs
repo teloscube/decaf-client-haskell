@@ -10,9 +10,9 @@ import qualified Data.Text                         as T
 import           Decaf.Client.Internal.Combinators (Combinator, namespace, withTrailingSlash)
 import           Decaf.Client.Internal.Error       (DecafClientError)
 import           Decaf.Client.Internal.Http        (runRequest, runRequestBS)
-import           Decaf.Client.Internal.Remote      (parseRemote)
+import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 import           Decaf.Client.Internal.Request     (initRequest)
-import           Decaf.Client.Internal.Types       (Credentials, Remote, Request, Response)
+import           Decaf.Client.Internal.Types       (Credentials, Request, Response)
 
 
 -- * Data Definition
@@ -31,6 +31,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: Request } deriving 
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Types
+-- >>> import Decaf.Client.Internal.Remote
 -- >>> mkBaristaClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: BaristaClient
 -- MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
