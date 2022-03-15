@@ -90,16 +90,16 @@ data Request = Request
 instance Show Request where
   show x = dropTrailing '\n' $ unlines
     [ "Request {"
-    , "  requestRemote            = " ++ show (requestRemote x)
-    , "  requestNamespace         = " ++ show (requestNamespace x)
-    , "  requestCredentials       = " ++ show (requestCredentials x)
-    , "  requestUserAgent         = " ++ show (requestUserAgent x)
-    , "  requestHttpHeaders       = " ++ show (requestHttpHeaders x)
-    , "  requestHttpMethod        = " ++ show (requestHttpMethod x)
-    , "  requestHttpPath          = " ++ show (requestHttpPath x)
-    , "  requestHttpTrailingSlash = " ++ show (requestHttpTrailingSlash x)
-    , "  requestHttpParams        = " ++ show (requestHttpParams x)
-    , "  requestHttpPayload       = " ++ show (requestHttpPayload x)
+    , "  requestRemote            = " <> show (requestRemote x)
+    , "  requestNamespace         = " <> show (requestNamespace x)
+    , "  requestCredentials       = " <> show (requestCredentials x)
+    , "  requestUserAgent         = " <> show (requestUserAgent x)
+    , "  requestHttpHeaders       = " <> show (requestHttpHeaders x)
+    , "  requestHttpMethod        = " <> show (requestHttpMethod x)
+    , "  requestHttpPath          = " <> show (requestHttpPath x)
+    , "  requestHttpTrailingSlash = " <> show (requestHttpTrailingSlash x)
+    , "  requestHttpParams        = " <> show (requestHttpParams x)
+    , "  requestHttpPayload       = " <> show (requestHttpPayload x)
     , "}"
     ]
 
@@ -134,7 +134,7 @@ newtype Path = MkPath { unPath :: [T.Text] } deriving Show
 -- >>> mkPath "/a/b" <> mkPath "/c/d"
 -- MkPath {unPath = ["a","b","c","d"]}
 instance Semigroup Path where
-  (<>) (MkPath p1) (MkPath p2) = MkPath $ p1 ++ p2
+  (<>) (MkPath p1) (MkPath p2) = MkPath (p1 <> p2)
 
 -- >>> mconcat [mkPath "/a/b", mkPath "/c/d"]
 -- MkPath {unPath = ["a","b","c","d"]}

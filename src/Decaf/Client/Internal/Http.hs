@@ -6,6 +6,7 @@ module Decaf.Client.Internal.Http where
 
 import           Control.Monad.IO.Class      (MonadIO)
 import           Data.Aeson                  (FromJSON)
+import           Data.Bifunctor              (bimap)
 import qualified Data.ByteString             as B
 import           Data.ByteString.Base64      (encode)
 import qualified Data.ByteString.Char8       as BC
@@ -37,7 +38,7 @@ runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 mkResponse :: HS.Response a -> IT.Response a
 mkResponse = IT.Response
   <$> HS.getResponseStatusCode
-  <*> (fmap (\(x, y) -> (TE.decodeUtf8 . CI.foldedCase $ x, TE.decodeUtf8 y)) . HS.getResponseHeaders)
+  <*> (fmap (bimap (TE.decodeUtf8 . CI.foldedCase) TE.decodeUtf8) . HS.getResponseHeaders)
   <*> HS.getResponseBody
 
 
@@ -93,14 +94,14 @@ setHeaders r = HS.setRequestHeaders h''
   where
     a = ("Authorization", mkAuthorization . IT.requestCredentials $ r)
     u = ("UserAgent", TE.encodeUtf8 . IT.requestUserAgent $ r)
-    p =  maybe [] (\x -> [("Content-Type", TE.encodeUtf8 . IT.payloadType $ x)]) (IT.requestHttpPayload r)
+    p =  foldMap (\x -> [("Content-Type", TE.encodeUtf8 . IT.payloadType $ x)]) (IT.requestHttpPayload r)
     h' = fmap (\(x, y) -> (CI.mk $ TE.encodeUtf8 x, TE.encodeUtf8 y)) . IT.requestHttpHeaders $ r
-    h'' = a : u : p ++ h'
+    h'' = a : u : (p <> h')
 
 
 -- | Sets request querystring parameters.
 setParams :: RequestFieldSetter
-setParams r = HS.setRequestQueryString $ fmap (\(x, y) -> (TE.encodeUtf8 x, Just . TE.encodeUtf8 $ y)). IT.requestHttpParams $ r
+setParams = HS.setRequestQueryString . fmap (bimap TE.encodeUtf8 (Just . TE.encodeUtf8)). IT.requestHttpParams
 
 
 -- | Sets request payload.

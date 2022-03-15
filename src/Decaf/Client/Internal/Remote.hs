@@ -80,7 +80,7 @@ parseRemote url = do
 parseUri' :: MonadError DecafClientError m => String -> m U.URI
 parseUri' x = maybe err pure $ U.parseAbsoluteURI x
   where
-    err = throwDecafClientError $ "Can not parse remote url: '" ++ x ++ "'"
+    err = throwDecafClientError $ "Can not parse remote url: '" <> (x <> "'")
 
 
 -- | Attempts to find out if the 'U.URI' scheme is secure HTTP or not.
@@ -97,7 +97,7 @@ parseHostPort' uri = (\auth -> (,) <$> parseHost' auth <*> parsePort' auth) =<< 
 parseAuthority' :: MonadError DecafClientError m => U.URI -> m U.URIAuth
 parseAuthority' uri = maybe err pure $ U.uriAuthority uri
   where
-    err = throwDecafClientError $ "Can not parse authority from URI: '" ++ show uri ++ "'"
+    err = throwDecafClientError $ "Can not parse authority from URI: '" <> (show uri <> "'")
 
 
 -- | Attempts to get a non-empty 'T.Text' value as the host from the given 'U.URIAuth'.
@@ -109,9 +109,9 @@ parseHost' a = maybe err pure $ T.pack <$> (nonEmptyString . U.uriRegName) a
 
 -- | Attempts to get the port from the given 'U.URIAuth'.
 parsePort' :: MonadError DecafClientError m => U.URIAuth -> m (Maybe Int)
-parsePort' uri = maybe err pure $ sequence $ readMaybe . dropLeading ':' <$> (nonEmptyString . U.uriPort) uri
+parsePort' uri = maybe err pure . sequence$ (readMaybe . dropLeading ':' <$> (nonEmptyString . U.uriPort) uri)
   where
-    err = throwDecafClientError $ "Can not parse port from URI: '" ++ show uri ++ "'"
+    err = throwDecafClientError $ "Can not parse port from URI: '" <> (show uri <> "'")
 
 
 -- | Predicate to define if the URI indicates secure HTTP or not.
@@ -132,4 +132,4 @@ isSecureHttp' = isSecure' . fmap C.toLower . dropTrailing ':'
   where
     isSecure' "http"  = pure False
     isSecure' "https" = pure True
-    isSecure' proto   = throwDecafClientError $ "Unknown protocol: " ++ proto
+    isSecure' proto   = throwDecafClientError $ "Unknown protocol: " <> proto
