@@ -104,10 +104,12 @@ import Decaf.Client.Internal.Pdms
        )
 import Decaf.Client.Internal.Remote      (parseRemote)
 import Decaf.Client.Internal.Types
-       ( Credentials(..)
+       ( BasicCredentials(..)
+       , Credentials(..)
        , DecafClientError(..)
        , Header
        , Headers
+       , KeyCredentials(..)
        , Method(..)
        , Param
        , Params

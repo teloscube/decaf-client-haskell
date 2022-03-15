@@ -21,6 +21,7 @@ dependencies:
 - base64-bytestring
 - bytestring
 - case-insensitive
+- deriving-aeson
 - http-client
 - http-conduit
 - http-types

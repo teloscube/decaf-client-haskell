@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fd5d41a3f1f1c02d465bbafb9ce32b7b530500e6eb5c51416761e86a3ba1e102
+-- hash: e369a6d49e77a744f0df7b5061ca0e998dfdd5abd8c593f2a094c8d3f8deea06
 
 name:           decaf-client
 version:        0.0.0.3
@@ -89,6 +89,7 @@ library
     , base64-bytestring
     , bytestring
     , case-insensitive
+    , deriving-aeson
     , http-client
     , http-conduit
     , http-types
@@ -112,6 +113,7 @@ executable decaf-client-examples-accountinfo-exe
     , bytestring
     , case-insensitive
     , decaf-client
+    , deriving-aeson
     , http-client
     , http-conduit
     , http-types
@@ -135,6 +137,7 @@ executable decafcli
     , bytestring
     , case-insensitive
     , decaf-client
+    , deriving-aeson
     , http-client
     , http-conduit
     , http-types
@@ -160,6 +163,7 @@ test-suite decaf-client-doctest
     , bytestring
     , case-insensitive
     , decaf-client
+    , deriving-aeson
     , doctest
     , http-client
     , http-conduit
@@ -185,6 +189,7 @@ test-suite decaf-client-test
     , bytestring
     , case-insensitive
     , decaf-client
+    , deriving-aeson
     , http-client
     , http-conduit
     , http-types
