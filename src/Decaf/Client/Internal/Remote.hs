@@ -6,7 +6,8 @@ import           Control.Monad.Except        (MonadError)
 import qualified Data.Char                   as C
 import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Types (DecafClientError, Remote(Remote), throwDecafClientError)
+import           Decaf.Client.Internal.Error (DecafClientError, throwDecafClientError)
+import           Decaf.Client.Internal.Types (Remote(Remote))
 import           Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
 import qualified Network.URI                 as U
 import           Text.Printf                 (printf)

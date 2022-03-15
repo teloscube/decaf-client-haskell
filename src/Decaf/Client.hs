@@ -36,6 +36,11 @@ module Decaf.Client
   , PdmsQuery(..)
   , PdmsResponse(..)
 
+    -- * Errors
+
+  , DecafClientError(..)
+  , throwDecafClientError
+
     -- * Request Combinators
 
   , module Decaf.Client.Internal.Combinators
@@ -107,11 +112,11 @@ import Decaf.Client.Internal.Combinators
        , withTrailingSlash
        , withoutTrailingSlash
        )
+import Decaf.Client.Internal.Error         (DecafClientError(..), throwDecafClientError)
 import Decaf.Client.Internal.Remote        (parseRemote)
 import Decaf.Client.Internal.Types
        ( BasicCredentials(..)
        , Credentials(..)
-       , DecafClientError(..)
        , Header
        , Headers
        , KeyCredentials(..)
@@ -124,7 +129,6 @@ import Decaf.Client.Internal.Types
        , Request(..)
        , Response(..)
        , remoteToUrl
-       , throwDecafClientError
        )
 
 

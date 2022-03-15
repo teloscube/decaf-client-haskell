@@ -8,10 +8,11 @@ import           Data.Aeson                        (FromJSON)
 import qualified Data.ByteString                   as B
 import qualified Data.Text                         as T
 import           Decaf.Client.Internal.Combinators (Combinator, namespace, withTrailingSlash)
+import           Decaf.Client.Internal.Error       (DecafClientError)
 import           Decaf.Client.Internal.Http        (runRequest, runRequestBS)
 import           Decaf.Client.Internal.Remote      (parseRemote)
 import           Decaf.Client.Internal.Request     (initRequest)
-import           Decaf.Client.Internal.Types       (Credentials, DecafClientError, Remote, Request, Response)
+import           Decaf.Client.Internal.Types       (Credentials, Remote, Request, Response)
 
 
 -- * Data Definition

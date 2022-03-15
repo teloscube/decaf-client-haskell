@@ -5,7 +5,6 @@
 
 module Decaf.Client.Internal.Types where
 
-import           Control.Monad.Except        (MonadError, throwError)
 import qualified Data.ByteString.Lazy        as BL
 import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
@@ -13,18 +12,6 @@ import           Decaf.Client.Internal.Utils (dropTrailing)
 import qualified Deriving.Aeson              as DA
 import qualified Deriving.Aeson.Stock        as DAS
 import           Text.Printf                 (printf)
-
-
--- | Type definition for DECAF client errors.
-newtype DecafClientError = DecafClientError String deriving (Show)
-
-
--- | Throws a DECAF client error.
---
--- >>> throwDecafClientError "Invalid request" :: Either DecafClientError ()
--- Left (DecafClientError "Invalid request")
-throwDecafClientError :: MonadError DecafClientError m => String -> m a
-throwDecafClientError = throwError . DecafClientError
 
 
 -- | Type definition for addressing a remote DECAF Instance.

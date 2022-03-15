@@ -19,6 +19,7 @@ import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
 import           Decaf.Client.Internal.Combinators
+import           Decaf.Client.Internal.Error       (DecafClientError)
 import           Decaf.Client.Internal.Http
 import           Decaf.Client.Internal.Remote
 import           Decaf.Client.Internal.Request
