@@ -5,6 +5,7 @@
 
 module Decaf.Client.Internal.Credentials where
 
+import qualified Data.Char            as C
 import qualified Data.Text            as T
 import qualified Deriving.Aeson       as DA
 import qualified Deriving.Aeson.Stock as DAS
@@ -13,20 +14,20 @@ import qualified Deriving.Aeson.Stock as DAS
 -- | Data definition for available DECAF credentials types.
 --
 -- >>> Data.Aeson.encode (CredentialsHeader "some-header-value")
--- "{\"type\":\"Header\",\"value\":\"some-header-value\"}"
+-- "{\"type\":\"header\",\"value\":\"some-header-value\"}"
 -- >>> Data.Aeson.encode (CredentialsBasic (BasicCredentials "some-username" "some-password"))
--- "{\"type\":\"Basic\",\"value\":{\"username\":\"some-username\",\"password\":\"some-password\"}}"
+-- "{\"type\":\"basic\",\"value\":{\"username\":\"some-username\",\"password\":\"some-password\"}}"
 -- >>> Data.Aeson.encode (CredentialsKey (KeyCredentials "some-api-key" "some-api-secret"))
--- "{\"type\":\"Key\",\"value\":{\"key\":\"some-api-key\",\"secret\":\"some-api-secret\"}}"
+-- "{\"type\":\"key\",\"value\":{\"key\":\"some-api-key\",\"secret\":\"some-api-secret\"}}"
 -- >>> Data.Aeson.encode (CredentialsToken "some-api-token")
--- "{\"type\":\"Token\",\"value\":\"some-api-token\"}"
+-- "{\"type\":\"token\",\"value\":\"some-api-token\"}"
 data Credentials =
     CredentialsHeader !T.Text
   | CredentialsBasic !BasicCredentials
   | CredentialsKey !KeyCredentials
   | CredentialsToken !T.Text
   deriving (Eq, DA.Generic)
-  deriving (DA.FromJSON, DA.ToJSON) via DA.CustomJSON '[DA.ConstructorTagModifier (DA.StripPrefix "Credentials"), DA.SumTaggedObject "type" "value"] Credentials
+  deriving (DA.FromJSON, DA.ToJSON) via DA.CustomJSON '[DA.ConstructorTagModifier '[DA.StripPrefix "Credentials", FirstToLower], DA.SumTaggedObject "type" "value"] Credentials
 
 
 instance Show Credentials where
@@ -61,3 +62,15 @@ data KeyCredentials = KeyCredentials
   }
   deriving (Eq, DA.Generic)
   deriving (DA.FromJSON, DA.ToJSON) via DAS.PrefixedSnake "keyCredentials" KeyCredentials
+
+
+-- * Internal
+-- $internal
+
+
+data FirstToLower
+
+
+instance DA.StringModifier FirstToLower where
+  getStringModifier []       = []
+  getStringModifier (x : xs) = C.toLower x : xs
