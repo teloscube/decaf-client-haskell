@@ -3,6 +3,7 @@
 module Decaf.Client.Internal.Remote where
 
 import           Control.Monad.Except        (MonadError)
+import qualified Data.Aeson                  as Aeson
 import qualified Data.Char                   as C
 import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
@@ -28,6 +29,7 @@ data Remote = Remote
   , remotePort   :: !(Maybe Int)
   , remoteSecure :: !Bool
   }
+  deriving Eq
 
 
 instance Show Remote where
@@ -36,6 +38,16 @@ instance Show Remote where
       s' = (if s then "https" else "http") :: String
       h' = T.unpack h
       p' = fromMaybe (if s then 443 else 80) p
+
+
+instance Aeson.FromJSON Remote where
+  parseJSON = Aeson.withText "Remote" $ \x -> case parseRemote x of
+    Left err -> fail (unDecafClientError err)
+    Right sr -> pure sr
+
+
+instance Aeson.ToJSON Remote where
+  toJSON = Aeson.String . remoteToUrl
 
 
 -- | Converts the 'Remote' to a sanitized url.
