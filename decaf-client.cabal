@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c476fb7346009598acb4f31bcb84d432f8f3542db1fd3661868c091a39a64e63
+-- hash: 9f69dee9a18d2d9c587578f03c1abcccdb23f5069b837987c8705eb423583d9f
 
 name:           decaf-client
 version:        0.0.0.3
@@ -21,7 +21,7 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
+    CHANGELOG.md
 
 source-repository head
   type: git

@@ -8,7 +8,7 @@ copyright:           "2020 Teloscube Pte Ltd"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
+- CHANGELOG.md
 
 synopsis:            DECAF API Client Suite for Haskell
 category:            Web
