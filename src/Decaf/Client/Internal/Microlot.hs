@@ -40,7 +40,7 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: IT.Request } der
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}
@@ -59,7 +59,7 @@ mkMicrolotClient r c = MkMicrolotClient . IC.post . IC.namespace "/apis/microlot
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
 --   requestHttpPath          = MkPath {unPath = []}

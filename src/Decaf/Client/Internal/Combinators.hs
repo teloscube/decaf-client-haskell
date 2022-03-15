@@ -43,7 +43,7 @@ remote = setRemote
 --   requestRemote            = [http]://[localhost]:[80]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = []
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
@@ -63,7 +63,7 @@ setNamespace n request = request { requestNamespace = n }
 --   requestRemote            = [http]://[localhost]:[80]
 --   requestNamespace         = MkPath {unPath = ["api"]}
 --   requestCredentials       = <********>
---   requestUserAgent         = "DECAF API Client/0.0.0.2 (Haskell)"
+--   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = []
 --   requestHttpMethod        = GET
 --   requestHttpPath          = MkPath {unPath = []}
