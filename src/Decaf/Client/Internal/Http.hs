@@ -1,53 +1,68 @@
--- | This module provides machinery to abstract over underlying HTTP client.
+-- | This module provides machinery to abstract over the underlying
+-- "http-conduit" library. Definitions in this module are internal and not
+-- exported on "Decaf.Client".
 --
--- @TODO: Choose a proper monad to work with, handle various HTTP return codes for errors. @
---
+-- __TODO:__ Choose a proper monad to work with, handle various HTTP return
+-- codes for errors.
+
 module Decaf.Client.Internal.Http where
 
-import           Control.Monad.IO.Class      (MonadIO)
-import           Data.Aeson                  (FromJSON)
-import           Data.Bifunctor              (bimap)
-import qualified Data.ByteString             as B
-import           Data.ByteString.Base64      (encode)
-import qualified Data.ByteString.Char8       as BC
-import qualified Data.CaseInsensitive        as CI
-import           Data.Maybe                  (fromMaybe)
-import qualified Data.Text.Encoding          as TE
-import qualified Decaf.Client.Internal.Types as IT
-import           Decaf.Client.Internal.Utils (compose)
-import qualified Network.HTTP.Client         as H
-import qualified Network.HTTP.Simple         as HS
+import           Control.Monad.IO.Class            (MonadIO)
+import           Data.Aeson                        (FromJSON)
+import           Data.Bifunctor                    (bimap)
+import qualified Data.ByteString                   as B
+import           Data.ByteString.Base64            (encode)
+import qualified Data.ByteString.Char8             as BC
+import qualified Data.CaseInsensitive              as CI
+import           Data.Maybe                        (fromMaybe)
+import qualified Data.Text.Encoding                as TE
+import           Decaf.Client.Internal.Credentials
+                 ( BasicCredentials(BasicCredentials)
+                 , Credentials(..)
+                 , KeyCredentials(KeyCredentials)
+                 )
+import           Decaf.Client.Internal.Remote      (Remote(remoteHost, remotePort, remoteSecure))
+import           Decaf.Client.Internal.Request     (Payload(..), Request(..), unPath)
+import           Decaf.Client.Internal.Response    (Response(Response))
+import           Decaf.Client.Internal.Utils       (compose)
+import qualified Network.HTTP.Client.Conduit       as HC
+import qualified Network.HTTP.Simple               as HS
 
 
--- | Runs a request and returns a 'IT.Response' value JSON-decoded from the response body.
-runRequest :: (MonadIO m, FromJSON a) => IT.Request -> m (IT.Response a)
+-- * HTTP Request Runners
+-- $httpRequestRunners
+
+-- | Runs a request and returns a 'Response' value JSON-decoded from the
+-- response body.
+runRequest :: (MonadIO m, FromJSON a) => Request -> m (Response a)
 runRequest r = mkResponse <$> (HS.httpJSON . compileRequest) r
 
 
--- | Runs a request and returns a 'IT.Response' with 'B.ByteString' value.
-runRequestBS :: MonadIO m => IT.Request -> m (IT.Response B.ByteString)
+-- | Runs a request and returns a 'Response' with 'B.ByteString' value.
+runRequestBS :: MonadIO m => Request -> m (Response B.ByteString)
 runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 
 
---------------------
--- BEGIN INTERNAL --
---------------------
+-- * Internal
+-- $internal
 
 
--- | Converts the underlying 'HS.Response' value into a DECAF client 'IT.Response' value.
-mkResponse :: HS.Response a -> IT.Response a
-mkResponse = IT.Response
+-- | Converts the underlying "http-conduit" 'HS.Response' value into a DECAF
+-- client 'Response' value.
+mkResponse :: HS.Response a -> Response a
+mkResponse = Response
   <$> HS.getResponseStatusCode
   <*> (fmap (bimap (TE.decodeUtf8 . CI.foldedCase) TE.decodeUtf8) . HS.getResponseHeaders)
   <*> HS.getResponseBody
 
 
--- | Type definition to modify 'H.Request' fields from a given 'IT.Request' value.
-type RequestFieldSetter = IT.Request -> H.Request -> H.Request
+-- | Type definition to modify "http-conduit" 'H.Request' fields from a given
+-- DECAF client 'Request' value.
+type RequestFieldSetter = Request -> HS.Request -> HS.Request
 
 
--- | Compiles a DECAF 'IT.Request' into an HTTP 'H.Request'.
-compileRequest :: IT.Request -> H.Request
+-- | Compiles a DECAF client 'Request' into a "http-conduit" 'H.Request'.
+compileRequest :: Request -> HS.Request
 compileRequest request = compiler request HS.defaultRequest
 
 
@@ -67,24 +82,24 @@ compiler r = compose $ fmap (\x -> x r)
 setRemote :: RequestFieldSetter
 setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure s'
   where
-    r' = IT.requestRemote r
-    h' = TE.encodeUtf8 $ IT.remoteHost r'
-    p' = fromMaybe (if IT.remoteSecure r' then 443 else 80) $ IT.remotePort r'
-    s' = IT.remoteSecure r'
+    r' = requestRemote r
+    h' = TE.encodeUtf8 $ remoteHost r'
+    p' = fromMaybe (if remoteSecure r' then 443 else 80) $ remotePort r'
+    s' = remoteSecure r'
 
 
 -- | Sets the request method.
 setMethod :: RequestFieldSetter
-setMethod = HS.setRequestMethod . BC.pack . show . IT.requestHttpMethod
+setMethod = HS.setRequestMethod . BC.pack . show . requestHttpMethod
 
 
 -- | Sets the request path.
 setPath :: RequestFieldSetter
 setPath r = HS.setRequestPath c
   where
-    a = (<>) <$> IT.requestNamespace <*> IT.requestHttpPath $ r
-    b = (<>) "/" . B.intercalate "/" . fmap TE.encodeUtf8 . IT.unPath $ a
-    t = if IT.requestHttpTrailingSlash r then (<> "/") else id
+    a = (<>) <$> requestNamespace <*> requestHttpPath $ r
+    b = (<>) "/" . B.intercalate "/" . fmap TE.encodeUtf8 . unPath $ a
+    t = if requestHttpTrailingSlash r then (<> "/") else id
     c = t b
 
 
@@ -92,38 +107,39 @@ setPath r = HS.setRequestPath c
 setHeaders :: RequestFieldSetter
 setHeaders r = HS.setRequestHeaders h''
   where
-    a = ("Authorization", mkAuthorization . IT.requestCredentials $ r)
-    u = ("UserAgent", TE.encodeUtf8 . IT.requestUserAgent $ r)
-    p =  foldMap (\x -> [("Content-Type", TE.encodeUtf8 . IT.payloadType $ x)]) (IT.requestHttpPayload r)
-    h' = fmap (\(x, y) -> (CI.mk $ TE.encodeUtf8 x, TE.encodeUtf8 y)) . IT.requestHttpHeaders $ r
+    a = ("Authorization", mkAuthorization . requestCredentials $ r)
+    u = ("UserAgent", TE.encodeUtf8 . requestUserAgent $ r)
+    p =  foldMap (\x -> [("Content-Type", TE.encodeUtf8 . payloadType $ x)]) (requestHttpPayload r)
+    h' = fmap (\(x, y) -> (CI.mk $ TE.encodeUtf8 x, TE.encodeUtf8 y)) . requestHttpHeaders $ r
     h'' = a : u : (p <> h')
 
 
 -- | Sets request querystring parameters.
 setParams :: RequestFieldSetter
-setParams = HS.setRequestQueryString . fmap (bimap TE.encodeUtf8 (Just . TE.encodeUtf8)). IT.requestHttpParams
+setParams = HS.setRequestQueryString . fmap (bimap TE.encodeUtf8 (Just . TE.encodeUtf8)). requestHttpParams
 
 
 -- | Sets request payload.
 setPayload :: RequestFieldSetter
-setPayload r = maybe id (HS.setRequestBody . H.RequestBodyLBS . IT.payloadContent) $ IT.requestHttpPayload r
+setPayload r = maybe id (HS.setRequestBody . HC.RequestBodyLBS . payloadContent) $ requestHttpPayload r
 
 
--- | Builds an HTTP @Authorization@ header value from given 'IT.Credentials'.
+-- | Builds an HTTP @Authorization@ header value from given 'Credentials'.
 --
--- >>> mkAuthorization $ IT.CredentialsHeader "Token XYZ"
+-- >>> import Decaf.Client.Internal.Credentials
+-- >>> mkAuthorization $ CredentialsHeader "Token XYZ"
 -- "Token XYZ"
--- >>> mkAuthorization $ IT.CredentialsBasic (IT.BasicCredentials "username" "password")
+-- >>> mkAuthorization $ CredentialsBasic (BasicCredentials "username" "password")
 -- "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
--- >>> mkAuthorization $ IT.CredentialsKey (IT.KeyCredentials "key" "secret")
+-- >>> mkAuthorization $ CredentialsKey (KeyCredentials "key" "secret")
 -- "Key key:secret"
--- >>> mkAuthorization $ IT.CredentialsToken "token"
+-- >>> mkAuthorization $ CredentialsToken "token"
 -- "Token token"
-mkAuthorization :: IT.Credentials -> B.ByteString
-mkAuthorization (IT.CredentialsHeader x)                        = TE.encodeUtf8 x
-mkAuthorization (IT.CredentialsBasic (IT.BasicCredentials u p)) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
-mkAuthorization (IT.CredentialsKey (IT.KeyCredentials k v))     = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
-mkAuthorization (IT.CredentialsToken t)                         = mkTokenAuth (TE.encodeUtf8 t)
+mkAuthorization :: Credentials -> B.ByteString
+mkAuthorization (CredentialsHeader x)                     = TE.encodeUtf8 x
+mkAuthorization (CredentialsBasic (BasicCredentials u p)) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
+mkAuthorization (CredentialsKey (KeyCredentials k v))     = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
+mkAuthorization (CredentialsToken t)                      = mkTokenAuth (TE.encodeUtf8 t)
 
 
 -- | Builds an HTTP @Authorization@ header value from username and password (HTTP Basic Auth).
@@ -148,8 +164,3 @@ mkKeyAuth k s = B.concat ["Key ", k, ":", s]
 -- "Token token"
 mkTokenAuth :: B.ByteString -> B.ByteString
 mkTokenAuth = B.append "Token "
-
-
-------------------
--- END INTERNAL --
-------------------

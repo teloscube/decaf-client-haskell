@@ -1,6 +1,6 @@
 -- | This module provides a DECAF PDMS module client implementation.
 --
-module Decaf.Client.Internal.Pdms where
+module Decaf.Client.Internal.Apis.Pdms where
 
 import           Control.Monad.Except              (MonadError)
 import           Control.Monad.IO.Class            (MonadIO)
@@ -18,24 +18,44 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
-import qualified Decaf.Client.Internal.Combinators as IC
-import qualified Decaf.Client.Internal.Http        as IH
-import qualified Decaf.Client.Internal.Remote      as IRemote
-import qualified Decaf.Client.Internal.Request     as IR
-import qualified Decaf.Client.Internal.Types       as IT
+import           Decaf.Client.Internal.Credentials (Credentials)
+import           Decaf.Client.Internal.Error       (DecafClientError)
+import           Decaf.Client.Internal.Http        (runRequest)
+import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
+import           Decaf.Client.Internal.Request
+                 ( Combinator
+                 , Request
+                 , initRequest
+                 , jsonPayload
+                 , namespace
+                 , post
+                 , withoutTrailingSlash
+                 )
+import           Decaf.Client.Internal.Response    (Response)
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
 
--- | DECAF PDMS API client type.
---
--- This is a _wrapper_ around 'IT.Request'.
-newtype PdmsClient = MkPdmsClient { unPdmsClient :: IT.Request } deriving Show
+-- * Data Definition
+-- $dataDefinition
 
 
--- | Builds a 'PdmsClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
+-- | DECAF PDMS module API client type.
 --
--- >>> mkPdmsClient (IT.Remote "example.com" Nothing True) (IT.CredentialsHeader "OUCH") :: PdmsClient
+-- This is a /wrapper/ around 'Request'.
+newtype PdmsClient = MkPdmsClient { unPdmsClient :: Request } deriving Show
+
+
+-- * Constructors
+-- $constructors
+
+
+-- | Builds a 'PdmsClient' with the given DECAF Instance 'Remote' and
+-- credentials.
+--
+-- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.Internal.Remote
+-- >>> mkPdmsClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
@@ -48,13 +68,15 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: IT.Request } deriving Show
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }}
-mkPdmsClient :: IT.Remote -> IT.Credentials -> PdmsClient
-mkPdmsClient r c = MkPdmsClient . IC.post . IC.namespace "/apis/modules/pdms/v1/graphql" . IC.withoutTrailingSlash $ IR.initRequest r c
+mkPdmsClient :: Remote -> Credentials -> PdmsClient
+mkPdmsClient r c = MkPdmsClient . post . namespace "/apis/modules/pdms/v1/graphql" . withoutTrailingSlash $ initRequest r c
 
 
--- | Attempts to build a 'PdmsClient' with the given DECAF deployment URL and credentials.
+-- | Attempts to build a 'PdmsClient' with the given DECAF Instance URL and credentials.
 --
--- >>> mkPdmsClientM "https://example.com" (IT.CredentialsHeader "OUCH") :: Either IT.DecafClientError PdmsClient
+-- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.Internal.Remote
+-- >>> mkPdmsClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
@@ -67,18 +89,17 @@ mkPdmsClient r c = MkPdmsClient . IC.post . IC.namespace "/apis/modules/pdms/v1/
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkPdmsClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m PdmsClient
-mkPdmsClientM d c = (`mkPdmsClient` c) <$> IRemote.parseRemote d
+mkPdmsClientM :: MonadError DecafClientError m => T.Text -> Credentials -> m PdmsClient
+mkPdmsClientM d c = (`mkPdmsClient` c) <$> parseRemote d
 
 
--- | Runs the 'PdmsClient' along with given 'IR.Request' combinators and
--- returns a 'IV.Response' value JSON-decoded from the response body.
-runPdms :: (MonadIO m, ToJSON a, Show b, FromJSON b) => PdmsQuery a -> PdmsClient-> m (IT.Response (PdmsResponse b))
-runPdms query cli = IH.runRequest $ mkRequest (IC.jsonPayload query) cli
+-- * Queries
+-- $queries
 
 
 -- | PDMS query type as a sealed query/variables tuple.
 data PdmsQuery a = ToJSON a => MkPdmsQuery !String !a
+
 
 instance ToJSON (PdmsQuery a) where
   toJSON (MkPdmsQuery q v) = object ["query" .= q, "variables" .= v]
@@ -94,26 +115,35 @@ mkPdmsQuery' :: String -> PdmsQuery Value
 mkPdmsQuery' = flip MkPdmsQuery $ object []
 
 
+-- * Response
+-- $response
+
+
 -- | PDMS response definition.
 data PdmsResponse a = PdmsResponse
   { pdmsResponseData   :: !a
   , pdmsResponseErrors :: !(Maybe (NonEmpty Object))
   } deriving (Generic, Show)
 
+
 instance (FromJSON a) => FromJSON (PdmsResponse a) where
   parseJSON = genericParseJSON defaultOptions { fieldLabelModifier = applyFirst toLower . drop 12 }
 
 
---------------------
--- BEGIN INTERNAL --
---------------------
+-- * Runners
+-- $runners
 
 
--- | Builds an 'IT.Request' from a 'PdmsClient' while applying a 'IC.Combinator'.
-mkRequest :: IC.Combinator -> PdmsClient -> IT.Request
+-- | Runs the 'PdmsClient' along with given 'IR.Request' combinators and
+-- returns a 'IV.Response' value JSON-decoded from the response body.
+runPdms :: (MonadIO m, ToJSON a, Show b, FromJSON b) => PdmsQuery a -> PdmsClient-> m (Response (PdmsResponse b))
+runPdms query cli = runRequest $ mkRequest (jsonPayload query) cli
+
+
+-- * Internal
+-- $internal
+
+
+-- | Builds an 'Request' from a 'PdmsClient' while applying a 'Combinator'.
+mkRequest :: Combinator -> PdmsClient -> Request
 mkRequest c = c . unPdmsClient
-
-
-------------------
--- END INTERNAL --
-------------------

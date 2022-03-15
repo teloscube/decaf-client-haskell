@@ -9,8 +9,8 @@ import           Data.Aeson
                  , defaultOptions
                  , genericParseJSON
                  )
-import           Data.Char                         (toLower)
-import qualified Data.Text                         as T
+import           Data.Char                   (toLower)
+import qualified Data.Text                   as T
 import           Decaf.Client
                  ( Credentials(..)
                  , DecafClient
@@ -22,19 +22,18 @@ import           Decaf.Client
                  , mkDecafClient
                  , mkMicrolotQuery'
                  , mkPdmsQuery'
+                 , path
                  , pdmsResponseData
                  , responseValue
                  , runBarista
                  , runMicrolot
                  , runPdms
                  )
-import           Decaf.Client.Internal.Combinators (path)
-import           Decaf.Client.Internal.Types       ()
-import           Decaf.Client.Internal.Utils       (applyFirst)
-import           GHC.Generics                      (Generic)
-import           System.Environment                (getEnv)
-import           System.IO                         (hPutStrLn, stderr)
-import           Text.Printf                       (printf)
+import           Decaf.Client.Internal.Utils (applyFirst)
+import           GHC.Generics                (Generic)
+import           System.Environment          (getEnv)
+import           System.IO                   (hPutStrLn, stderr)
+import           Text.Printf                 (printf)
 
 
 main :: IO ()

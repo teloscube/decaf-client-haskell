@@ -10,6 +10,7 @@ module Decaf.Client
 
   , BaristaClient
   , mkBaristaClient
+  , mkBaristaClientM
   , runBarista
   , runBaristaBS
 
@@ -17,6 +18,7 @@ module Decaf.Client
 
   , MicrolotClient
   , mkMicrolotClient
+  , mkMicrolotClientM
   , runMicrolot
   , mkMicrolotQuery
   , mkMicrolotQuery'
@@ -27,117 +29,81 @@ module Decaf.Client
 
   , PdmsClient
   , mkPdmsClient
+  , mkPdmsClientM
   , runPdms
   , mkPdmsQuery
   , mkPdmsQuery'
   , PdmsQuery(..)
   , PdmsResponse(..)
 
-    -- * Request Combinators
+    -- * Remotes
 
-  , module Decaf.Client.Internal.Combinators
+  , module Decaf.Client.Internal.Remote
 
-    -- * Common Types
+    -- * Requests
 
-  , module Decaf.Client.Internal.Types
+  , module Decaf.Client.Internal.Request
+
+    -- * Responses
+
+  , module Decaf.Client.Internal.Response
+
+    -- * Credentials
+
+  , module Decaf.Client.Internal.Credentials
+
+    -- * Errors
+
+  , module Decaf.Client.Internal.Error
 
   ) where
 
 
-import Control.Monad.Except              (MonadError)
-import Data.Text                         (Text)
-import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, runBarista, runBaristaBS)
-import Decaf.Client.Internal.Combinators
-       ( Combinator
-       , addHeader
-       , addHeaders
-       , addParam
-       , addParams
-       , addPath
-       , credentials
-       , delete
-       , get
-       , header
-       , headers
-       , jsonPayload
-       , namespace
-       , noPayload
-       , param
-       , params
-       , path
-       , payload
-       , post
-       , put
-       , remote
-       , setCredentials
-       , setHeaders
-       , setMethod
-       , setNamespace
-       , setNoPayload
-       , setParams
-       , setPath
-       , setPayload
-       , setRemote
-       , setTrailingSlash
-       , setUserAgent
-       , userAgent
-       , withTrailingSlash
-       , withoutTrailingSlash
-       )
-import Decaf.Client.Internal.Microlot
+import Control.Monad.Except                (MonadError)
+import Data.Text                           (Text)
+import Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
+import Decaf.Client.Internal.Apis.Microlot
        ( MicrolotClient
        , MicrolotQuery(..)
        , MicrolotResponse(..)
        , mkMicrolotClient
+       , mkMicrolotClientM
        , mkMicrolotQuery
        , mkMicrolotQuery'
        , runMicrolot
        )
-import Decaf.Client.Internal.Pdms
+import Decaf.Client.Internal.Apis.Pdms
        ( PdmsClient
        , PdmsQuery(..)
        , PdmsResponse(..)
        , mkPdmsClient
+       , mkPdmsClientM
        , mkPdmsQuery
        , mkPdmsQuery'
        , runPdms
        )
-import Decaf.Client.Internal.Remote      (parseRemote)
-import Decaf.Client.Internal.Types
-       ( BasicCredentials(..)
-       , Credentials(..)
-       , DecafClientError(..)
-       , Header
-       , Headers
-       , KeyCredentials(..)
-       , Method(..)
-       , Param
-       , Params
-       , Path(..)
-       , Payload(..)
-       , Remote(..)
-       , Request(..)
-       , Response(..)
-       , remoteToUrl
-       , throwDecafClientError
-       )
+import Decaf.Client.Internal.Credentials
+import Decaf.Client.Internal.Error
+import Decaf.Client.Internal.Remote
+import Decaf.Client.Internal.Request
+import Decaf.Client.Internal.Response
 
 
 -- | Data definition for a collection of various DECAF API clients.
 data DecafClient = DecafClient
-  { decafClientRemote   :: !Remote          -- ^ DECAF remote definition for the deployment.
+  { decafClientRemote   :: !Remote          -- ^ DECAF remote definition for the DECAF Instance.
   , decafClientBarista  :: !BaristaClient   -- ^ DECAF Barista API client.
   , decafClientMicrolot :: !MicrolotClient  -- ^ DECAF Microlot API client.
   , decafClientPdms     :: !PdmsClient      -- ^ DECAF PDMS Module API client.
   }
 
 
--- | Attempts to build a 'DecafClient' with given remote DECAF deployment URL
+-- | Attempts to build a 'DecafClient' with given remote DECAF Instance URL
 -- and authentication credentials.
 mkDecafClient
   :: MonadError DecafClientError m
-  => Text            -- ^ Base URL of remote DECAF deployment
-  -> Credentials     -- ^ Credentials for authenticating requests to remote DECAF deployment
+  => Text            -- ^ Base URL of remote DECAF Instance
+  -> Credentials     -- ^ Credentials for authenticating requests to remote DECAF Instance
   -> m DecafClient
 mkDecafClient b c = do
   r <- parseRemote b

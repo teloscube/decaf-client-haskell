@@ -22,7 +22,6 @@ dependencies:
 - bytestring
 - case-insensitive
 - deriving-aeson
-- http-client
 - http-conduit
 - http-types
 - mtl

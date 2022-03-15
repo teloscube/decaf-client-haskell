@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e369a6d49e77a744f0df7b5061ca0e998dfdd5abd8c593f2a094c8d3f8deea06
+-- hash: 90f836bda379684c199708d787f74e3d2e29bf5ada683fe6f9fdd0e73ae4a518
 
 name:           decaf-client
 version:        0.0.0.3
@@ -30,14 +30,15 @@ source-repository head
 library
   exposed-modules:
       Decaf.Client
-      Decaf.Client.Internal.Barista
-      Decaf.Client.Internal.Combinators
+      Decaf.Client.Internal.Apis.Barista
+      Decaf.Client.Internal.Apis.Microlot
+      Decaf.Client.Internal.Apis.Pdms
+      Decaf.Client.Internal.Error
       Decaf.Client.Internal.Http
-      Decaf.Client.Internal.Microlot
-      Decaf.Client.Internal.Pdms
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
-      Decaf.Client.Internal.Types
+      Decaf.Client.Internal.Response
+      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Utils
       Decaf.Client.Version
   other-modules:
@@ -90,7 +91,6 @@ library
     , bytestring
     , case-insensitive
     , deriving-aeson
-    , http-client
     , http-conduit
     , http-types
     , mtl
@@ -114,7 +114,6 @@ executable decaf-client-examples-accountinfo-exe
     , case-insensitive
     , decaf-client
     , deriving-aeson
-    , http-client
     , http-conduit
     , http-types
     , mtl
@@ -138,7 +137,6 @@ executable decafcli
     , case-insensitive
     , decaf-client
     , deriving-aeson
-    , http-client
     , http-conduit
     , http-types
     , mtl
@@ -165,7 +163,6 @@ test-suite decaf-client-doctest
     , decaf-client
     , deriving-aeson
     , doctest
-    , http-client
     , http-conduit
     , http-types
     , mtl
@@ -190,7 +187,6 @@ test-suite decaf-client-test
     , case-insensitive
     , decaf-client
     , deriving-aeson
-    , http-client
     , http-conduit
     , http-types
     , mtl
