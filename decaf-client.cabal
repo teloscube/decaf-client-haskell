@@ -33,12 +33,13 @@ library
       Decaf.Client.Internal.Apis.Barista
       Decaf.Client.Internal.Apis.Microlot
       Decaf.Client.Internal.Apis.Pdms
+      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Error
+      Decaf.Client.Internal.Exception
       Decaf.Client.Internal.Http
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
       Decaf.Client.Internal.Response
-      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Utils
       Decaf.Client.Version
   other-modules:
@@ -91,6 +92,7 @@ library
     , bytestring
     , case-insensitive
     , deriving-aeson
+    , exceptions
     , http-conduit
     , http-types
     , mtl
@@ -114,6 +116,7 @@ executable decaf-client-examples-accountinfo-exe
     , case-insensitive
     , decaf-client
     , deriving-aeson
+    , exceptions
     , http-conduit
     , http-types
     , mtl
@@ -137,6 +140,7 @@ executable decafcli
     , case-insensitive
     , decaf-client
     , deriving-aeson
+    , exceptions
     , http-conduit
     , http-types
     , mtl
@@ -163,6 +167,7 @@ test-suite decaf-client-doctest
     , decaf-client
     , deriving-aeson
     , doctest
+    , exceptions
     , http-conduit
     , http-types
     , mtl
@@ -187,6 +192,7 @@ test-suite decaf-client-test
     , case-insensitive
     , decaf-client
     , deriving-aeson
+    , exceptions
     , http-conduit
     , http-types
     , mtl

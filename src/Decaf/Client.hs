@@ -56,6 +56,10 @@ module Decaf.Client
 
   , module Decaf.Client.Internal.Error
 
+    -- * Exceptions
+
+  , module Decaf.Client.Internal.Exception
+
   ) where
 
 
@@ -84,6 +88,7 @@ import Decaf.Client.Internal.Apis.Pdms
        )
 import Decaf.Client.Internal.Credentials
 import Decaf.Client.Internal.Error
+import Decaf.Client.Internal.Exception
 import Decaf.Client.Internal.Remote
 import Decaf.Client.Internal.Request
 import Decaf.Client.Internal.Response
