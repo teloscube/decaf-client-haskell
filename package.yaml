@@ -35,16 +35,44 @@ library:
   - -Wall
   - -Werror
   default-extensions:
-  ## GHC 2021 extensions (see https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0380-ghc2021.rst):
+  ## Begin: Haskell 2021 Extensions List
+  - BangPatterns
+  - BinaryLiterals
+  - ConstrainedClassMethods
   - ConstraintKinds
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
   - DeriveGeneric
+  - DeriveLift
+  - DeriveTraversable
+  - EmptyCase
+  - EmptyDataDeriving
   - ExistentialQuantification
+  - ExplicitForAll
   - FlexibleContexts
-  - GeneralizedNewtypeDeriving
+  - FlexibleInstances
+  - GADTSyntax
+  - GeneralisedNewtypeDeriving
+  - HexFloatLiterals
+  - ImportQualifiedPost
+  - InstanceSigs
+  - KindSignatures
+  - MultiParamTypeClasses
+  - NamedFieldPuns
+  - NamedWildCards
+  - NumericUnderscores
+  - PolyKinds
+  - PostfixOperators
   - RankNTypes
   - ScopedTypeVariables
+  - StandaloneDeriving
+  - StandaloneKindSignatures
   - TupleSections
-  ## Project specific:
+  - TypeApplications
+  - TypeOperators
+  - TypeSynonymInstances
+  ## End: Haskell 2021 Extensions List
   - OverloadedStrings
 
 executables:
