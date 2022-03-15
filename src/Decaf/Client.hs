@@ -18,6 +18,7 @@ module Decaf.Client
 
   , MicrolotClient
   , mkMicrolotClient
+  , mkMicrolotClientM
   , runMicrolot
   , mkMicrolotQuery
   , mkMicrolotQuery'
@@ -90,6 +91,7 @@ import Decaf.Client.Internal.Microlot
        , MicrolotQuery(..)
        , MicrolotResponse(..)
        , mkMicrolotClient
+       , mkMicrolotClientM
        , mkMicrolotQuery
        , mkMicrolotQuery'
        , runMicrolot

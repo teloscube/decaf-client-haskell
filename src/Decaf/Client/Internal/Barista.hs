@@ -47,7 +47,7 @@ mkBaristaClient :: Remote -> Credentials -> BaristaClient
 mkBaristaClient r c = MkBaristaClient . namespace "api" . withTrailingSlash $ initRequest r c
 
 
--- | Attempts to build a 'BaristaClient' with the given DECAF deployment URL and
+-- | Attempts to build a 'BaristaClient' with the given DECAF Instance URL and
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Types
