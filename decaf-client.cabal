@@ -31,6 +31,7 @@ library
       Decaf.Client.Internal.Apis.Barista
       Decaf.Client.Internal.Apis.Microlot
       Decaf.Client.Internal.Apis.Pdms
+      Decaf.Client.Internal.Client
       Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Error
       Decaf.Client.Internal.Exception
