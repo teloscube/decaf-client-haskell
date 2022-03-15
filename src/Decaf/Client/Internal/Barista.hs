@@ -1,5 +1,5 @@
 -- | This module provides a DECAF Barista API client implementation.
---
+
 module Decaf.Client.Internal.Barista where
 
 import           Control.Monad.Except              (MonadError)
@@ -7,20 +7,30 @@ import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson                        (FromJSON)
 import qualified Data.ByteString                   as B
 import qualified Data.Text                         as T
-import qualified Decaf.Client.Internal.Combinators as IC
-import qualified Decaf.Client.Internal.Http        as IH
-import qualified Decaf.Client.Internal.Remote      as IRemote
-import qualified Decaf.Client.Internal.Request     as IR
-import qualified Decaf.Client.Internal.Types       as IT
+import           Decaf.Client.Internal.Combinators (Combinator, namespace, withTrailingSlash)
+import           Decaf.Client.Internal.Http        (runRequest, runRequestBS)
+import           Decaf.Client.Internal.Remote      (parseRemote)
+import           Decaf.Client.Internal.Request     (initRequest)
+import           Decaf.Client.Internal.Types       (Credentials, DecafClientError, Remote, Request, Response)
+
+
+-- * Data Definition
+-- $dataDefinition
 
 
 -- | DECAF Barista API client type.
-newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } deriving Show
+newtype BaristaClient = MkBaristaClient { unBaristaClient :: Request } deriving Show
 
 
--- | Builds a 'BaristaClient' with the given DECAF deployment 'IRemote.Remote' and credentials.
+-- * Constructors
+-- $constructors
+
+
+-- | Builds a 'BaristaClient' with the given DECAF deployment 'Remote' and
+-- credentials.
 --
--- >>> mkBaristaClient (IT.Remote "example.com" Nothing True) (IT.CredentialsHeader "OUCH") :: BaristaClient
+-- >>> import Decaf.Client.Internal.Types
+-- >>> mkBaristaClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: BaristaClient
 -- MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
@@ -33,13 +43,15 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: IT.Request } derivi
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }}
-mkBaristaClient :: IT.Remote -> IT.Credentials -> BaristaClient
-mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlash $ IR.initRequest r c
+mkBaristaClient :: Remote -> Credentials -> BaristaClient
+mkBaristaClient r c = MkBaristaClient . namespace "api" . withTrailingSlash $ initRequest r c
 
 
--- | Attempts to build a 'BaristaClient' with the given DECAF deployment URL and credentials.
+-- | Attempts to build a 'BaristaClient' with the given DECAF deployment URL and
+-- credentials.
 --
--- >>> mkBaristaClientM "https://example.com" (IT.CredentialsHeader "OUCH") :: Either IT.DecafClientError BaristaClient
+-- >>> import Decaf.Client.Internal.Types
+-- >>> mkBaristaClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError BaristaClient
 -- Right (MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
 --   requestNamespace         = MkPath {unPath = ["api"]}
@@ -52,32 +64,30 @@ mkBaristaClient r c = MkBaristaClient . IC.namespace "api" . IC.withTrailingSlas
 --   requestHttpParams        = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClientM :: MonadError IT.DecafClientError m => T.Text -> IT.Credentials -> m BaristaClient
-mkBaristaClientM d c = (`mkBaristaClient` c) <$> IRemote.parseRemote d
+mkBaristaClientM :: MonadError DecafClientError m => T.Text -> Credentials -> m BaristaClient
+mkBaristaClientM d c = (`mkBaristaClient` c) <$> parseRemote d
 
 
--- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
--- returns a 'IV.Response' value JSON-decoded from the response body.
-runBarista :: (MonadIO m, FromJSON a) => IC.Combinator -> BaristaClient -> m (IT.Response a)
-runBarista cmb cli = IH.runRequest $ mkRequest cmb cli
+-- * Runners
+-- $runners
 
 
--- | Runs the 'BaristaClient' along with given 'IR.Request' combinators and
--- returns a 'IT.Response' with 'B.ByteString' value.
-runBaristaBS :: MonadIO m => IC.Combinator -> BaristaClient -> m (IT.Response B.ByteString)
-runBaristaBS cmb cli = IH.runRequestBS $ mkRequest cmb cli
+-- | Runs the 'BaristaClient' along with given 'Request' combinators and returns
+-- a 'Response' value JSON-decoded from the response body.
+runBarista :: (MonadIO m, FromJSON a) => Combinator -> BaristaClient -> m (Response a)
+runBarista cmb cli = runRequest $ mkRequest cmb cli
 
 
---------------------
--- BEGIN INTERNAL --
---------------------
+-- | Runs the 'BaristaClient' along with given 'Request' combinators and returns
+-- a 'Response' with 'B.ByteString' value.
+runBaristaBS :: MonadIO m => Combinator -> BaristaClient -> m (Response B.ByteString)
+runBaristaBS cmb cli = runRequestBS $ mkRequest cmb cli
 
 
--- | Builds an 'IT.Request' from a 'BaristaClient' while applying a 'IC.Combinator'.
-mkRequest :: IC.Combinator -> BaristaClient -> IT.Request
+-- * Internal
+-- $internal
+
+
+-- | Builds an 'Request' from a 'BaristaClient' while applying a 'Combinator'.
+mkRequest :: Combinator -> BaristaClient -> Request
 mkRequest c = c . unBaristaClient
-
-
-------------------
--- END INTERNAL --
-------------------

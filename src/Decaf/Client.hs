@@ -10,6 +10,7 @@ module Decaf.Client
 
   , BaristaClient
   , mkBaristaClient
+  , mkBaristaClientM
   , runBarista
   , runBaristaBS
 
@@ -46,7 +47,7 @@ module Decaf.Client
 
 import Control.Monad.Except              (MonadError)
 import Data.Text                         (Text)
-import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, runBarista, runBaristaBS)
+import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
 import Decaf.Client.Internal.Combinators
        ( Combinator
        , addHeader
