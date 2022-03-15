@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9f69dee9a18d2d9c587578f03c1abcccdb23f5069b837987c8705eb423583d9f
+-- hash: 76de113038ef3e0adc5a67f0312f61aeee33da1b920cfab118fe76025bfa8d8a
 
 name:           decaf-client
 version:        0.0.0.3
@@ -121,10 +121,9 @@ test-suite decaf-client-doctest
   type: exitcode-stdio-1.0
   main-is: doctest.hs
   other-modules:
-      Main
       Paths_decaf_client
   hs-source-dirs:
-      test
+      ./
   ghc-options: -threaded
   build-depends:
       aeson

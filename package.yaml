@@ -82,7 +82,7 @@ tests:
 
   decaf-client-doctest:
     main:                doctest.hs
-    source-dirs:         test
+    source-dirs:         .
     ghc-options:
     - -threaded
     dependencies:
