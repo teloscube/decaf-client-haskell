@@ -111,19 +111,19 @@ setPayload r = maybe id (HS.setRequestBody . H.RequestBodyLBS . IT.payloadConten
 
 -- | Builds an HTTP @Authorization@ header value from given 'IT.Credentials'.
 --
--- >>> mkAuthorization $ IT.HeaderCredentials "Token XYZ"
+-- >>> mkAuthorization $ IT.CredentialsHeader "Token XYZ"
 -- "Token XYZ"
--- >>> mkAuthorization $ IT.BasicCredentials "username" "password"
+-- >>> mkAuthorization $ IT.CredentialsBasic (IT.BasicCredentials "username" "password")
 -- "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
--- >>> mkAuthorization $ IT.KeyCredentials "key" "secret"
+-- >>> mkAuthorization $ IT.CredentialsKey (IT.KeyCredentials "key" "secret")
 -- "Key key:secret"
--- >>> mkAuthorization $ IT.TokenCredentials "token"
+-- >>> mkAuthorization $ IT.CredentialsToken "token"
 -- "Token token"
 mkAuthorization :: IT.Credentials -> B.ByteString
-mkAuthorization (IT.HeaderCredentials x)  = TE.encodeUtf8 x
-mkAuthorization (IT.BasicCredentials u p) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
-mkAuthorization (IT.KeyCredentials k v)   = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
-mkAuthorization (IT.TokenCredentials t)   = mkTokenAuth (TE.encodeUtf8 t)
+mkAuthorization (IT.CredentialsHeader x)                        = TE.encodeUtf8 x
+mkAuthorization (IT.CredentialsBasic (IT.BasicCredentials u p)) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
+mkAuthorization (IT.CredentialsKey (IT.KeyCredentials k v))     = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
+mkAuthorization (IT.CredentialsToken t)                         = mkTokenAuth (TE.encodeUtf8 t)
 
 
 -- | Builds an HTTP @Authorization@ header value from username and password (HTTP Basic Auth).

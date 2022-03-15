@@ -12,8 +12,9 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import qualified Data.Text                         as T
 import           Decaf.Client
-                 ( Credentials(KeyCredentials)
+                 ( Credentials(..)
                  , DecafClient
+                 , KeyCredentials(..)
                  , decafClientBarista
                  , decafClientMicrolot
                  , decafClientPdms
@@ -28,6 +29,7 @@ import           Decaf.Client
                  , runPdms
                  )
 import           Decaf.Client.Internal.Combinators (path)
+import           Decaf.Client.Internal.Types       ()
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 import           System.Environment                (getEnv)
@@ -40,7 +42,7 @@ main = do
   apiurl <- T.pack <$> getEnv "DECAF_API_URL"
   apikey <- T.pack <$> getEnv "DECAF_API_KEY"
   apiscr <- T.pack <$> getEnv "DECAF_API_SECRET"
-  let credentials = KeyCredentials apikey apiscr
+  let credentials = CredentialsKey (KeyCredentials apikey apiscr)
   case mkDecafClient apiurl credentials of
     Left err -> hPutStrLn stderr $ "Can not create DECAF client" <> show err
     Right dc -> do
