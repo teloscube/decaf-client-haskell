@@ -27,7 +27,7 @@ throwDecafClientError :: MonadError DecafClientError m => String -> m a
 throwDecafClientError = throwError . DecafClientError
 
 
--- | Type definition for addressing a remote deployment.
+-- | Type definition for addressing a remote DECAF Instance.
 --
 -- >>> Remote "example.com" Nothing False
 -- [http]://[example.com]:[80]
@@ -42,6 +42,7 @@ data Remote = Remote
   , remotePort   :: !(Maybe Int)
   , remoteSecure :: !Bool
   }
+
 
 instance Show Remote where
   show (Remote h p s) = printf "[%s]://[%s]:[%d]" s' h' p'
@@ -136,10 +137,12 @@ type Params = [Param]
 -- | Type definition for a list of DECAF client request HTTP path segments.
 newtype Path = MkPath { unPath :: [T.Text] } deriving Show
 
+
 -- >>> mkPath "/a/b" <> mkPath "/c/d"
 -- MkPath {unPath = ["a","b","c","d"]}
 instance Semigroup Path where
   (<>) (MkPath p1) (MkPath p2) = MkPath (p1 <> p2)
+
 
 -- >>> mconcat [mkPath "/a/b", mkPath "/c/d"]
 -- MkPath {unPath = ["a","b","c","d"]}
@@ -235,6 +238,7 @@ data Payload = Payload
   { payloadType    :: !T.Text         -- ^ HTTP content type.
   , payloadContent :: !BL.ByteString  -- ^ HTTP payload body.
   }
+
 
 instance Show Payload where
   show _ = "<TRUNCATED>"

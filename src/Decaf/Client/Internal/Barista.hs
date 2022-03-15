@@ -26,7 +26,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: Request } deriving 
 -- $constructors
 
 
--- | Builds a 'BaristaClient' with the given DECAF deployment 'Remote' and
+-- | Builds a 'BaristaClient' with the given DECAF Instance 'Remote' and
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Types

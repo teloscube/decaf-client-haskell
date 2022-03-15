@@ -1,5 +1,5 @@
 -- | This module provides auxiliaries to build and work with 'Request' values.
---
+
 module Decaf.Client.Internal.Request where
 
 import           Control.Monad.Except              (MonadError)
@@ -17,7 +17,11 @@ import           Decaf.Client.Version              (version)
 import           Text.Printf                       (printf)
 
 
--- | Initializes a request with deployment URL and authentication credentials.
+-- * Request Initializers
+-- $requestInitializers
+
+
+-- | Initializes a request with DECAF Instance URL and authentication credentials.
 --
 -- >>> initRequest (Remote "example.com" Nothing False) (CredentialsHeader "OUCH")
 -- Request {
@@ -36,7 +40,7 @@ initRequest :: Remote -> Credentials -> Request
 initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)) defaultRequest
 
 
--- | Initializes a request with deployment URL and authentication credentials.
+-- | Initializes a request with DECAF Instance URL and authentication credentials.
 --
 -- >>> import Decaf.Client
 -- >>> initRequestM "http://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError Request
@@ -53,12 +57,12 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 --   requestHttpPayload       = Nothing
 -- }
 initRequestM :: MonadError DecafClientError m => T.Text -> Credentials -> m Request
-initRequestM deployment c = (`initRequest` c) <$> parseRemote deployment
+initRequestM url creds = (`initRequest` creds) <$> parseRemote url
 
 
---------------------
--- BEGIN INTERNAL --
---------------------
+-- * Internal
+-- $internal
+
 
 -- | Default 'Request'.
 --

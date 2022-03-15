@@ -24,7 +24,7 @@ import           Decaf.Client.Internal.Types
 type Combinator = Request -> Request
 
 
--- | Sets the DECAF deployment 'Remote' address.
+-- | Sets the DECAF Instance 'Remote' address.
 setRemote :: Remote -> Combinator
 setRemote h request = request { requestRemote = h }
 

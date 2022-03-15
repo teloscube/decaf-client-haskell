@@ -1,5 +1,5 @@
 -- | This module provides auxiliaries to parse 'Remote's.
---
+
 module Decaf.Client.Internal.Remote where
 
 import           Control.Monad.Except        (MonadError)
@@ -13,7 +13,7 @@ import           Text.Printf                 (printf)
 import           Text.Read                   (readMaybe)
 
 
--- | Renders the 'Remote' value into a base DECAF deployment URL.
+-- | Renders the 'Remote' value into a base DECAF Instance URL.
 --
 -- >>> remoteUrl $ Remote "localhost" Nothing False
 -- "http://localhost:80"
@@ -31,7 +31,7 @@ remoteUrl (Remote h p s) = T.pack $ printf "%s://%s:%d" s' h' p'
     p' = fromMaybe (if s then 443 else 80) p
 
 
--- | Attempts to parse a given URL as a DECAF deployment 'Remote'.
+-- | Attempts to parse a given URL as a DECAF Instance 'Remote'.
 --
 -- >>> import Decaf.Client
 -- >>> parseRemote "http://localhost" :: Either DecafClientError Remote
@@ -100,7 +100,8 @@ parseAuthority' uri = maybe err pure $ U.uriAuthority uri
     err = throwDecafClientError $ "Can not parse authority from URI: '" <> (show uri <> "'")
 
 
--- | Attempts to get a non-empty 'T.Text' value as the host from the given 'U.URIAuth'.
+-- | Attempts to get a non-empty 'T.Text' value as the host from the given
+-- 'U.URIAuth'.
 parseHost' :: MonadError DecafClientError m => U.URIAuth -> m T.Text
 parseHost' a = maybe err pure $ T.pack <$> (nonEmptyString . U.uriRegName) a
   where

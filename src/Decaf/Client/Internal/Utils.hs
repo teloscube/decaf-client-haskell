@@ -1,11 +1,12 @@
 -- | This module provides generic auxiliaries.
---
+
 module Decaf.Client.Internal.Utils where
 
 import Data.List (dropWhileEnd)
 
 
--- | Removes leading, successive elements from a list of elements if it is equal to the pivot value given.
+-- | Removes leading, successive elements from a list of elements if it is equal
+-- to the pivot value given.
 --
 -- >>> dropLeading ':' ""
 -- ""
@@ -21,7 +22,8 @@ dropLeading :: Eq a => a -> [a] -> [a]
 dropLeading c = dropWhile (c ==)
 
 
--- | Removes trailing, successive elements from a list of elements if it is equal to the pivot value given.
+-- | Removes trailing, successive elements from a list of elements if it is
+-- equal to the pivot value given.
 --
 -- >>> dropTrailing '/' ""
 -- ""
@@ -37,7 +39,7 @@ dropTrailing :: Eq a => a -> [a] -> [a]
 dropTrailing c = dropWhileEnd (c ==)
 
 
--- | Returns @Just x@ if @x@ is a non-empty string, @Nothing@ otherwise.
+-- | Returns @'Just' x@ if @x@ is a non-empty string, 'Nothing' otherwise.
 --
 -- >>> nonEmptyString ""
 -- Nothing

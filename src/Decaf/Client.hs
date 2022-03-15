@@ -130,19 +130,19 @@ import Decaf.Client.Internal.Types
 
 -- | Data definition for a collection of various DECAF API clients.
 data DecafClient = DecafClient
-  { decafClientRemote   :: !Remote          -- ^ DECAF remote definition for the deployment.
+  { decafClientRemote   :: !Remote          -- ^ DECAF remote definition for the DECAF Instance.
   , decafClientBarista  :: !BaristaClient   -- ^ DECAF Barista API client.
   , decafClientMicrolot :: !MicrolotClient  -- ^ DECAF Microlot API client.
   , decafClientPdms     :: !PdmsClient      -- ^ DECAF PDMS Module API client.
   }
 
 
--- | Attempts to build a 'DecafClient' with given remote DECAF deployment URL
+-- | Attempts to build a 'DecafClient' with given remote DECAF Instance URL
 -- and authentication credentials.
 mkDecafClient
   :: MonadError DecafClientError m
-  => Text            -- ^ Base URL of remote DECAF deployment
-  -> Credentials     -- ^ Credentials for authenticating requests to remote DECAF deployment
+  => Text            -- ^ Base URL of remote DECAF Instance
+  -> Credentials     -- ^ Credentials for authenticating requests to remote DECAF Instance
   -> m DecafClient
 mkDecafClient b c = do
   r <- parseRemote b
