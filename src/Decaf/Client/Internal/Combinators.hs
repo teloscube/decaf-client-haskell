@@ -1,5 +1,5 @@
 -- | This module provides combinators to modify 'Request' values.
---
+
 module Decaf.Client.Internal.Combinators where
 
 import           Data.Aeson                  (ToJSON, encode)
@@ -20,7 +20,7 @@ import           Decaf.Client.Internal.Types
                  )
 
 
--- | Type definition of 'I.Request' combinator.
+-- | Type definition of 'Request' combinator.
 type Combinator = Request -> Request
 
 
@@ -32,7 +32,6 @@ setRemote h request = request { requestRemote = h }
 -- | Alias to 'setRemote'.
 remote :: Remote -> Combinator
 remote = setRemote
-
 
 
 -- | Sets the namespace of the particular DECAF API.
@@ -104,7 +103,8 @@ setHeaders hs request = request { requestHttpHeaders = hs }
 
 -- | Adds more 'Request' 'Headers'.
 --
--- This combinator does NOT remove existing user-set headers, but overwrites if keys match.
+-- This combinator does NOT remove existing user-set headers, but overwrites if
+-- keys match.
 addHeaders :: Headers -> Combinator
 addHeaders hs request = setHeaders (existing <> hs) request
   where
@@ -162,22 +162,26 @@ addPath :: Path -> Combinator
 addPath p request = setPath (requestHttpPath request <> p) request
 
 
--- | Convenience function to append a plain 'T.Text' as a path to the existing 'Path' of the 'Request'.
+-- | Convenience function to append a plain 'T.Text' as a path to the existing
+-- 'Path' of the 'Request'.
 path :: T.Text -> Combinator
 path = addPath . mkPath
 
 
--- | Makes the 'Request' 'Path' (not) contain a trailing slash when hitting the remote.
+-- | Makes the 'Request' 'Path' (not) contain a trailing slash when hitting the
+-- remote.
 setTrailingSlash :: Bool -> Combinator
 setTrailingSlash ts request = request { requestHttpTrailingSlash = ts }
 
 
--- | Makes the 'Request' 'Path' contain a trailing slash when hitting the remote.
+-- | Makes the 'Request' 'Path' contain a trailing slash when hitting the
+-- remote.
 withTrailingSlash :: Combinator
 withTrailingSlash = setTrailingSlash True
 
 
--- | Makes the 'Request' 'Path' not contain a trailing slash when hitting the remote.
+-- | Makes the 'Request' 'Path' not contain a trailing slash when hitting the
+-- remote.
 withoutTrailingSlash :: Combinator
 withoutTrailingSlash = setTrailingSlash False
 
