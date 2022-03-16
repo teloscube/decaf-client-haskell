@@ -4,11 +4,11 @@ module Decaf.Client.Internal.Client where
 
 import           Control.Monad.Error.Class           (MonadError)
 import qualified Data.Text                           as T
+import           Decaf.Client.DecafCredentials       (DecafCredentials)
 import           Decaf.Client.DecafRemote            (DecafRemote, parseRemote)
 import           Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient)
 import           Decaf.Client.Internal.Apis.Microlot (MicrolotClient, mkMicrolotClient)
 import           Decaf.Client.Internal.Apis.Pdms     (PdmsClient, mkPdmsClient)
-import           Decaf.Client.Internal.Credentials   (Credentials)
 import           Decaf.Client.Internal.Error         (DecafClientError)
 
 
@@ -25,7 +25,7 @@ data DecafClient = DecafClient
 -- authentication credentials.
 mkDecafClient
   :: DecafRemote       -- ^ DECAF Instance 'Remote'.
-  -> Credentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
+  -> DecafCredentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
   -> DecafClient
 mkDecafClient r c =
   let
@@ -41,7 +41,7 @@ mkDecafClient r c =
 mkDecafClientE
   :: MonadError DecafClientError m
   => T.Text       -- ^ Base URL of remote DECAF Instance
-  -> Credentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
+  -> DecafCredentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
   -> m DecafClient
 mkDecafClientE b c = do
   r <- parseRemote b

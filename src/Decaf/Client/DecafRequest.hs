@@ -2,24 +2,24 @@
 
 module Decaf.Client.DecafRequest where
 
-import           Control.Monad.Except              (MonadError)
-import qualified Data.Aeson                        as Aeson
-import qualified Data.ByteString.Lazy              as BL
-import qualified Data.CaseInsensitive              as CI
-import qualified Data.Text                         as T
-import qualified Data.Text.Encoding                as TE
-import           Decaf.Client.DecafRemote          (DecafRemote(..), parseRemote, remoteToUrl)
-import           Decaf.Client.Internal.Credentials (Credentials(CredentialsHeader))
-import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Utils       (dropTrailing)
-import           Decaf.Client.Version              (version)
+import           Control.Monad.Except          (MonadError)
+import qualified Data.Aeson                    as Aeson
+import qualified Data.ByteString.Lazy          as BL
+import qualified Data.CaseInsensitive          as CI
+import qualified Data.Text                     as T
+import qualified Data.Text.Encoding            as TE
+import           Decaf.Client.DecafCredentials (DecafCredentials(DecafCredentialsHeader))
+import           Decaf.Client.DecafRemote      (DecafRemote(..), parseRemote, remoteToUrl)
+import           Decaf.Client.Internal.Error   (DecafClientError)
+import           Decaf.Client.Internal.Utils   (dropTrailing)
+import           Decaf.Client.Version          (version)
 import           Network.HTTP.Types
                  ( Header
                  , QueryText
                  , RequestHeaders
                  , StdMethod(DELETE, GET, PATCH, POST, PUT)
                  )
-import           Text.Printf                       (printf)
+import           Text.Printf                   (printf)
 
 
 -- * Data Definitions
@@ -30,7 +30,7 @@ import           Text.Printf                       (printf)
 data DecafRequest = DecafRequest
   { decafRequestRemote        :: !DecafRemote
   , decafRequestNamespace     :: !DecafRequestPath
-  , decafRequestCredentials   :: !Credentials
+  , decafRequestCredentials   :: !DecafCredentials
   , decafRequestUserAgent     :: !T.Text
   , decafRequestHeaders       :: !RequestHeaders
   , decafRequestMethod        :: !StdMethod
@@ -120,7 +120,7 @@ mkDecafRequestPath = MkDecafRequestPath . filter ("" /=) . T.split ('/' ==)
 
 -- | Initializes a request with DECAF Instance URL and authentication credentials.
 --
--- >>> initRequest (DecafRemote "example.com" Nothing False) (CredentialsHeader "OUCH")
+-- >>> initRequest (DecafRemote "example.com" Nothing False) (DecafCredentialsHeader "OUCH")
 -- DecafRequest {
 --   decafRequestRemote        = [http]://[example.com]:[80]
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = []}
@@ -133,14 +133,14 @@ mkDecafRequestPath = MkDecafRequestPath . filter ("" /=) . T.split ('/' ==)
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
 -- }
-initRequest :: DecafRemote -> Credentials -> DecafRequest
+initRequest :: DecafRemote -> DecafCredentials -> DecafRequest
 initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl r)) defaultRequest
 
 
 -- | Initializes a request with DECAF Instance URL and authentication credentials.
 --
 -- >>> import Decaf.Client
--- >>> initRequestM "http://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError DecafRequest
+-- >>> initRequestM "http://example.com" (DecafCredentialsHeader "OUCH") :: Either DecafClientError DecafRequest
 -- Right DecafRequest {
 --   decafRequestRemote        = [http]://[example.com]:[80]
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = []}
@@ -153,7 +153,7 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl 
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
 -- }
-initRequestM :: MonadError DecafClientError m => T.Text -> Credentials -> m DecafRequest
+initRequestM :: MonadError DecafClientError m => T.Text -> DecafCredentials -> m DecafRequest
 initRequestM url creds = (`initRequest` creds) <$> parseRemote url
 
 
@@ -164,7 +164,7 @@ defaultRequest :: DecafRequest
 defaultRequest = DecafRequest
   { decafRequestRemote = DecafRemote "localhost" Nothing False
   , decafRequestNamespace = mempty
-  , decafRequestCredentials = CredentialsHeader "UNKNOWN"
+  , decafRequestCredentials = DecafCredentialsHeader "UNKNOWN"
   , decafRequestUserAgent = defaultUserAgent
   , decafRequestHeaders = []
   , decafRequestMethod = GET
@@ -242,12 +242,12 @@ namespace = setNamespace . mkDecafRequestPath
 
 
 -- | Sets the authentication credentials.
-setCredentials :: Credentials -> DecafRequestCombinator
+setCredentials :: DecafCredentials -> DecafRequestCombinator
 setCredentials c request = request { decafRequestCredentials = c }
 
 
 -- | Alias to 'setCredentials'.
-credentials :: Credentials -> DecafRequestCombinator
+credentials :: DecafCredentials -> DecafRequestCombinator
 credentials = setCredentials
 
 

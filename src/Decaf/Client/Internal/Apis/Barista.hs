@@ -2,12 +2,13 @@
 
 module Decaf.Client.Internal.Apis.Barista where
 
-import           Control.Monad.Except              (MonadError)
-import           Control.Monad.IO.Class            (MonadIO)
-import           Data.Aeson                        (FromJSON)
-import qualified Data.ByteString                   as B
-import qualified Data.Text                         as T
-import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
+import           Control.Monad.Except          (MonadError)
+import           Control.Monad.IO.Class        (MonadIO)
+import           Data.Aeson                    (FromJSON)
+import qualified Data.ByteString               as B
+import qualified Data.Text                     as T
+import           Decaf.Client.DecafCredentials (DecafCredentials)
+import           Decaf.Client.DecafRemote      (DecafRemote, parseRemote)
 import           Decaf.Client.DecafRequest
                  ( DecafRequest
                  , DecafRequestCombinator
@@ -15,10 +16,9 @@ import           Decaf.Client.DecafRequest
                  , namespace
                  , withTrailingSlash
                  )
-import           Decaf.Client.DecafResponse        (DecafResponse)
-import           Decaf.Client.Internal.Credentials (Credentials)
-import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http        (runRequest, runRequestBS)
+import           Decaf.Client.DecafResponse    (DecafResponse)
+import           Decaf.Client.Internal.Error   (DecafClientError)
+import           Decaf.Client.Internal.Http    (runRequest, runRequestBS)
 
 
 -- * Data Definition
@@ -36,7 +36,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: DecafRequest } deri
 -- | Builds a 'BaristaClient' with the given DECAF Instance 'Remote' and
 -- credentials.
 --
--- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.DecafCredentials
 -- >>> import Decaf.Client.DecafRemote
 -- >>> mkBaristaClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: BaristaClient
 -- MkBaristaClient {unBaristaClient = Request {
@@ -51,14 +51,14 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: DecafRequest } deri
 --   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }}
-mkBaristaClient :: DecafRemote -> Credentials -> BaristaClient
+mkBaristaClient :: DecafRemote -> DecafCredentials -> BaristaClient
 mkBaristaClient r c = MkBaristaClient . namespace "api" . withTrailingSlash $ initRequest r c
 
 
 -- | Attempts to build a 'BaristaClient' with the given DECAF Instance URL and
 -- credentials.
 --
--- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.DecafCredentials
 -- >>> mkBaristaClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError BaristaClient
 -- Right (MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
@@ -72,7 +72,7 @@ mkBaristaClient r c = MkBaristaClient . namespace "api" . withTrailingSlash $ in
 --   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkBaristaClientM :: MonadError DecafClientError m => T.Text -> Credentials -> m BaristaClient
+mkBaristaClientM :: MonadError DecafClientError m => T.Text -> DecafCredentials -> m BaristaClient
 mkBaristaClientM d c = (`mkBaristaClient` c) <$> parseRemote d
 
 

@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Decaf.Client
+      Decaf.Client.DecafCredentials
       Decaf.Client.DecafProfile
       Decaf.Client.DecafRemote
       Decaf.Client.DecafRequest
@@ -36,7 +37,6 @@ library
       Decaf.Client.Internal.Apis.Microlot
       Decaf.Client.Internal.Apis.Pdms
       Decaf.Client.Internal.Client
-      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Error
       Decaf.Client.Internal.Exception
       Decaf.Client.Internal.Http

@@ -2,8 +2,8 @@
 --
 module Decaf.Client.Internal.Apis.Pdms where
 
-import           Control.Monad.Except              (MonadError)
-import           Control.Monad.IO.Class            (MonadIO)
+import           Control.Monad.Except          (MonadError)
+import           Control.Monad.IO.Class        (MonadIO)
 import           Data.Aeson
                  ( FromJSON(..)
                  , Object
@@ -15,10 +15,11 @@ import           Data.Aeson
                  , object
                  , (.=)
                  )
-import           Data.Char                         (toLower)
-import           Data.List.NonEmpty                (NonEmpty)
-import qualified Data.Text                         as T
-import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
+import           Data.Char                     (toLower)
+import           Data.List.NonEmpty            (NonEmpty)
+import qualified Data.Text                     as T
+import           Decaf.Client.DecafCredentials (DecafCredentials)
+import           Decaf.Client.DecafRemote      (DecafRemote, parseRemote)
 import           Decaf.Client.DecafRequest
                  ( DecafRequest
                  , DecafRequestCombinator
@@ -28,12 +29,11 @@ import           Decaf.Client.DecafRequest
                  , post
                  , withoutTrailingSlash
                  )
-import           Decaf.Client.DecafResponse        (DecafResponse)
-import           Decaf.Client.Internal.Credentials (Credentials)
-import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http        (runRequest)
-import           Decaf.Client.Internal.Utils       (applyFirst)
-import           GHC.Generics                      (Generic)
+import           Decaf.Client.DecafResponse    (DecafResponse)
+import           Decaf.Client.Internal.Error   (DecafClientError)
+import           Decaf.Client.Internal.Http    (runRequest)
+import           Decaf.Client.Internal.Utils   (applyFirst)
+import           GHC.Generics                  (Generic)
 
 
 -- * Data Definition
@@ -53,7 +53,7 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: DecafRequest } deriving Show
 -- | Builds a 'PdmsClient' with the given DECAF Instance 'Remote' and
 -- credentials.
 --
--- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.DecafCredentials
 -- >>> import Decaf.Client.DecafRemote
 -- >>> mkPdmsClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
@@ -68,13 +68,13 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: DecafRequest } deriving Show
 --   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }}
-mkPdmsClient :: DecafRemote -> Credentials -> PdmsClient
+mkPdmsClient :: DecafRemote -> DecafCredentials -> PdmsClient
 mkPdmsClient r c = MkPdmsClient . post . namespace "/apis/modules/pdms/v1/graphql" . withoutTrailingSlash $ initRequest r c
 
 
 -- | Attempts to build a 'PdmsClient' with the given DECAF Instance URL and credentials.
 --
--- >>> import Decaf.Client.Internal.Credentials
+-- >>> import Decaf.Client.DecafCredentials
 -- >>> import Decaf.Client.DecafRemote
 -- >>> mkPdmsClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
@@ -89,7 +89,7 @@ mkPdmsClient r c = MkPdmsClient . post . namespace "/apis/modules/pdms/v1/graphq
 --   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }})
-mkPdmsClientM :: MonadError DecafClientError m => T.Text -> Credentials -> m PdmsClient
+mkPdmsClientM :: MonadError DecafClientError m => T.Text -> DecafCredentials -> m PdmsClient
 mkPdmsClientM d c = (`mkPdmsClient` c) <$> parseRemote d
 
 

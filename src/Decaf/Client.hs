@@ -51,7 +51,7 @@ module Decaf.Client
 
     -- * Credentials
 
-  , module Decaf.Client.Internal.Credentials
+  , module Decaf.Client.DecafCredentials
 
 
     -- * Profiles
@@ -69,6 +69,7 @@ module Decaf.Client
   ) where
 
 
+import Decaf.Client.DecafCredentials
 import Decaf.Client.DecafProfile
 import Decaf.Client.DecafRemote
 import Decaf.Client.DecafRequest
@@ -95,6 +96,5 @@ import Decaf.Client.Internal.Apis.Pdms
        , runPdms
        )
 import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient, mkDecafClientE)
-import Decaf.Client.Internal.Credentials
 import Decaf.Client.Internal.Error
 import Decaf.Client.Internal.Exception

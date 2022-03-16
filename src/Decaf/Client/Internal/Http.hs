@@ -7,25 +7,25 @@
 
 module Decaf.Client.Internal.Http where
 
-import           Control.Monad.IO.Class            (MonadIO)
-import           Data.Aeson                        (FromJSON)
-import qualified Data.ByteString                   as B
-import           Data.ByteString.Base64            (encode)
-import qualified Data.ByteString.Char8             as BC
-import           Data.Maybe                        (fromMaybe)
-import qualified Data.Text.Encoding                as TE
-import           Decaf.Client.DecafRemote          (DecafRemote(decafRemoteHost, decafRemotePort, decafRemoteSecure))
-import           Decaf.Client.DecafRequest         (DecafRequest(..), DecafRequestPayload(..), unDecafRequestPath)
-import           Decaf.Client.DecafResponse        (DecafResponse(DecafResponse))
-import           Decaf.Client.Internal.Credentials
-                 ( BasicCredentials(BasicCredentials)
-                 , Credentials(..)
-                 , KeyCredentials(KeyCredentials)
+import           Control.Monad.IO.Class        (MonadIO)
+import           Data.Aeson                    (FromJSON)
+import qualified Data.ByteString               as B
+import           Data.ByteString.Base64        (encode)
+import qualified Data.ByteString.Char8         as BC
+import           Data.Maybe                    (fromMaybe)
+import qualified Data.Text.Encoding            as TE
+import           Decaf.Client.DecafCredentials
+                 ( DecafBasicCredentials(DecafBasicCredentials)
+                 , DecafCredentials(..)
+                 , DecafKeyCredentials(DecafKeyCredentials)
                  )
-import           Decaf.Client.Internal.Utils       (compose)
-import qualified Network.HTTP.Client.Conduit       as HC
-import qualified Network.HTTP.Simple               as HS
-import           Network.HTTP.Types                (queryTextToQuery)
+import           Decaf.Client.DecafRemote      (DecafRemote(decafRemoteHost, decafRemotePort, decafRemoteSecure))
+import           Decaf.Client.DecafRequest     (DecafRequest(..), DecafRequestPayload(..), unDecafRequestPath)
+import           Decaf.Client.DecafResponse    (DecafResponse(DecafResponse))
+import           Decaf.Client.Internal.Utils   (compose)
+import qualified Network.HTTP.Client.Conduit   as HC
+import qualified Network.HTTP.Simple           as HS
+import           Network.HTTP.Types            (queryTextToQuery)
 
 
 -- * HTTP Request Runners
@@ -125,20 +125,20 @@ setPayload r = maybe id (HS.setRequestBody . HC.RequestBodyLBS . decafRequestPay
 
 -- | Builds an HTTP @Authorization@ header value from given 'Credentials'.
 --
--- >>> import Decaf.Client.Internal.Credentials
--- >>> mkAuthorization $ CredentialsHeader "Token XYZ"
+-- >>> import Decaf.Client.DecafCredentials
+-- >>> mkAuthorization $ DecafCredentialsHeader "Token XYZ"
 -- "Token XYZ"
--- >>> mkAuthorization $ CredentialsBasic (BasicCredentials "username" "password")
+-- >>> mkAuthorization $ DecafCredentialsBasic (DecafBasicCredentials "username" "password")
 -- "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
--- >>> mkAuthorization $ CredentialsKey (KeyCredentials "key" "secret")
+-- >>> mkAuthorization $ DecafCredentialsKey (DecafKeyCredentials "key" "secret")
 -- "Key key:secret"
--- >>> mkAuthorization $ CredentialsToken "token"
+-- >>> mkAuthorization $ DecafCredentialsToken "token"
 -- "Token token"
-mkAuthorization :: Credentials -> B.ByteString
-mkAuthorization (CredentialsHeader x)                     = TE.encodeUtf8 x
-mkAuthorization (CredentialsBasic (BasicCredentials u p)) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
-mkAuthorization (CredentialsKey (KeyCredentials k v))     = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
-mkAuthorization (CredentialsToken t)                      = mkTokenAuth (TE.encodeUtf8 t)
+mkAuthorization :: DecafCredentials -> B.ByteString
+mkAuthorization (DecafCredentialsHeader x)                          = TE.encodeUtf8 x
+mkAuthorization (DecafCredentialsBasic (DecafBasicCredentials u p)) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
+mkAuthorization (DecafCredentialsKey (DecafKeyCredentials k v))     = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
+mkAuthorization (DecafCredentialsToken t)                           = mkTokenAuth (TE.encodeUtf8 t)
 
 
 -- | Builds an HTTP @Authorization@ header value from username and password (HTTP Basic Auth).
