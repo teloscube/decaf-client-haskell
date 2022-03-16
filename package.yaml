@@ -24,18 +24,16 @@ dependencies:
 - deriving-aeson
 - exceptions
 - http-conduit
-- http-types
 - mtl
 - network-uri
 - text
-- unordered-containers
 - yaml
 
 library:
   source-dirs: src
   ghc-options:
   - -Wall
-  - -Werror
+  - -Wunused-packages
   default-extensions:
   ## Begin: Haskell 2021 Extensions List
   - BangPatterns
@@ -89,6 +87,7 @@ executables:
     - decaf-client
     - monad-parallel
     - optparse-applicative
+    - unordered-containers
     - vector
 
 tests:
