@@ -56,7 +56,7 @@ module Decaf.Client
 
     -- * Profiles
 
-  , module Decaf.Client.Internal.Profile
+  , module Decaf.Client.DecafProfile
 
     -- * Errors
 
@@ -69,6 +69,7 @@ module Decaf.Client
   ) where
 
 
+import Decaf.Client.DecafProfile
 import Decaf.Client.DecafRemote
 import Decaf.Client.DecafRequest
 import Decaf.Client.DecafResponse
@@ -97,4 +98,3 @@ import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient, mkDe
 import Decaf.Client.Internal.Credentials
 import Decaf.Client.Internal.Error
 import Decaf.Client.Internal.Exception
-import Decaf.Client.Internal.Profile

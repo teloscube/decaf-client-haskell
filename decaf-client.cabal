@@ -28,6 +28,8 @@ source-repository head
 library
   exposed-modules:
       Decaf.Client
+      Decaf.Client.DecafProfile
+      Decaf.Client.DecafRemote
       Decaf.Client.DecafRequest
       Decaf.Client.DecafResponse
       Decaf.Client.Internal.Apis.Barista
@@ -38,8 +40,6 @@ library
       Decaf.Client.Internal.Error
       Decaf.Client.Internal.Exception
       Decaf.Client.Internal.Http
-      Decaf.Client.Internal.Profile
-      Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Utils
       Decaf.Client.Version
   other-modules:

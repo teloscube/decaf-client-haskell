@@ -20,14 +20,14 @@ import qualified Data.Text              as T
 import qualified Data.Vector            as V
 import           Decaf.Client
                  ( DecafClient(decafClientMicrolot)
+                 , DecafProfile(decafProfileName, decafProfileRemote)
                  , DecafResponse(decafResponseBody)
                  , MicrolotQuery
                  , MicrolotResponse(microlotResponseData)
-                 , Profile(profileName, profileRemote)
-                 , mkClientFromProfile
+                 , mkDecafClientFromDecafProfile
                  , mkMicrolotQuery
                  , mkMicrolotQuery'
-                 , readProfiles
+                 , readDecafProfiles
                  , runMicrolot
                  , throwIOException
                  )
@@ -53,13 +53,13 @@ runBatchMicrolot
   => MicrolotBatchRunConfig
   -> m ()
 runBatchMicrolot MicrolotBatchRunConfig{..} = do
-  allProfiles <- readProfiles microlotBatchRunConfigFile
+  allProfiles <- readDecafProfiles microlotBatchRunConfigFile
   let profiles = case microlotBatchRunConfigProfileName of
         Nothing -> allProfiles
-        Just sn -> filter (\x -> profileName x == sn) allProfiles
+        Just sn -> filter (\x -> decafProfileName x == sn) allProfiles
   results <- MP.mapM (runQueryForProfile microlotBatchRunConfigQuery microlotBatchRunConfigQueryParams) profiles
   let zipped = Aeson.Array . V.fromList
-          $ (\(x, y) -> Aeson.object ["name" .= profileName x, "remote" .= profileRemote x, "result" .= y])
+          $ (\(x, y) -> Aeson.object ["name" .= decafProfileName x, "remote" .= decafProfileRemote x, "result" .= y])
         <$> zip profiles results
   liftIO . BL.putStr $ Aeson.encode zipped
 
@@ -72,11 +72,11 @@ runQueryForProfile
   => MonadIO m
   => FilePath
   -> Maybe Aeson.Value
-  -> Profile
+  -> DecafProfile
   -> m Aeson.Value
 runQueryForProfile fp vars profile = do
   query <- buildMicrolotQuery fp vars
-  let client = mkClientFromProfile profile
+  let client = mkDecafClientFromDecafProfile profile
   attempt query client `catch` handle
   where
     attempt q c = microlotResponseData . decafResponseBody <$> runMicrolot q (decafClientMicrolot c)
