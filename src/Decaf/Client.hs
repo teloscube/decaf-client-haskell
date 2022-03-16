@@ -43,11 +43,11 @@ module Decaf.Client
 
     -- * Requests
 
-  , module Decaf.Client.Internal.Request
+  , module Decaf.Client.DecafRequest
 
     -- * Responses
 
-  , module Decaf.Client.Internal.Response
+  , module Decaf.Client.DecafResponse
 
     -- * Credentials
 
@@ -69,6 +69,8 @@ module Decaf.Client
   ) where
 
 
+import Decaf.Client.DecafRequest
+import Decaf.Client.DecafResponse
 import Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
 import Decaf.Client.Internal.Apis.Microlot
        ( MicrolotClient
@@ -96,5 +98,3 @@ import Decaf.Client.Internal.Error
 import Decaf.Client.Internal.Exception
 import Decaf.Client.Internal.Profile
 import Decaf.Client.Internal.Remote
-import Decaf.Client.Internal.Request
-import Decaf.Client.Internal.Response

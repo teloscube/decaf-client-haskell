@@ -20,10 +20,10 @@ import qualified Data.Text              as T
 import qualified Data.Vector            as V
 import           Decaf.Client
                  ( DecafClient(decafClientMicrolot)
+                 , DecafResponse(decafResponseBody)
                  , MicrolotQuery
                  , MicrolotResponse(microlotResponseData)
                  , Profile(profileName, profileRemote)
-                 , Response(responseValue)
                  , mkClientFromProfile
                  , mkMicrolotQuery
                  , mkMicrolotQuery'
@@ -79,7 +79,7 @@ runQueryForProfile fp vars profile = do
   let client = mkClientFromProfile profile
   attempt query client `catch` handle
   where
-    attempt q c = microlotResponseData . responseValue <$> runMicrolot q (decafClientMicrolot c)
+    attempt q c = microlotResponseData . decafResponseBody <$> runMicrolot q (decafClientMicrolot c)
     handle = \(x :: SomeException) -> pure (Aeson.String (T.pack . show $ x))
 
 

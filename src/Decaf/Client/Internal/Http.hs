@@ -9,24 +9,23 @@ module Decaf.Client.Internal.Http where
 
 import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson                        (FromJSON)
-import           Data.Bifunctor                    (bimap)
 import qualified Data.ByteString                   as B
 import           Data.ByteString.Base64            (encode)
 import qualified Data.ByteString.Char8             as BC
-import qualified Data.CaseInsensitive              as CI
 import           Data.Maybe                        (fromMaybe)
 import qualified Data.Text.Encoding                as TE
+import           Decaf.Client.DecafRequest         (DecafRequest(..), DecafRequestPayload(..), unDecafRequestPath)
+import           Decaf.Client.DecafResponse        (DecafResponse(DecafResponse))
 import           Decaf.Client.Internal.Credentials
                  ( BasicCredentials(BasicCredentials)
                  , Credentials(..)
                  , KeyCredentials(KeyCredentials)
                  )
 import           Decaf.Client.Internal.Remote      (Remote(remoteHost, remotePort, remoteSecure))
-import           Decaf.Client.Internal.Request     (Payload(..), Request(..), unPath)
-import           Decaf.Client.Internal.Response    (Response(Response))
 import           Decaf.Client.Internal.Utils       (compose)
 import qualified Network.HTTP.Client.Conduit       as HC
 import qualified Network.HTTP.Simple               as HS
+import           Network.HTTP.Types                (queryTextToQuery)
 
 
 -- * HTTP Request Runners
@@ -34,12 +33,12 @@ import qualified Network.HTTP.Simple               as HS
 
 -- | Runs a request and returns a 'Response' value JSON-decoded from the
 -- response body.
-runRequest :: (MonadIO m, FromJSON a) => Request -> m (Response a)
+runRequest :: (MonadIO m, FromJSON a) => DecafRequest -> m (DecafResponse a)
 runRequest r = mkResponse <$> (HS.httpJSON . compileRequest) r
 
 
 -- | Runs a request and returns a 'Response' with 'B.ByteString' value.
-runRequestBS :: MonadIO m => Request -> m (Response B.ByteString)
+runRequestBS :: MonadIO m => DecafRequest -> m (DecafResponse B.ByteString)
 runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 
 
@@ -49,20 +48,20 @@ runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
 
 -- | Converts the underlying "http-conduit" 'HS.Response' value into a DECAF
 -- client 'Response' value.
-mkResponse :: HS.Response a -> Response a
-mkResponse = Response
-  <$> HS.getResponseStatusCode
-  <*> (fmap (bimap (TE.decodeUtf8 . CI.foldedCase) TE.decodeUtf8) . HS.getResponseHeaders)
+mkResponse :: HS.Response a -> DecafResponse a
+mkResponse = DecafResponse
+  <$> HS.getResponseStatus
+  <*> HS.getResponseHeaders
   <*> HS.getResponseBody
 
 
 -- | Type definition to modify "http-conduit" 'H.Request' fields from a given
--- DECAF client 'Request' value.
-type RequestFieldSetter = Request -> HS.Request -> HS.Request
+-- DECAF client 'DecafRequest' value.
+type RequestFieldSetter = DecafRequest -> HS.Request -> HS.Request
 
 
--- | Compiles a DECAF client 'Request' into a "http-conduit" 'H.Request'.
-compileRequest :: Request -> HS.Request
+-- | Compiles a DECAF client 'DecafRequest' into a "http-conduit" 'H.Request'.
+compileRequest :: DecafRequest -> HS.Request
 compileRequest request = compiler request HS.defaultRequest
 
 
@@ -82,7 +81,7 @@ compiler r = compose $ fmap (\x -> x r)
 setRemote :: RequestFieldSetter
 setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure s'
   where
-    r' = requestRemote r
+    r' = decafRequestRemote r
     h' = TE.encodeUtf8 $ remoteHost r'
     p' = fromMaybe (if remoteSecure r' then 443 else 80) $ remotePort r'
     s' = remoteSecure r'
@@ -90,16 +89,16 @@ setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure 
 
 -- | Sets the request method.
 setMethod :: RequestFieldSetter
-setMethod = HS.setRequestMethod . BC.pack . show . requestHttpMethod
+setMethod = HS.setRequestMethod . BC.pack . show . decafRequestMethod
 
 
 -- | Sets the request path.
 setPath :: RequestFieldSetter
 setPath r = HS.setRequestPath c
   where
-    a = (<>) <$> requestNamespace <*> requestHttpPath $ r
-    b = (<>) "/" . B.intercalate "/" . fmap TE.encodeUtf8 . unPath $ a
-    t = if requestHttpTrailingSlash r then (<> "/") else id
+    a = (<>) <$> decafRequestNamespace <*> decafRequestPath $ r
+    b = (<>) "/" . B.intercalate "/" . fmap TE.encodeUtf8 . unDecafRequestPath $ a
+    t = if decafRequestTrailingSlash r then (<> "/") else id
     c = t b
 
 
@@ -107,21 +106,21 @@ setPath r = HS.setRequestPath c
 setHeaders :: RequestFieldSetter
 setHeaders r = HS.setRequestHeaders h''
   where
-    a = ("Authorization", mkAuthorization . requestCredentials $ r)
-    u = ("UserAgent", TE.encodeUtf8 . requestUserAgent $ r)
-    p =  foldMap (\x -> [("Content-Type", TE.encodeUtf8 . payloadType $ x)]) (requestHttpPayload r)
-    h' = fmap (\(x, y) -> (CI.mk $ TE.encodeUtf8 x, TE.encodeUtf8 y)) . requestHttpHeaders $ r
+    a = ("Authorization", mkAuthorization . decafRequestCredentials $ r)
+    u = ("UserAgent", TE.encodeUtf8 . decafRequestUserAgent $ r)
+    p =  foldMap (\x -> [("Content-Type", TE.encodeUtf8 . decafRequestPayloadType $ x)]) (decafRequestPayload r)
+    h' = decafRequestHeaders r
     h'' = a : u : (p <> h')
 
 
 -- | Sets request querystring parameters.
 setParams :: RequestFieldSetter
-setParams = HS.setRequestQueryString . fmap (bimap TE.encodeUtf8 (Just . TE.encodeUtf8)). requestHttpParams
+setParams = HS.setRequestQueryString . queryTextToQuery . decafRequestQuery
 
 
 -- | Sets request payload.
 setPayload :: RequestFieldSetter
-setPayload r = maybe id (HS.setRequestBody . HC.RequestBodyLBS . payloadContent) $ requestHttpPayload r
+setPayload r = maybe id (HS.setRequestBody . HC.RequestBodyLBS . decafRequestPayloadContent) $ decafRequestPayload r
 
 
 -- | Builds an HTTP @Authorization@ header value from given 'Credentials'.

@@ -18,20 +18,20 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Credentials (Credentials)
-import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http        (runRequest)
-import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
-import           Decaf.Client.Internal.Request
-                 ( Combinator
-                 , Request
+import           Decaf.Client.DecafRequest
+                 ( DecafRequest
+                 , DecafRequestCombinator
                  , initRequest
                  , jsonPayload
                  , namespace
                  , post
                  , withoutTrailingSlash
                  )
-import           Decaf.Client.Internal.Response    (Response)
+import           Decaf.Client.DecafResponse        (DecafResponse)
+import           Decaf.Client.Internal.Credentials (Credentials)
+import           Decaf.Client.Internal.Error       (DecafClientError)
+import           Decaf.Client.Internal.Http        (runRequest)
+import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
@@ -42,8 +42,8 @@ import           GHC.Generics                      (Generic)
 
 -- | DECAF Microlot API client type.
 --
--- This is a /wrapper/ around 'Request'.
-newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: Request } deriving Show
+-- This is a /wrapper/ around 'DecafRequest'.
+newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: DecafRequest } deriving Show
 
 
 -- | Builds a 'MicrolotClient' with the given DECAF Instance 'Remote' and
@@ -54,14 +54,14 @@ newtype MicrolotClient = MkMicrolotClient { unMicrolotClient :: Request } derivi
 -- >>> mkMicrolotClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: MicrolotClient
 -- MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
---   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
+--   requestNamespace         = MkDecafRequestPath {unDecafRequestPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
 --   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
---   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpPath          = MkDecafRequestPath {unDecafRequestPath = []}
 --   requestHttpTrailingSlash = False
---   requestHttpParams        = []
+--   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }}
 mkMicrolotClient :: Remote -> Credentials -> MicrolotClient
@@ -80,14 +80,14 @@ mkMicrolotClient r c = MkMicrolotClient . post . namespace "/apis/microlot/v1/gr
 -- >>> mkMicrolotClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError MicrolotClient
 -- Right (MkMicrolotClient {unMicrolotClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
---   requestNamespace         = MkPath {unPath = ["apis","microlot","v1","graphql"]}
+--   requestNamespace         = MkDecafRequestPath {unDecafRequestPath = ["apis","microlot","v1","graphql"]}
 --   requestCredentials       = <********>
 --   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
---   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpPath          = MkDecafRequestPath {unDecafRequestPath = []}
 --   requestHttpTrailingSlash = False
---   requestHttpParams        = []
+--   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }})
 mkMicrolotClientM :: MonadError DecafClientError m => T.Text -> Credentials -> m MicrolotClient
@@ -137,9 +137,9 @@ instance (FromJSON a) => FromJSON (MicrolotResponse a) where
 -- $runners
 
 
--- | Runs the 'MicrolotClient' along with given 'Request' combinators and
+-- | Runs the 'MicrolotClient' along with given 'DecafRequest' combinators and
 -- returns a 'Response' value JSON-decoded from the response body.
-runMicrolot :: (MonadIO m, ToJSON a, Show b, FromJSON b) => MicrolotQuery a -> MicrolotClient-> m (Response (MicrolotResponse b))
+runMicrolot :: (MonadIO m, ToJSON a, Show b, FromJSON b) => MicrolotQuery a -> MicrolotClient-> m (DecafResponse (MicrolotResponse b))
 runMicrolot query cli = runRequest $ mkRequest (jsonPayload query) cli
 
 
@@ -147,6 +147,6 @@ runMicrolot query cli = runRequest $ mkRequest (jsonPayload query) cli
 -- $internal
 
 
--- | Builds an 'Request' from a 'MicrolotClient' while applying a 'Combinator'.
-mkRequest :: Combinator -> MicrolotClient -> Request
+-- | Builds an 'DecafRequest' from a 'MicrolotClient' while applying a 'Combinator'.
+mkRequest :: DecafRequestCombinator -> MicrolotClient -> DecafRequest
 mkRequest c = c . unMicrolotClient

@@ -18,20 +18,20 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
-import           Decaf.Client.Internal.Credentials (Credentials)
-import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Http        (runRequest)
-import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
-import           Decaf.Client.Internal.Request
-                 ( Combinator
-                 , Request
+import           Decaf.Client.DecafRequest
+                 ( DecafRequest
+                 , DecafRequestCombinator
                  , initRequest
                  , jsonPayload
                  , namespace
                  , post
                  , withoutTrailingSlash
                  )
-import           Decaf.Client.Internal.Response    (Response)
+import           Decaf.Client.DecafResponse        (DecafResponse)
+import           Decaf.Client.Internal.Credentials (Credentials)
+import           Decaf.Client.Internal.Error       (DecafClientError)
+import           Decaf.Client.Internal.Http        (runRequest)
+import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
@@ -42,8 +42,8 @@ import           GHC.Generics                      (Generic)
 
 -- | DECAF PDMS module API client type.
 --
--- This is a /wrapper/ around 'Request'.
-newtype PdmsClient = MkPdmsClient { unPdmsClient :: Request } deriving Show
+-- This is a /wrapper/ around 'DecafRequest'.
+newtype PdmsClient = MkPdmsClient { unPdmsClient :: DecafRequest } deriving Show
 
 
 -- * Constructors
@@ -58,14 +58,14 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: Request } deriving Show
 -- >>> mkPdmsClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
---   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
+--   requestNamespace         = MkDecafRequestPath {unDecafRequestPath = ["apis","modules","pdms","v1","graphql"]}
 --   requestCredentials       = <********>
 --   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
---   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpPath          = MkDecafRequestPath {unDecafRequestPath = []}
 --   requestHttpTrailingSlash = False
---   requestHttpParams        = []
+--   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }}
 mkPdmsClient :: Remote -> Credentials -> PdmsClient
@@ -79,14 +79,14 @@ mkPdmsClient r c = MkPdmsClient . post . namespace "/apis/modules/pdms/v1/graphq
 -- >>> mkPdmsClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
---   requestNamespace         = MkPath {unPath = ["apis","modules","pdms","v1","graphql"]}
+--   requestNamespace         = MkDecafRequestPath {unDecafRequestPath = ["apis","modules","pdms","v1","graphql"]}
 --   requestCredentials       = <********>
 --   requestUserAgent         = "DECAF API Client/... (Haskell)"
 --   requestHttpHeaders       = [("X-DECAF-URL","https://example.com:443")]
 --   requestHttpMethod        = POST
---   requestHttpPath          = MkPath {unPath = []}
+--   requestHttpPath          = MkDecafRequestPath {unDecafRequestPath = []}
 --   requestHttpTrailingSlash = False
---   requestHttpParams        = []
+--   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }})
 mkPdmsClientM :: MonadError DecafClientError m => T.Text -> Credentials -> m PdmsClient
@@ -136,7 +136,7 @@ instance (FromJSON a) => FromJSON (PdmsResponse a) where
 
 -- | Runs the 'PdmsClient' along with given 'IR.Request' combinators and
 -- returns a 'IV.Response' value JSON-decoded from the response body.
-runPdms :: (MonadIO m, ToJSON a, Show b, FromJSON b) => PdmsQuery a -> PdmsClient-> m (Response (PdmsResponse b))
+runPdms :: (MonadIO m, ToJSON a, Show b, FromJSON b) => PdmsQuery a -> PdmsClient-> m (DecafResponse (PdmsResponse b))
 runPdms query cli = runRequest $ mkRequest (jsonPayload query) cli
 
 
@@ -144,6 +144,6 @@ runPdms query cli = runRequest $ mkRequest (jsonPayload query) cli
 -- $internal
 
 
--- | Builds an 'Request' from a 'PdmsClient' while applying a 'Combinator'.
-mkRequest :: Combinator -> PdmsClient -> Request
+-- | Builds an 'DecafRequest' from a 'PdmsClient' while applying a 'Combinator'.
+mkRequest :: DecafRequestCombinator -> PdmsClient -> DecafRequest
 mkRequest c = c . unPdmsClient
