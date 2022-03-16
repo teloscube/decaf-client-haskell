@@ -22,18 +22,18 @@ dependencies:
 - bytestring
 - case-insensitive
 - deriving-aeson
+- exceptions
 - http-conduit
-- http-types
 - mtl
 - network-uri
 - text
-- unordered-containers
+- yaml
 
 library:
   source-dirs: src
   ghc-options:
   - -Wall
-  - -Werror
+  - -Wunused-packages
   default-extensions:
   ## Begin: Haskell 2021 Extensions List
   - BangPatterns
@@ -85,17 +85,10 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - monad-parallel
     - optparse-applicative
-
-  decaf-client-examples-accountinfo-exe:
-    main:                Main.hs
-    source-dirs:         examples/accountinfo
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - decaf-client
+    - unordered-containers
+    - vector
 
 tests:
   decaf-client-test:

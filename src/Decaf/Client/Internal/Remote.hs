@@ -3,10 +3,11 @@
 module Decaf.Client.Internal.Remote where
 
 import           Control.Monad.Except        (MonadError)
+import qualified Data.Aeson                  as Aeson
 import qualified Data.Char                   as C
 import           Data.Maybe                  (fromMaybe)
 import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Error (DecafClientError, throwDecafClientError)
+import           Decaf.Client.Internal.Error (DecafClientError(unDecafClientError), throwDecafClientError)
 import           Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
 import qualified Network.URI                 as U
 import           Text.Printf                 (printf)
@@ -28,6 +29,7 @@ data Remote = Remote
   , remotePort   :: !(Maybe Int)
   , remoteSecure :: !Bool
   }
+  deriving Eq
 
 
 instance Show Remote where
@@ -36,6 +38,16 @@ instance Show Remote where
       s' = (if s then "https" else "http") :: String
       h' = T.unpack h
       p' = fromMaybe (if s then 443 else 80) p
+
+
+instance Aeson.FromJSON Remote where
+  parseJSON = Aeson.withText "Remote" $ \x -> case parseRemote x of
+    Left err -> fail (unDecafClientError err)
+    Right sr -> pure sr
+
+
+instance Aeson.ToJSON Remote where
+  toJSON = Aeson.String . remoteToUrl
 
 
 -- | Converts the 'Remote' to a sanitized url.
@@ -85,7 +97,8 @@ remoteUrl (Remote h p s) = T.pack $ printf "%s://%s:%d" s' h' p'
 
 -- | Attempts to parse a given URL as a DECAF Instance 'Remote'.
 --
--- >>> import Decaf.Client
+-- >>> import Decaf.Client.Internal.Error
+-- >>> import Decaf.Client.Internal.Remote
 -- >>> parseRemote "http://localhost" :: Either DecafClientError Remote
 -- Right [http]://[localhost]:[80]
 -- >>> parseRemote "https://localhost" :: Either DecafClientError Remote
@@ -97,19 +110,19 @@ remoteUrl (Remote h p s) = T.pack $ printf "%s://%s:%d" s' h' p'
 -- >>> parseRemote "https://localhost:8443/path-segment-to-be-truncated" :: Either DecafClientError Remote
 -- Right [https]://[localhost]:[8443]
 -- >>> parseRemote "" :: Either DecafClientError Remote
--- Left (DecafClientError "Can not parse remote url: ''")
+-- Left (DecafClientError {unDecafClientError = "Can not parse remote url: ''"})
 -- >>> parseRemote "weird" :: Either DecafClientError Remote
--- Left (DecafClientError "Can not parse remote url: 'weird'")
+-- Left (DecafClientError {unDecafClientError = "Can not parse remote url: 'weird'"})
 -- >>> parseRemote "httpk://localhost:8443" :: Either DecafClientError Remote
--- Left (DecafClientError "Unknown protocol: httpk")
+-- Left (DecafClientError {unDecafClientError = "Unknown protocol: httpk"})
 -- >>> parseRemote "http:" :: Either DecafClientError Remote
--- Left (DecafClientError "Can not parse authority from URI: 'http:'")
+-- Left (DecafClientError {unDecafClientError = "Can not parse authority from URI: 'http:'"})
 -- >>> parseRemote "http:/" :: Either DecafClientError Remote
--- Left (DecafClientError "Can not parse authority from URI: 'http:/'")
+-- Left (DecafClientError {unDecafClientError = "Can not parse authority from URI: 'http:/'"})
 -- >>> parseRemote "http://" :: Either DecafClientError Remote
--- Left (DecafClientError "Empty host value")
+-- Left (DecafClientError {unDecafClientError = "Empty host value"})
 -- >>> parseRemote "http://a:" :: Either DecafClientError Remote
--- Left (DecafClientError "Can not parse port from URI: 'URIAuth {uriUserInfo = \"\", uriRegName = \"a\", uriPort = \":\"}'")
+-- Left (DecafClientError {unDecafClientError = "Can not parse port from URI: 'URIAuth {uriUserInfo = \"\", uriRegName = \"a\", uriPort = \":\"}'"})
 parseRemote :: MonadError DecafClientError m => T.Text -> m Remote
 parseRemote url = do
   uri <- parseUri' $ T.unpack url
@@ -120,11 +133,11 @@ parseRemote url = do
 
 -- | Parses the remote URI.
 --
--- >>> import Decaf.Client
+-- >>> import Decaf.Client.Internal.Error
 -- >>> parseUri' "" :: Either DecafClientError U.URI
--- Left (DecafClientError "Can not parse remote url: ''")
+-- Left (DecafClientError {unDecafClientError = "Can not parse remote url: ''"})
 -- >>> parseUri' "/" :: Either DecafClientError U.URI
--- Left (DecafClientError "Can not parse remote url: '/'")
+-- Left (DecafClientError {unDecafClientError = "Can not parse remote url: '/'"})
 -- >>> parseUri' "http://localhost" :: Either DecafClientError U.URI
 -- Right http://localhost
 -- >>> parseUri' "https://localhost:8443" :: Either DecafClientError U.URI
@@ -169,7 +182,7 @@ parsePort' uri = maybe err pure . sequence$ (readMaybe . dropLeading ':' <$> (no
 
 -- | Predicate to define if the URI indicates secure HTTP or not.
 --
--- >>> import Decaf.Client
+-- >>> import Decaf.Client.Internal.Error
 -- >>> isSecureHttp' "http" :: Either DecafClientError Bool
 -- Right False
 -- >>> isSecureHttp' "https" :: Either DecafClientError Bool
@@ -177,9 +190,9 @@ parsePort' uri = maybe err pure . sequence$ (readMaybe . dropLeading ':' <$> (no
 -- >>> fmap isSecureHttp' ["http", "https", "Http", "HTTP", "Https", "Https", "Http:", "Https:"] :: [Either DecafClientError Bool]
 -- [Right False,Right True,Right False,Right False,Right True,Right True,Right False,Right True]
 -- >>> fmap isSecureHttp' ["htt", "htts", "Htp", "HTP", "Htps", "Htps"] :: [Either DecafClientError Bool]
--- [Left (DecafClientError "Unknown protocol: htt"),Left (DecafClientError "Unknown protocol: htts"),Left (DecafClientError "Unknown protocol: htp"),Left (DecafClientError "Unknown protocol: htp"),Left (DecafClientError "Unknown protocol: htps"),Left (DecafClientError "Unknown protocol: htps")]
+-- [Left (DecafClientError {unDecafClientError = "Unknown protocol: htt"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htts"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htp"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htp"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htps"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htps"})]
 -- >>> fmap isSecureHttp' ["htt", "htts"] :: [Either DecafClientError Bool]
--- [Left (DecafClientError "Unknown protocol: htt"),Left (DecafClientError "Unknown protocol: htts")]
+-- [Left (DecafClientError {unDecafClientError = "Unknown protocol: htt"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htts"})]
 isSecureHttp' :: MonadError DecafClientError m => String -> m Bool
 isSecureHttp' = isSecure' . fmap C.toLower . dropTrailing ':'
   where

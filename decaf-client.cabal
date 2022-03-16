@@ -3,8 +3,6 @@ cabal-version: 1.12
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 90f836bda379684c199708d787f74e3d2e29bf5ada683fe6f9fdd0e73ae4a518
 
 name:           decaf-client
 version:        0.0.0.3
@@ -33,12 +31,15 @@ library
       Decaf.Client.Internal.Apis.Barista
       Decaf.Client.Internal.Apis.Microlot
       Decaf.Client.Internal.Apis.Pdms
+      Decaf.Client.Internal.Client
+      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Error
+      Decaf.Client.Internal.Exception
       Decaf.Client.Internal.Http
+      Decaf.Client.Internal.Profile
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
       Decaf.Client.Internal.Response
-      Decaf.Client.Internal.Credentials
       Decaf.Client.Internal.Utils
       Decaf.Client.Version
   other-modules:
@@ -83,7 +84,7 @@ library
       TypeOperators
       TypeSynonymInstances
       OverloadedStrings
-  ghc-options: -Wall -Werror
+  ghc-options: -Wall -Wunused-packages
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -91,40 +92,18 @@ library
     , bytestring
     , case-insensitive
     , deriving-aeson
+    , exceptions
     , http-conduit
-    , http-types
     , mtl
     , network-uri
     , text
-    , unordered-containers
-  default-language: Haskell2010
-
-executable decaf-client-examples-accountinfo-exe
-  main-is: Main.hs
-  other-modules:
-      Paths_decaf_client
-  hs-source-dirs:
-      examples/accountinfo
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      aeson
-    , base >=4.7 && <5
-    , base64-bytestring
-    , bytestring
-    , case-insensitive
-    , decaf-client
-    , deriving-aeson
-    , http-conduit
-    , http-types
-    , mtl
-    , network-uri
-    , text
-    , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 executable decafcli
   main-is: Main.hs
   other-modules:
+      MicrolotBatchRunner
       Paths_decaf_client
   hs-source-dirs:
       app
@@ -137,13 +116,16 @@ executable decafcli
     , case-insensitive
     , decaf-client
     , deriving-aeson
+    , exceptions
     , http-conduit
-    , http-types
+    , monad-parallel
     , mtl
     , network-uri
     , optparse-applicative
     , text
     , unordered-containers
+    , vector
+    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-doctest
@@ -163,12 +145,12 @@ test-suite decaf-client-doctest
     , decaf-client
     , deriving-aeson
     , doctest
+    , exceptions
     , http-conduit
-    , http-types
     , mtl
     , network-uri
     , text
-    , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-test
@@ -187,10 +169,10 @@ test-suite decaf-client-test
     , case-insensitive
     , decaf-client
     , deriving-aeson
+    , exceptions
     , http-conduit
-    , http-types
     , mtl
     , network-uri
     , text
-    , unordered-containers
+    , yaml
   default-language: Haskell2010
