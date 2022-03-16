@@ -21,14 +21,29 @@ data DecafClient = DecafClient
   }
 
 
+-- | Builds a 'DecafClient' with given DECAF Instance 'Remote' and
+-- authentication credentials.
+mkDecafClient
+  :: Remote       -- ^ DECAF Instance 'Remote'.
+  -> Credentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
+  -> DecafClient
+mkDecafClient r c =
+  let
+    barista = mkBaristaClient r c
+    microlot = mkMicrolotClient r c
+    pdms = mkPdmsClient r c
+  in
+    DecafClient r barista microlot pdms
+
+
 -- | Attempts to build a 'DecafClient' with given remote DECAF Instance URL
 -- and authentication credentials.
-mkDecafClient
+mkDecafClientE
   :: MonadError DecafClientError m
   => T.Text       -- ^ Base URL of remote DECAF Instance
   -> Credentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
   -> m DecafClient
-mkDecafClient b c = do
+mkDecafClientE b c = do
   r <- parseRemote b
   let barista = mkBaristaClient r c
   let microlot = mkMicrolotClient r c

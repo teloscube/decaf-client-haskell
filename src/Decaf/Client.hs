@@ -5,6 +5,7 @@ module Decaf.Client
 
     DecafClient(..)
   , mkDecafClient
+  , mkDecafClientE
 
     -- * Barista Client
 
@@ -89,7 +90,7 @@ import Decaf.Client.Internal.Apis.Pdms
        , mkPdmsQuery'
        , runPdms
        )
-import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient)
+import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient, mkDecafClientE)
 import Decaf.Client.Internal.Credentials
 import Decaf.Client.Internal.Error
 import Decaf.Client.Internal.Exception
