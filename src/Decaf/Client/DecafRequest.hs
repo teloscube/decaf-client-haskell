@@ -8,9 +8,9 @@ import qualified Data.ByteString.Lazy              as BL
 import qualified Data.CaseInsensitive              as CI
 import qualified Data.Text                         as T
 import qualified Data.Text.Encoding                as TE
+import           Decaf.Client.DecafRemote          (DecafRemote(..), parseRemote, remoteToUrl)
 import           Decaf.Client.Internal.Credentials (Credentials(CredentialsHeader))
 import           Decaf.Client.Internal.Error       (DecafClientError)
-import           Decaf.Client.Internal.Remote      (Remote(..), parseRemote, remoteUrl)
 import           Decaf.Client.Internal.Utils       (dropTrailing)
 import           Decaf.Client.Version              (version)
 import           Network.HTTP.Types
@@ -28,7 +28,7 @@ import           Text.Printf                       (printf)
 
 -- | Type definition for high-level encoding of DECAF client request values.
 data DecafRequest = DecafRequest
-  { decafRequestRemote        :: !Remote
+  { decafRequestRemote        :: !DecafRemote
   , decafRequestNamespace     :: !DecafRequestPath
   , decafRequestCredentials   :: !Credentials
   , decafRequestUserAgent     :: !T.Text
@@ -120,21 +120,21 @@ mkDecafRequestPath = MkDecafRequestPath . filter ("" /=) . T.split ('/' ==)
 
 -- | Initializes a request with DECAF Instance URL and authentication credentials.
 --
--- >>> initRequest (Remote "example.com" Nothing False) (CredentialsHeader "OUCH")
+-- >>> initRequest (DecafRemote "example.com" Nothing False) (CredentialsHeader "OUCH")
 -- DecafRequest {
 --   decafRequestRemote        = [http]://[example.com]:[80]
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = []}
 --   decafRequestCredentials   = <********>
 --   decafRequestUserAgent     = "DECAF API Client/... (Haskell)"
---   decafRequestHeaders       = [("X-DECAF-URL","http://example.com:80")]
+--   decafRequestHeaders       = [("X-DECAF-URL","http://example.com")]
 --   decafRequestMethod        = GET
 --   decafRequestPath          = MkDecafRequestPath {unDecafRequestPath = []}
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
 -- }
-initRequest :: Remote -> Credentials -> DecafRequest
-initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)) defaultRequest
+initRequest :: DecafRemote -> Credentials -> DecafRequest
+initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl r)) defaultRequest
 
 
 -- | Initializes a request with DECAF Instance URL and authentication credentials.
@@ -146,7 +146,7 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteUrl r)
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = []}
 --   decafRequestCredentials   = <********>
 --   decafRequestUserAgent     = "DECAF API Client/... (Haskell)"
---   decafRequestHeaders       = [("X-DECAF-URL","http://example.com:80")]
+--   decafRequestHeaders       = [("X-DECAF-URL","http://example.com")]
 --   decafRequestMethod        = GET
 --   decafRequestPath          = MkDecafRequestPath {unDecafRequestPath = []}
 --   decafRequestTrailingSlash = False
@@ -162,7 +162,7 @@ initRequestM url creds = (`initRequest` creds) <$> parseRemote url
 -- This is useful to build 'DecafRequest' values using combinators.
 defaultRequest :: DecafRequest
 defaultRequest = DecafRequest
-  { decafRequestRemote = Remote "localhost" Nothing False
+  { decafRequestRemote = DecafRemote "localhost" Nothing False
   , decafRequestNamespace = mempty
   , decafRequestCredentials = CredentialsHeader "UNKNOWN"
   , decafRequestUserAgent = defaultUserAgent
@@ -192,12 +192,12 @@ type DecafRequestCombinator = DecafRequest -> DecafRequest
 
 
 -- | Sets the DECAF Instance 'Remote' address.
-setRemote :: Remote -> DecafRequestCombinator
+setRemote :: DecafRemote -> DecafRequestCombinator
 setRemote h request = request { decafRequestRemote = h }
 
 
 -- | Alias to 'setRemote'.
-remote :: Remote -> DecafRequestCombinator
+remote :: DecafRemote -> DecafRequestCombinator
 remote = setRemote
 
 

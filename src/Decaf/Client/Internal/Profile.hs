@@ -13,10 +13,10 @@ import qualified Data.ByteString                   as B
 import           Data.Foldable                     (find)
 import qualified Data.Text                         as T
 import qualified Data.Yaml                         as Yaml
+import           Decaf.Client.DecafRemote          (DecafRemote)
 import           Decaf.Client.Internal.Client      (DecafClient, mkDecafClient)
 import           Decaf.Client.Internal.Credentials (Credentials)
 import           Decaf.Client.Internal.Exception   (throwIOException, throwParseException)
-import           Decaf.Client.Internal.Remote      (Remote)
 import qualified Deriving.Aeson.Stock              as DAS
 import           GHC.Stack                         (HasCallStack)
 
@@ -24,7 +24,7 @@ import           GHC.Stack                         (HasCallStack)
 -- | A DECAF Instance user profile for constructing a 'DecafClient'.
 --
 -- >>> import Decaf.Client.Internal.Credentials
--- >>> import Decaf.Client.Internal.Remote
+-- >>> import Decaf.Client.DecafRemote
 --
 -- >>> Right remote = parseRemote "https://telostest.decafhub.com"
 -- >>> let credentials = CredentialsBasic (BasicCredentials "username" "password")
@@ -36,7 +36,7 @@ import           GHC.Stack                         (HasCallStack)
 -- Just (Profile {profileName = "test", profileRemote = [https]://[telostest.decafhub.com]:[443], profileCredentials = <********>})
 data Profile = Profile
   { profileName        :: !T.Text
-  , profileRemote      :: !Remote
+  , profileRemote      :: !DecafRemote
   , profileCredentials :: !Credentials
   }
   deriving (Eq, DAS.Generic, Show)

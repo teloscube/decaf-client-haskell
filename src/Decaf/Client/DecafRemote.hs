@@ -1,6 +1,6 @@
 -- | This module provides auxiliaries to parse 'Remote's.
 
-module Decaf.Client.Internal.Remote where
+module Decaf.Client.DecafRemote where
 
 import           Control.Monad.Except        (MonadError)
 import qualified Data.Aeson                  as Aeson
@@ -16,119 +16,101 @@ import           Text.Read                   (readMaybe)
 
 -- | Type definition for addressing a remote DECAF Instance.
 --
--- >>> Remote "example.com" Nothing False
+-- >>> DecafRemote "example.com" Nothing False
 -- [http]://[example.com]:[80]
--- >>> Remote "example.com" Nothing True
+-- >>> DecafRemote "example.com" Nothing True
 -- [https]://[example.com]:[443]
--- >>> Remote "example.com" (Just 8080) False
+-- >>> DecafRemote "example.com" (Just 8080) False
 -- [http]://[example.com]:[8080]
--- >>> Remote "example.com" (Just 8443) True
+-- >>> DecafRemote "example.com" (Just 8443) True
 -- [https]://[example.com]:[8443]
-data Remote = Remote
-  { remoteHost   :: !T.Text
-  , remotePort   :: !(Maybe Int)
-  , remoteSecure :: !Bool
+data DecafRemote = DecafRemote
+  { decafRemoteHost   :: !T.Text
+  , decafRemotePort   :: !(Maybe Int)
+  , decafRemoteSecure :: !Bool
   }
   deriving Eq
 
 
-instance Show Remote where
-  show (Remote h p s) = printf "[%s]://[%s]:[%d]" s' h' p'
+instance Show DecafRemote where
+  show (DecafRemote h p s) = printf "[%s]://[%s]:[%d]" s' h' p'
     where
       s' = (if s then "https" else "http") :: String
       h' = T.unpack h
       p' = fromMaybe (if s then 443 else 80) p
 
 
-instance Aeson.FromJSON Remote where
+instance Aeson.FromJSON DecafRemote where
   parseJSON = Aeson.withText "Remote" $ \x -> case parseRemote x of
     Left err -> fail (unDecafClientError err)
     Right sr -> pure sr
 
 
-instance Aeson.ToJSON Remote where
+instance Aeson.ToJSON DecafRemote where
   toJSON = Aeson.String . remoteToUrl
 
 
--- | Converts the 'Remote' to a sanitized url.
+-- | Converts the 'DecafRemote' to a sanitized url.
 --
--- >>> remoteToUrl (Remote "localhost" (Just 8000) False)
+-- >>> remoteToUrl (DecafRemote "localhost" (Just 8000) False)
 -- "http://localhost:8000"
--- >>> remoteToUrl (Remote "localhost" (Just 9443) True)
+-- >>> remoteToUrl (DecafRemote "localhost" (Just 9443) True)
 -- "https://localhost:9443"
--- >>> remoteToUrl (Remote "localhost" (Just 80) False)
+-- >>> remoteToUrl (DecafRemote "localhost" (Just 80) False)
 -- "http://localhost"
--- >>> remoteToUrl (Remote "localhost" (Just 443) False)
+-- >>> remoteToUrl (DecafRemote "localhost" (Just 443) False)
 -- "http://localhost:443"
--- >>> remoteToUrl (Remote "localhost" (Just 80) True)
+-- >>> remoteToUrl (DecafRemote "localhost" (Just 80) True)
 -- "https://localhost:80"
--- >>> remoteToUrl (Remote "localhost" (Just 443) True)
+-- >>> remoteToUrl (DecafRemote "localhost" (Just 443) True)
 -- "https://localhost"
--- >>> remoteToUrl (Remote "localhost" Nothing False)
+-- >>> remoteToUrl (DecafRemote "localhost" Nothing False)
 -- "http://localhost"
--- >>> remoteToUrl (Remote "localhost" Nothing True)
+-- >>> remoteToUrl (DecafRemote "localhost" Nothing True)
 -- "https://localhost"
-remoteToUrl :: Remote -> T.Text
-remoteToUrl (Remote h (Just 80) False) = "http://" <> h
-remoteToUrl (Remote h (Just 443) True) = "https://" <> h
-remoteToUrl (Remote h Nothing False)   = "http://" <> h
-remoteToUrl (Remote h Nothing True)    = "https://" <> h
-remoteToUrl (Remote h (Just p) False)  = "http://" <> h <> ":" <> T.pack (show p)
-remoteToUrl (Remote h (Just p) True)   = "https://" <> h <> ":" <> T.pack (show p)
+remoteToUrl :: DecafRemote -> T.Text
+remoteToUrl (DecafRemote h (Just 80) False) = "http://" <> h
+remoteToUrl (DecafRemote h (Just 443) True) = "https://" <> h
+remoteToUrl (DecafRemote h Nothing False)   = "http://" <> h
+remoteToUrl (DecafRemote h Nothing True)    = "https://" <> h
+remoteToUrl (DecafRemote h (Just p) False)  = "http://" <> h <> ":" <> T.pack (show p)
+remoteToUrl (DecafRemote h (Just p) True)   = "https://" <> h <> ":" <> T.pack (show p)
 
 
--- | Renders the 'Remote' value into a base DECAF Instance URL.
---
--- >>> remoteUrl $ Remote "localhost" Nothing False
--- "http://localhost:80"
--- >>> remoteUrl $ Remote "localhost" Nothing True
--- "https://localhost:443"
--- >>> remoteUrl $ Remote "localhost" (Just 8080) False
--- "http://localhost:8080"
--- >>> remoteUrl $ Remote "localhost" (Just 8443) True
--- "https://localhost:8443"
-remoteUrl :: Remote -> T.Text
-remoteUrl (Remote h p s) = T.pack $ printf "%s://%s:%d" s' h' p'
-  where
-    s' = (if s then "https" else "http") :: String
-    h' = T.unpack h
-    p' = fromMaybe (if s then 443 else 80) p
-
-
--- | Attempts to parse a given URL as a DECAF Instance 'Remote'.
+-- | Attempts to parse a given URL as a DECAF Instance 'DecafRemote'.
 --
 -- >>> import Decaf.Client.Internal.Error
--- >>> import Decaf.Client.Internal.Remote
--- >>> parseRemote "http://localhost" :: Either DecafClientError Remote
+-- >>> import Decaf.Client.DecafRemote
+-- >>> parseRemote "http://localhost" :: Either DecafClientError DecafRemote
 -- Right [http]://[localhost]:[80]
--- >>> parseRemote "https://localhost" :: Either DecafClientError Remote
+-- >>> parseRemote "https://localhost" :: Either DecafClientError DecafRemote
 -- Right [https]://[localhost]:[443]
--- >>> parseRemote "http://localhost:8080" :: Either DecafClientError Remote
+-- >>> parseRemote "http://localhost:8080" :: Either DecafClientError DecafRemote
 -- Right [http]://[localhost]:[8080]
--- >>> parseRemote "https://localhost:8443" :: Either DecafClientError Remote
+-- >>> parseRemote "https://localhost:8443" :: Either DecafClientError DecafRemote
 -- Right [https]://[localhost]:[8443]
--- >>> parseRemote "https://localhost:8443/path-segment-to-be-truncated" :: Either DecafClientError Remote
+-- >>> parseRemote "https://localhost:8443/path-segment-to-be-truncated" :: Either DecafClientError DecafRemote
 -- Right [https]://[localhost]:[8443]
--- >>> parseRemote "" :: Either DecafClientError Remote
+-- >>> parseRemote "" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Can not parse remote url: ''"})
--- >>> parseRemote "weird" :: Either DecafClientError Remote
+-- >>> parseRemote "weird" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Can not parse remote url: 'weird'"})
--- >>> parseRemote "httpk://localhost:8443" :: Either DecafClientError Remote
+-- >>> parseRemote "httpk://localhost:8443" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Unknown protocol: httpk"})
--- >>> parseRemote "http:" :: Either DecafClientError Remote
+-- >>> parseRemote "http:" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Can not parse authority from URI: 'http:'"})
--- >>> parseRemote "http:/" :: Either DecafClientError Remote
+-- >>> parseRemote "http:/" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Can not parse authority from URI: 'http:/'"})
--- >>> parseRemote "http://" :: Either DecafClientError Remote
+-- >>> parseRemote "http://" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Empty host value"})
--- >>> parseRemote "http://a:" :: Either DecafClientError Remote
+-- >>> parseRemote "http://a:" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Can not parse port from URI: 'URIAuth {uriUserInfo = \"\", uriRegName = \"a\", uriPort = \":\"}'"})
-parseRemote :: MonadError DecafClientError m => T.Text -> m Remote
+parseRemote :: MonadError DecafClientError m => T.Text -> m DecafRemote
 parseRemote url = do
   uri <- parseUri' $ T.unpack url
   (h, p) <- parseHostPort' uri
   s <- parseIsSecure' uri
-  pure $ Remote h p s
+  pure $ DecafRemote h p s
 
 
 -- | Parses the remote URI.

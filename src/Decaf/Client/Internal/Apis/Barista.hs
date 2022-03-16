@@ -7,6 +7,7 @@ import           Control.Monad.IO.Class            (MonadIO)
 import           Data.Aeson                        (FromJSON)
 import qualified Data.ByteString                   as B
 import qualified Data.Text                         as T
+import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
 import           Decaf.Client.DecafRequest
                  ( DecafRequest
                  , DecafRequestCombinator
@@ -18,7 +19,6 @@ import           Decaf.Client.DecafResponse        (DecafResponse)
 import           Decaf.Client.Internal.Credentials (Credentials)
 import           Decaf.Client.Internal.Error       (DecafClientError)
 import           Decaf.Client.Internal.Http        (runRequest, runRequestBS)
-import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 
 
 -- * Data Definition
@@ -37,7 +37,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: DecafRequest } deri
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
--- >>> import Decaf.Client.Internal.Remote
+-- >>> import Decaf.Client.DecafRemote
 -- >>> mkBaristaClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: BaristaClient
 -- MkBaristaClient {unBaristaClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
@@ -51,7 +51,7 @@ newtype BaristaClient = MkBaristaClient { unBaristaClient :: DecafRequest } deri
 --   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }}
-mkBaristaClient :: Remote -> Credentials -> BaristaClient
+mkBaristaClient :: DecafRemote -> Credentials -> BaristaClient
 mkBaristaClient r c = MkBaristaClient . namespace "api" . withTrailingSlash $ initRequest r c
 
 

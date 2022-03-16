@@ -14,6 +14,7 @@ import           Data.ByteString.Base64            (encode)
 import qualified Data.ByteString.Char8             as BC
 import           Data.Maybe                        (fromMaybe)
 import qualified Data.Text.Encoding                as TE
+import           Decaf.Client.DecafRemote          (DecafRemote(decafRemoteHost, decafRemotePort, decafRemoteSecure))
 import           Decaf.Client.DecafRequest         (DecafRequest(..), DecafRequestPayload(..), unDecafRequestPath)
 import           Decaf.Client.DecafResponse        (DecafResponse(DecafResponse))
 import           Decaf.Client.Internal.Credentials
@@ -21,7 +22,6 @@ import           Decaf.Client.Internal.Credentials
                  , Credentials(..)
                  , KeyCredentials(KeyCredentials)
                  )
-import           Decaf.Client.Internal.Remote      (Remote(remoteHost, remotePort, remoteSecure))
 import           Decaf.Client.Internal.Utils       (compose)
 import qualified Network.HTTP.Client.Conduit       as HC
 import qualified Network.HTTP.Simple               as HS
@@ -82,9 +82,9 @@ setRemote :: RequestFieldSetter
 setRemote r = HS.setRequestHost h' . HS.setRequestPort p' . HS.setRequestSecure s'
   where
     r' = decafRequestRemote r
-    h' = TE.encodeUtf8 $ remoteHost r'
-    p' = fromMaybe (if remoteSecure r' then 443 else 80) $ remotePort r'
-    s' = remoteSecure r'
+    h' = TE.encodeUtf8 $ decafRemoteHost r'
+    p' = fromMaybe (if decafRemoteSecure r' then 443 else 80) $ decafRemotePort r'
+    s' = decafRemoteSecure r'
 
 
 -- | Sets the request method.

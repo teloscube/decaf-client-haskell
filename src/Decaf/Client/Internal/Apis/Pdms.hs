@@ -18,6 +18,7 @@ import           Data.Aeson
 import           Data.Char                         (toLower)
 import           Data.List.NonEmpty                (NonEmpty)
 import qualified Data.Text                         as T
+import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
 import           Decaf.Client.DecafRequest
                  ( DecafRequest
                  , DecafRequestCombinator
@@ -31,7 +32,6 @@ import           Decaf.Client.DecafResponse        (DecafResponse)
 import           Decaf.Client.Internal.Credentials (Credentials)
 import           Decaf.Client.Internal.Error       (DecafClientError)
 import           Decaf.Client.Internal.Http        (runRequest)
-import           Decaf.Client.Internal.Remote      (Remote, parseRemote)
 import           Decaf.Client.Internal.Utils       (applyFirst)
 import           GHC.Generics                      (Generic)
 
@@ -54,7 +54,7 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: DecafRequest } deriving Show
 -- credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
--- >>> import Decaf.Client.Internal.Remote
+-- >>> import Decaf.Client.DecafRemote
 -- >>> mkPdmsClient (Remote "example.com" Nothing True) (CredentialsHeader "OUCH") :: PdmsClient
 -- MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]
@@ -68,14 +68,14 @@ newtype PdmsClient = MkPdmsClient { unPdmsClient :: DecafRequest } deriving Show
 --   requestHttpQuery         = []
 --   requestHttpPayload       = Nothing
 -- }}
-mkPdmsClient :: Remote -> Credentials -> PdmsClient
+mkPdmsClient :: DecafRemote -> Credentials -> PdmsClient
 mkPdmsClient r c = MkPdmsClient . post . namespace "/apis/modules/pdms/v1/graphql" . withoutTrailingSlash $ initRequest r c
 
 
 -- | Attempts to build a 'PdmsClient' with the given DECAF Instance URL and credentials.
 --
 -- >>> import Decaf.Client.Internal.Credentials
--- >>> import Decaf.Client.Internal.Remote
+-- >>> import Decaf.Client.DecafRemote
 -- >>> mkPdmsClientM "https://example.com" (CredentialsHeader "OUCH") :: Either DecafClientError PdmsClient
 -- Right (MkPdmsClient {unPdmsClient = Request {
 --   requestRemote            = [https]://[example.com]:[443]

@@ -4,17 +4,17 @@ module Decaf.Client.Internal.Client where
 
 import           Control.Monad.Error.Class           (MonadError)
 import qualified Data.Text                           as T
+import           Decaf.Client.DecafRemote            (DecafRemote, parseRemote)
 import           Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient)
 import           Decaf.Client.Internal.Apis.Microlot (MicrolotClient, mkMicrolotClient)
 import           Decaf.Client.Internal.Apis.Pdms     (PdmsClient, mkPdmsClient)
 import           Decaf.Client.Internal.Credentials   (Credentials)
 import           Decaf.Client.Internal.Error         (DecafClientError)
-import           Decaf.Client.Internal.Remote        (Remote, parseRemote)
 
 
 -- | Data definition for a collection of various DECAF API clients.
 data DecafClient = DecafClient
-  { decafClientRemote   :: !Remote          -- ^ DECAF remote definition for the DECAF Instance.
+  { decafClientRemote   :: !DecafRemote          -- ^ DECAF remote definition for the DECAF Instance.
   , decafClientBarista  :: !BaristaClient   -- ^ DECAF Barista API client.
   , decafClientMicrolot :: !MicrolotClient  -- ^ DECAF Microlot API client.
   , decafClientPdms     :: !PdmsClient      -- ^ DECAF PDMS Module API client.
@@ -24,7 +24,7 @@ data DecafClient = DecafClient
 -- | Builds a 'DecafClient' with given DECAF Instance 'Remote' and
 -- authentication credentials.
 mkDecafClient
-  :: Remote       -- ^ DECAF Instance 'Remote'.
+  :: DecafRemote       -- ^ DECAF Instance 'Remote'.
   -> Credentials  -- ^ Credentials for authenticating requests to remote DECAF Instance
   -> DecafClient
 mkDecafClient r c =

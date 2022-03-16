@@ -39,7 +39,7 @@ module Decaf.Client
 
     -- * Remotes
 
-  , module Decaf.Client.Internal.Remote
+  , module Decaf.Client.DecafRemote
 
     -- * Requests
 
@@ -69,6 +69,7 @@ module Decaf.Client
   ) where
 
 
+import Decaf.Client.DecafRemote
 import Decaf.Client.DecafRequest
 import Decaf.Client.DecafResponse
 import Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
@@ -97,4 +98,3 @@ import Decaf.Client.Internal.Credentials
 import Decaf.Client.Internal.Error
 import Decaf.Client.Internal.Exception
 import Decaf.Client.Internal.Profile
-import Decaf.Client.Internal.Remote
