@@ -68,6 +68,7 @@ data KeyCredentials = KeyCredentials
 -- $internal
 
 
+-- | Data definition for string modifier that lowers the first character.
 data FirstToLower
 
 

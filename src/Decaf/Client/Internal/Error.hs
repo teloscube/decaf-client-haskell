@@ -1,8 +1,8 @@
 -- | This module provides DECAF client error data type and related definitions.
 --
 -- Note that currently we are working under 'MonadError'. Eventually, we are
--- going to move onto 'MonadThrow'. Therefore, this module will be replaced with
--- some "Exceptions" module.
+-- going to move onto 'Control.Monad.Catch.MonadThrow'. Therefore, this module
+-- will be replaced with some "Exceptions" module.
 
 module Decaf.Client.Internal.Error where
 
