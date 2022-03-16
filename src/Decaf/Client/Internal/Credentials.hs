@@ -1,0 +1,77 @@
+-- | This module provides types and functions to transcode DECAF API requests.
+
+{-# LANGUAGE DataKinds   #-}
+{-# LANGUAGE DerivingVia #-}
+
+module Decaf.Client.Internal.Credentials where
+
+import qualified Data.Char            as C
+import qualified Data.Text            as T
+import qualified Deriving.Aeson       as DA
+import qualified Deriving.Aeson.Stock as DAS
+
+
+-- | Data definition for available DECAF credentials types.
+--
+-- >>> Data.Aeson.encode (CredentialsHeader "some-header-value")
+-- "{\"type\":\"header\",\"value\":\"some-header-value\"}"
+-- >>> Data.Aeson.encode (CredentialsBasic (BasicCredentials "some-username" "some-password"))
+-- "{\"type\":\"basic\",\"value\":{\"username\":\"some-username\",\"password\":\"some-password\"}}"
+-- >>> Data.Aeson.encode (CredentialsKey (KeyCredentials "some-api-key" "some-api-secret"))
+-- "{\"type\":\"key\",\"value\":{\"key\":\"some-api-key\",\"secret\":\"some-api-secret\"}}"
+-- >>> Data.Aeson.encode (CredentialsToken "some-api-token")
+-- "{\"type\":\"token\",\"value\":\"some-api-token\"}"
+data Credentials =
+    CredentialsHeader !T.Text
+  | CredentialsBasic !BasicCredentials
+  | CredentialsKey !KeyCredentials
+  | CredentialsToken !T.Text
+  deriving (Eq, DA.Generic)
+  deriving (DA.FromJSON, DA.ToJSON) via DA.CustomJSON '[DA.ConstructorTagModifier '[DA.StripPrefix "Credentials", FirstToLower], DA.SumTaggedObject "type" "value"] Credentials
+
+
+instance Show Credentials where
+  show _ = "<********>"
+
+
+-- | Data definition for HTTP basic authentication credentials.
+--
+-- >>> let x = BasicCredentials "some-username" "some-password"
+-- >>> Data.Aeson.encode x
+-- "{\"username\":\"some-username\",\"password\":\"some-password\"}"
+-- >>> Just x == Data.Aeson.decode @BasicCredentials (Data.Aeson.encode x)
+-- True
+data BasicCredentials = BasicCredentials
+  { basicCredentialsUsername :: !T.Text
+  , basicCredentialsPassword :: !T.Text
+  }
+  deriving (Eq, DA.Generic)
+  deriving (DA.FromJSON, DA.ToJSON) via DAS.PrefixedSnake "basicCredentials" BasicCredentials
+
+
+-- | Data definition for HTTP basic authentication credentials.
+--
+-- >>> let x = KeyCredentials "some-api-key" "some-api-secret"
+-- >>> Data.Aeson.encode x
+-- "{\"key\":\"some-api-key\",\"secret\":\"some-api-secret\"}"
+-- >>> Just x == Data.Aeson.decode @KeyCredentials (Data.Aeson.encode x)
+-- True
+data KeyCredentials = KeyCredentials
+  { keyCredentialsKey    :: !T.Text
+  , keyCredentialsSecret :: !T.Text
+  }
+  deriving (Eq, DA.Generic)
+  deriving (DA.FromJSON, DA.ToJSON) via DAS.PrefixedSnake "keyCredentials" KeyCredentials
+
+
+-- * Internal
+-- $internal
+
+
+-- | Data definition for string modifier that lowers the first character.
+data FirstToLower
+
+
+instance DA.StringModifier FirstToLower where
+  getStringModifier []       = []
+  getStringModifier (x : xs) = C.toLower x : xs

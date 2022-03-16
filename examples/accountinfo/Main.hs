@@ -9,11 +9,12 @@ import           Data.Aeson
                  , defaultOptions
                  , genericParseJSON
                  )
-import           Data.Char                         (toLower)
-import qualified Data.Text                         as T
+import           Data.Char                   (toLower)
+import qualified Data.Text                   as T
 import           Decaf.Client
-                 ( Credentials(KeyCredentials)
+                 ( Credentials(..)
                  , DecafClient
+                 , KeyCredentials(..)
                  , decafClientBarista
                  , decafClientMicrolot
                  , decafClientPdms
@@ -21,18 +22,18 @@ import           Decaf.Client
                  , mkDecafClient
                  , mkMicrolotQuery'
                  , mkPdmsQuery'
+                 , path
                  , pdmsResponseData
                  , responseValue
                  , runBarista
                  , runMicrolot
                  , runPdms
                  )
-import           Decaf.Client.Internal.Combinators (path)
-import           Decaf.Client.Internal.Utils       (applyFirst)
-import           GHC.Generics                      (Generic)
-import           System.Environment                (getEnv)
-import           System.IO                         (hPutStrLn, stderr)
-import           Text.Printf                       (printf)
+import           Decaf.Client.Internal.Utils (applyFirst)
+import           GHC.Generics                (Generic)
+import           System.Environment          (getEnv)
+import           System.IO                   (hPutStrLn, stderr)
+import           Text.Printf                 (printf)
 
 
 main :: IO ()
@@ -40,7 +41,7 @@ main = do
   apiurl <- T.pack <$> getEnv "DECAF_API_URL"
   apikey <- T.pack <$> getEnv "DECAF_API_KEY"
   apiscr <- T.pack <$> getEnv "DECAF_API_SECRET"
-  let credentials = KeyCredentials apikey apiscr
+  let credentials = CredentialsKey (KeyCredentials apikey apiscr)
   case mkDecafClient apiurl credentials of
     Left err -> hPutStrLn stderr $ "Can not create DECAF client" <> show err
     Right dc -> do

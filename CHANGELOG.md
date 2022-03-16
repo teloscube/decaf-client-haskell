@@ -6,12 +6,14 @@
 
 ### Chore
 
+* update CHANGELOG template
 * replace `DecafClientM` with `MonadError DecafClientError`
 * bump development version to 0.0.0.2
 * adopt GHC 2021 extension set, revisit imports
 * upgrade to lts-18.0
 * implement pdms client and add example usage
 * add an example for using both Barista and Microlot
+* **release:** 0.0.0.2
 * **style:** apply reformatting, update doc comments
 * **test:** fix tests, move doctest.hs under test directory
 

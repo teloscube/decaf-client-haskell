@@ -5,11 +5,13 @@ module Decaf.Client
 
     DecafClient(..)
   , mkDecafClient
+  , mkDecafClientE
 
     -- * Barista Client
 
   , BaristaClient
   , mkBaristaClient
+  , mkBaristaClientM
   , runBarista
   , runBaristaBS
 
@@ -17,6 +19,7 @@ module Decaf.Client
 
   , MicrolotClient
   , mkMicrolotClient
+  , mkMicrolotClientM
   , runMicrolot
   , mkMicrolotQuery
   , mkMicrolotQuery'
@@ -27,119 +30,71 @@ module Decaf.Client
 
   , PdmsClient
   , mkPdmsClient
+  , mkPdmsClientM
   , runPdms
   , mkPdmsQuery
   , mkPdmsQuery'
   , PdmsQuery(..)
   , PdmsResponse(..)
 
-    -- * Request Combinators
+    -- * Remotes
 
-  , module Decaf.Client.Internal.Combinators
+  , module Decaf.Client.Internal.Remote
 
-    -- * Common Types
+    -- * Requests
 
-  , module Decaf.Client.Internal.Types
+  , module Decaf.Client.Internal.Request
+
+    -- * Responses
+
+  , module Decaf.Client.Internal.Response
+
+    -- * Credentials
+
+  , module Decaf.Client.Internal.Credentials
+
+
+    -- * Profiles
+
+  , module Decaf.Client.Internal.Profile
+
+    -- * Errors
+
+  , module Decaf.Client.Internal.Error
+
+    -- * Exceptions
+
+  , module Decaf.Client.Internal.Exception
 
   ) where
 
 
-import Control.Monad.Except              (MonadError)
-import Data.Text                         (Text)
-import Decaf.Client.Internal.Barista     (BaristaClient, mkBaristaClient, runBarista, runBaristaBS)
-import Decaf.Client.Internal.Combinators
-       ( Combinator
-       , addHeader
-       , addHeaders
-       , addParam
-       , addParams
-       , addPath
-       , credentials
-       , delete
-       , get
-       , header
-       , headers
-       , jsonPayload
-       , namespace
-       , noPayload
-       , param
-       , params
-       , path
-       , payload
-       , post
-       , put
-       , remote
-       , setCredentials
-       , setHeaders
-       , setMethod
-       , setNamespace
-       , setNoPayload
-       , setParams
-       , setPath
-       , setPayload
-       , setRemote
-       , setTrailingSlash
-       , setUserAgent
-       , userAgent
-       , withTrailingSlash
-       , withoutTrailingSlash
-       )
-import Decaf.Client.Internal.Microlot
+import Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
+import Decaf.Client.Internal.Apis.Microlot
        ( MicrolotClient
        , MicrolotQuery(..)
        , MicrolotResponse(..)
        , mkMicrolotClient
+       , mkMicrolotClientM
        , mkMicrolotQuery
        , mkMicrolotQuery'
        , runMicrolot
        )
-import Decaf.Client.Internal.Pdms
+import Decaf.Client.Internal.Apis.Pdms
        ( PdmsClient
        , PdmsQuery(..)
        , PdmsResponse(..)
        , mkPdmsClient
+       , mkPdmsClientM
        , mkPdmsQuery
        , mkPdmsQuery'
        , runPdms
        )
-import Decaf.Client.Internal.Remote      (parseRemote)
-import Decaf.Client.Internal.Types
-       ( Credentials(..)
-       , DecafClientError(..)
-       , Header
-       , Headers
-       , Method(..)
-       , Param
-       , Params
-       , Path(..)
-       , Payload(..)
-       , Remote(..)
-       , Request(..)
-       , Response(..)
-       , remoteToUrl
-       , throwDecafClientError
-       )
-
-
--- | Data definition for a collection of various DECAF API clients.
-data DecafClient = DecafClient
-  { decafClientRemote   :: !Remote          -- ^ DECAF remote definition for the deployment.
-  , decafClientBarista  :: !BaristaClient   -- ^ DECAF Barista API client.
-  , decafClientMicrolot :: !MicrolotClient  -- ^ DECAF Microlot API client.
-  , decafClientPdms     :: !PdmsClient      -- ^ DECAF PDMS Module API client.
-  }
-
-
--- | Attempts to build a 'DecafClient' with given remote DECAF deployment URL
--- and authentication credentials.
-mkDecafClient
-  :: MonadError DecafClientError m
-  => Text            -- ^ Base URL of remote DECAF deployment
-  -> Credentials     -- ^ Credentials for authenticating requests to remote DECAF deployment
-  -> m DecafClient
-mkDecafClient b c = do
-  r <- parseRemote b
-  let barista = mkBaristaClient r c
-  let microlot = mkMicrolotClient r c
-  let pdms = mkPdmsClient r c
-  pure (DecafClient r barista microlot pdms)
+import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient, mkDecafClientE)
+import Decaf.Client.Internal.Credentials
+import Decaf.Client.Internal.Error
+import Decaf.Client.Internal.Exception
+import Decaf.Client.Internal.Profile
+import Decaf.Client.Internal.Remote
+import Decaf.Client.Internal.Request
+import Decaf.Client.Internal.Response

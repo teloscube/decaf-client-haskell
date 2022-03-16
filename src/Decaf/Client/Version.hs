@@ -8,7 +8,7 @@ import qualified Paths_decaf_client as P
 
 -- | Package version.
 --
--- >>> version
--- "0.0.0.2"
+-- >>> version == showVersion P.version
+-- True
 version :: String
 version = showVersion P.version

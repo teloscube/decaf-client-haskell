@@ -3,11 +3,9 @@ cabal-version: 1.12
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 0e96d9a527aa7f7f98340b0b3d4b7c372bc86e8e35bcc9032d20afccc594d28e
 
 name:           decaf-client
-version:        0.0.0.2
+version:        0.0.0.3
 synopsis:       DECAF API Client Suite for Haskell
 description:    Please see the README on GitHub at <https://github.com/teloscube/decaf-client-haskell#readme>
 category:       Web
@@ -15,13 +13,13 @@ homepage:       https://github.com/teloscube/decaf-client-haskell#readme
 bug-reports:    https://github.com/teloscube/decaf-client-haskell/issues
 author:         Vehbi Sinan Tunalioglu
 maintainer:     vst@vsthost.com
-copyright:      2020 Teloscube Pte Ltd
+copyright:      2020-2022 Teloscube Pte Ltd
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
+    CHANGELOG.md
 
 source-repository head
   type: git
@@ -30,14 +28,18 @@ source-repository head
 library
   exposed-modules:
       Decaf.Client
-      Decaf.Client.Internal.Barista
-      Decaf.Client.Internal.Combinators
+      Decaf.Client.Internal.Apis.Barista
+      Decaf.Client.Internal.Apis.Microlot
+      Decaf.Client.Internal.Apis.Pdms
+      Decaf.Client.Internal.Client
+      Decaf.Client.Internal.Credentials
+      Decaf.Client.Internal.Error
+      Decaf.Client.Internal.Exception
       Decaf.Client.Internal.Http
-      Decaf.Client.Internal.Microlot
-      Decaf.Client.Internal.Pdms
+      Decaf.Client.Internal.Profile
       Decaf.Client.Internal.Remote
       Decaf.Client.Internal.Request
-      Decaf.Client.Internal.Types
+      Decaf.Client.Internal.Response
       Decaf.Client.Internal.Utils
       Decaf.Client.Version
   other-modules:
@@ -45,57 +47,63 @@ library
   hs-source-dirs:
       src
   default-extensions:
+      BangPatterns
+      BinaryLiterals
+      ConstrainedClassMethods
       ConstraintKinds
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
       DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      EmptyCase
+      EmptyDataDeriving
       ExistentialQuantification
+      ExplicitForAll
       FlexibleContexts
-      GeneralizedNewtypeDeriving
+      FlexibleInstances
+      GADTSyntax
+      GeneralisedNewtypeDeriving
+      HexFloatLiterals
+      ImportQualifiedPost
+      InstanceSigs
+      KindSignatures
+      MultiParamTypeClasses
+      NamedFieldPuns
+      NamedWildCards
+      NumericUnderscores
+      PolyKinds
+      PostfixOperators
       RankNTypes
       ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
       TupleSections
+      TypeApplications
+      TypeOperators
+      TypeSynonymInstances
       OverloadedStrings
-  ghc-options: -Wall -Werror
+  ghc-options: -Wall -Wunused-packages
   build-depends:
       aeson
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring
     , case-insensitive
-    , http-client
+    , deriving-aeson
+    , exceptions
     , http-conduit
-    , http-types
     , mtl
     , network-uri
     , text
-    , unordered-containers
-  default-language: Haskell2010
-
-executable decaf-client-examples-accountinfo-exe
-  main-is: Main.hs
-  other-modules:
-      Paths_decaf_client
-  hs-source-dirs:
-      examples/accountinfo
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      aeson
-    , base >=4.7 && <5
-    , base64-bytestring
-    , bytestring
-    , case-insensitive
-    , decaf-client
-    , http-client
-    , http-conduit
-    , http-types
-    , mtl
-    , network-uri
-    , text
-    , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 executable decafcli
   main-is: Main.hs
   other-modules:
+      MicrolotBatchRunner
       Paths_decaf_client
   hs-source-dirs:
       app
@@ -107,24 +115,26 @@ executable decafcli
     , bytestring
     , case-insensitive
     , decaf-client
-    , http-client
+    , deriving-aeson
+    , exceptions
     , http-conduit
-    , http-types
+    , monad-parallel
     , mtl
     , network-uri
     , optparse-applicative
     , text
     , unordered-containers
+    , vector
+    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-doctest
   type: exitcode-stdio-1.0
   main-is: doctest.hs
   other-modules:
-      Main
       Paths_decaf_client
   hs-source-dirs:
-      test
+      ./
   ghc-options: -threaded
   build-depends:
       aeson
@@ -133,14 +143,14 @@ test-suite decaf-client-doctest
     , bytestring
     , case-insensitive
     , decaf-client
+    , deriving-aeson
     , doctest
-    , http-client
+    , exceptions
     , http-conduit
-    , http-types
     , mtl
     , network-uri
     , text
-    , unordered-containers
+    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-test
@@ -158,11 +168,11 @@ test-suite decaf-client-test
     , bytestring
     , case-insensitive
     , decaf-client
-    , http-client
+    , deriving-aeson
+    , exceptions
     , http-conduit
-    , http-types
     , mtl
     , network-uri
     , text
-    , unordered-containers
+    , yaml
   default-language: Haskell2010
