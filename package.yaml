@@ -87,7 +87,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - monad-parallel
     - optparse-applicative
+    - vector
 
 tests:
   decaf-client-test:
