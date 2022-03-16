@@ -1,7 +1,8 @@
 -- | This module provides definitions to work on profiles.
 
-{-# LANGUAGE DataKinds   #-}
-{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE DerivingVia     #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Decaf.Client.Internal.Profile where
 
@@ -12,6 +13,7 @@ import qualified Data.ByteString                   as B
 import           Data.Foldable                     (find)
 import qualified Data.Text                         as T
 import qualified Data.Yaml                         as Yaml
+import           Decaf.Client.Internal.Client      (DecafClient, mkDecafClient)
 import           Decaf.Client.Internal.Credentials (Credentials)
 import           Decaf.Client.Internal.Exception   (throwIOException, throwParseException)
 import           Decaf.Client.Internal.Remote      (Remote)
@@ -29,12 +31,12 @@ import           GHC.Stack                         (HasCallStack)
 --
 -- >>> let json = Data.Aeson.encode (Profile "test" remote credentials)
 -- >>> json
--- "{\"name\":\"test\",\"url\":\"https://telostest.decafhub.com\",\"credentials\":{\"type\":\"basic\",\"value\":{\"username\":\"username\",\"password\":\"password\"}}}"
+-- "{\"name\":\"test\",\"remote\":\"https://telostest.decafhub.com\",\"credentials\":{\"type\":\"basic\",\"value\":{\"username\":\"username\",\"password\":\"password\"}}}"
 -- >>> Data.Aeson.decode @Profile json
--- Just (Profile {profileName = "test", profileUrl = [https]://[telostest.decafhub.com]:[443], profileCredentials = <********>})
+-- Just (Profile {profileName = "test", profileRemote = [https]://[telostest.decafhub.com]:[443], profileCredentials = <********>})
 data Profile = Profile
   { profileName        :: !T.Text
-  , profileUrl         :: !Remote
+  , profileRemote      :: !Remote
   , profileCredentials :: !Credentials
   }
   deriving (Eq, DAS.Generic, Show)
@@ -80,3 +82,10 @@ readProfile
 readProfile name fp = do
   profiles <- readProfiles fp
   pure $ find ((==) name . profileName) profiles
+
+
+-- | Builds a 'DecafClient' from the given 'Profile'.
+mkClientFromProfile
+  :: Profile
+  -> DecafClient
+mkClientFromProfile Profile{..} = mkDecafClient profileRemote profileCredentials
