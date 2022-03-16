@@ -64,11 +64,12 @@ module Decaf.Client
 
     -- * Exceptions
 
-  , module Decaf.Client.Internal.Exception
+  , module Decaf.Client.DecafClientException
 
   ) where
 
 
+import Decaf.Client.DecafClientException
 import Decaf.Client.DecafCredentials
 import Decaf.Client.DecafProfile
 import Decaf.Client.DecafRemote
@@ -97,4 +98,3 @@ import Decaf.Client.Internal.Apis.Pdms
        )
 import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient, mkDecafClientE)
 import Decaf.Client.Internal.Error
-import Decaf.Client.Internal.Exception

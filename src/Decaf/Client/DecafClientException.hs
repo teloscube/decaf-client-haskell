@@ -1,7 +1,7 @@
 -- | This module provides definitions for exceptions "Decaf.Client" module can
 -- throw and related helpers.
 
-module Decaf.Client.Internal.Exception where
+module Decaf.Client.DecafClientException where
 
 import           Control.Exception   (Exception, IOException)
 import           Control.Monad.Catch (MonadThrow(throwM))

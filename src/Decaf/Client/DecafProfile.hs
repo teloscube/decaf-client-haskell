@@ -6,19 +6,19 @@
 
 module Decaf.Client.DecafProfile where
 
-import           Control.Exception               (IOException, catch)
-import           Control.Monad.Catch             (MonadCatch, MonadThrow)
-import           Control.Monad.IO.Class          (MonadIO(liftIO))
-import qualified Data.ByteString                 as B
-import           Data.Foldable                   (find)
-import qualified Data.Text                       as T
-import qualified Data.Yaml                       as Yaml
-import           Decaf.Client.DecafCredentials   (DecafCredentials)
-import           Decaf.Client.DecafRemote        (DecafRemote)
-import           Decaf.Client.Internal.Client    (DecafClient, mkDecafClient)
-import           Decaf.Client.Internal.Exception (throwIOException, throwParseException)
-import qualified Deriving.Aeson.Stock            as DAS
-import           GHC.Stack                       (HasCallStack)
+import           Control.Exception                 (IOException, catch)
+import           Control.Monad.Catch               (MonadCatch, MonadThrow)
+import           Control.Monad.IO.Class            (MonadIO(liftIO))
+import qualified Data.ByteString                   as B
+import           Data.Foldable                     (find)
+import qualified Data.Text                         as T
+import qualified Data.Yaml                         as Yaml
+import           Decaf.Client.DecafClientException (throwIOException, throwParseException)
+import           Decaf.Client.DecafCredentials     (DecafCredentials)
+import           Decaf.Client.DecafRemote          (DecafRemote)
+import           Decaf.Client.Internal.Client      (DecafClient, mkDecafClient)
+import qualified Deriving.Aeson.Stock              as DAS
+import           GHC.Stack                         (HasCallStack)
 
 
 -- | A DECAF Instance user profile for constructing a 'DecafClient'.
