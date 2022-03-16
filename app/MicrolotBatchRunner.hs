@@ -19,16 +19,13 @@ import qualified Data.ByteString.Lazy   as BL
 import qualified Data.Text              as T
 import qualified Data.Vector            as V
 import           Decaf.Client
-                 ( DecafClient(decafClientMicrolot)
+                 ( DecafGraphqlQuery
                  , DecafProfile(decafProfileName, decafProfileRemote)
-                 , DecafResponse(decafResponseBody)
-                 , MicrolotQuery
-                 , MicrolotResponse(microlotResponseData)
-                 , mkDecafClientFromDecafProfile
-                 , mkMicrolotQuery
-                 , mkMicrolotQuery'
+                 , decafGraphqlQuery
+                 , decafGraphqlQueryNoVars
+                 , mkDecafClientFromProfile
                  , readDecafProfiles
-                 , runMicrolot
+                 , runDecafMicrolotRequestJson
                  , throwIOException
                  )
 import           GHC.Stack              (HasCallStack)
@@ -76,10 +73,10 @@ runQueryForProfile
   -> m Aeson.Value
 runQueryForProfile fp vars profile = do
   query <- buildMicrolotQuery fp vars
-  let client = mkDecafClientFromDecafProfile profile
+  let client = mkDecafClientFromProfile profile
   attempt query client `catch` handle
   where
-    attempt q c = microlotResponseData . decafResponseBody <$> runMicrolot q (decafClientMicrolot c)
+    attempt q c = runDecafMicrolotRequestJson q c
     handle = \(x :: SomeException) -> pure (Aeson.String (T.pack . show $ x))
 
 
@@ -92,12 +89,12 @@ buildMicrolotQuery
   => MonadIO m
   => FilePath
   -> Maybe Aeson.Value
-  -> m (MicrolotQuery Aeson.Value)
+  -> m (DecafGraphqlQuery Aeson.Value)
 buildMicrolotQuery fp mVars = do
   gql <- BC.unpack <$> liftIO (B.readFile fp `catch` transformIOException)
   case mVars of
-    Nothing -> pure $ mkMicrolotQuery' gql
-    Just sv -> pure $ mkMicrolotQuery gql sv
+    Nothing -> pure $ decafGraphqlQueryNoVars gql
+    Just sv -> pure $ decafGraphqlQuery gql sv
   where
     transformIOException :: MonadThrow m => IOException -> m a
     transformIOException exc = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) exc

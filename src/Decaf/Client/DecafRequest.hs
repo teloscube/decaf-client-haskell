@@ -1,29 +1,36 @@
 -- | This module provides definitions to work with DECAF client requests.
 
+{-# LANGUAGE DataKinds   #-}
+{-# LANGUAGE DerivingVia #-}
+
 module Decaf.Client.DecafRequest where
 
-import           Control.Monad.Except          (MonadError)
 import qualified Data.Aeson                    as Aeson
 import qualified Data.ByteString.Lazy          as BL
 import qualified Data.CaseInsensitive          as CI
 import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as TE
+import           Data.Version                  (showVersion)
 import           Decaf.Client.DecafCredentials (DecafCredentials(DecafCredentialsHeader))
-import           Decaf.Client.DecafRemote      (DecafRemote(..), parseRemote, remoteToUrl)
-import           Decaf.Client.Internal.Error   (DecafClientError)
+import           Decaf.Client.DecafRemote      (DecafRemote(..), remoteToUrl)
 import           Decaf.Client.Internal.Utils   (dropTrailing)
-import           Decaf.Client.Version          (version)
+import qualified Deriving.Aeson.Stock          as DAS
 import           Network.HTTP.Types
                  ( Header
                  , QueryText
                  , RequestHeaders
                  , StdMethod(DELETE, GET, PATCH, POST, PUT)
                  )
+import           Paths_decaf_client            (version)
 import           Text.Printf                   (printf)
 
 
 -- * Data Definitions
 -- $dataDefinitions
+
+
+-- ** DECAF API Requests
+-- $decafApiRequests
 
 
 -- | Type definition for high-level encoding of DECAF client request values.
@@ -58,6 +65,10 @@ instance Show DecafRequest where
     ]
 
 
+-- ** Request Payloads
+-- $decafApiRequestPayloads
+
+
 -- | Data definition for DECAF client request payloads.
 data DecafRequestPayload = DecafRequestPayload
   { decafRequestPayloadType    :: !T.Text         -- ^ HTTP content type.
@@ -67,6 +78,10 @@ data DecafRequestPayload = DecafRequestPayload
 
 instance Show DecafRequestPayload where
   show _ = "<TRUNCATED>"
+
+
+-- ** Request Paths
+-- $decafApiRequestPaths
 
 
 -- | Type definition for a list of DECAF client request HTTP path segments.
@@ -114,6 +129,29 @@ mkDecafRequestPath :: T.Text -> DecafRequestPath
 mkDecafRequestPath = MkDecafRequestPath . filter ("" /=) . T.split ('/' ==)
 
 
+-- ** GraphQL Queries
+-- $decafApiGraphqlQueries
+
+
+-- | Data definition for DECAF GrapgQL queries.
+data DecafGraphqlQuery a = MkDecafGraphqlQuery
+  { decafGraphqlQueryQuery     :: !String
+  , decafGraphqlQueryVariables :: !a
+  }
+  deriving (DAS.Generic, Show)
+  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "decafGraphqlQuery" (DecafGraphqlQuery a)
+
+
+-- | Builds a 'DecafGraphqlQuery' with given query and query variables.
+decafGraphqlQuery :: String -> a -> DecafGraphqlQuery a
+decafGraphqlQuery = MkDecafGraphqlQuery
+
+
+-- | Builds a 'DecafGraphqlQuery' with given query without any query variables.
+decafGraphqlQueryNoVars :: String -> DecafGraphqlQuery Aeson.Value
+decafGraphqlQueryNoVars = flip MkDecafGraphqlQuery (Aeson.object [])
+
+
 -- * Request Initializers
 -- $requestInitializers
 
@@ -137,26 +175,6 @@ initRequest :: DecafRemote -> DecafCredentials -> DecafRequest
 initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl r)) defaultRequest
 
 
--- | Initializes a request with DECAF Instance URL and authentication credentials.
---
--- >>> import Decaf.Client
--- >>> initRequestM "http://example.com" (DecafCredentialsHeader "OUCH") :: Either DecafClientError DecafRequest
--- Right DecafRequest {
---   decafRequestRemote        = [http]://[example.com]:[80]
---   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = []}
---   decafRequestCredentials   = <********>
---   decafRequestUserAgent     = "DECAF API Client/... (Haskell)"
---   decafRequestHeaders       = [("X-DECAF-URL","http://example.com")]
---   decafRequestMethod        = GET
---   decafRequestPath          = MkDecafRequestPath {unDecafRequestPath = []}
---   decafRequestTrailingSlash = False
---   decafRequestQuery         = []
---   decafRequestPayload       = Nothing
--- }
-initRequestM :: MonadError DecafClientError m => T.Text -> DecafCredentials -> m DecafRequest
-initRequestM url creds = (`initRequest` creds) <$> parseRemote url
-
-
 -- | Default 'DecafRequest'.
 --
 -- This is useful to build 'DecafRequest' values using combinators.
@@ -175,20 +193,45 @@ defaultRequest = DecafRequest
   }
 
 
--- | User agent value definition for the library.
---
--- >>> defaultUserAgent
--- "DECAF API Client/... (Haskell)"
-defaultUserAgent :: T.Text
-defaultUserAgent = T.pack $ printf "DECAF API Client/%s (Haskell)" version
-
-
 -- * Combinators
 -- $combinators
 
 
 -- | Type definition of 'DecafRequest' combinator.
 type DecafRequestCombinator = DecafRequest -> DecafRequest
+
+
+-- ** DECAF API Combinators
+-- $combinatorsDecafAPI
+
+
+-- | Initiates a DECAF Barista API request.
+apiBarista :: DecafRequestCombinator
+apiBarista = namespace "api" . withTrailingSlash
+
+
+-- | Initiates a DECAF Microlot API request.
+apiMicrolot :: DecafRequestCombinator
+apiMicrolot = post . namespace "/apis/microlot/v1/graphql" . withoutTrailingSlash
+
+
+-- | Initiates a DECAF PDMS Module API request.
+apiModulePdms :: DecafRequestCombinator
+apiModulePdms = post . namespace "/apis/modules/pdms/v1/graphql" . withoutTrailingSlash
+
+
+-- | Initiates a DECAF Functions API request.
+apiFunctions :: DecafRequestCombinator
+apiFunctions = namespace "/apis/function" . withoutTrailingSlash
+
+
+-- | Initiates a DECAF Beanbag API request.
+apiBeanbag :: DecafRequestCombinator
+apiBeanbag = namespace "/apis/beanbag" . withoutTrailingSlash
+
+
+-- ** Remote Combinators
+-- $combinatorsRemote
 
 
 -- | Sets the DECAF Instance 'Remote' address.
@@ -199,6 +242,10 @@ setRemote h request = request { decafRequestRemote = h }
 -- | Alias to 'setRemote'.
 remote :: DecafRemote -> DecafRequestCombinator
 remote = setRemote
+
+
+-- ** Namespace Combinators
+-- $combinatorsNamespace
 
 
 -- | Sets the namespace of the particular DECAF API.
@@ -241,6 +288,10 @@ namespace :: T.Text -> DecafRequestCombinator
 namespace = setNamespace . mkDecafRequestPath
 
 
+-- ** Credentials Combinators
+-- $combinatorsCredentials
+
+
 -- | Sets the authentication credentials.
 setCredentials :: DecafCredentials -> DecafRequestCombinator
 setCredentials c request = request { decafRequestCredentials = c }
@@ -256,9 +307,17 @@ setUserAgent :: T.Text -> DecafRequestCombinator
 setUserAgent ua request = request { decafRequestUserAgent = ua}
 
 
+-- ** User-Agent Combinators
+-- $combinatorsUserAgent
+
+
 -- | Alias to 'setUserAgent'.
 userAgent :: T.Text -> DecafRequestCombinator
 userAgent = setUserAgent
+
+
+-- ** Header Combinators
+-- $combinatorsHeader
 
 
 -- | Sets 'DecafRequest' headers.
@@ -294,6 +353,10 @@ header :: T.Text -> T.Text -> DecafRequestCombinator
 header k v = addHeader (CI.mk (TE.encodeUtf8 k), TE.encodeUtf8 v)
 
 
+-- ** Method Combinators
+-- $combinatorsMethod
+
+
 -- | Sets the 'DecafRequest' method.
 setMethod :: StdMethod -> DecafRequestCombinator
 setMethod m request = request { decafRequestMethod = m }
@@ -322,6 +385,10 @@ delete = setMethod DELETE
 -- | Makes the 'DecafRequest' a @PATCH@ 'DecafRequest'.
 patch :: DecafRequestCombinator
 patch = setMethod PATCH
+
+
+-- ** Path Combinators
+-- $combinatorsPath
 
 
 -- | Sets the 'DecafRequest' 'Path'.
@@ -358,29 +425,37 @@ withoutTrailingSlash :: DecafRequestCombinator
 withoutTrailingSlash = setTrailingSlash False
 
 
+-- ** Query Combinators
+-- $combinatorsQuery
+
+
 -- | Sets the 'DecafRequest' 'Query'.
 setQuery :: QueryText -> DecafRequestCombinator
 setQuery ps request = request { decafRequestQuery = ps}
 
 
--- | Appends more 'Query' to the 'DecafRequest'\'s 'Query'.
-addQuery :: QueryText -> DecafRequestCombinator
-addQuery ps request = setQuery (decafRequestQuery request <> ps) request
+-- | Appends more 'QueryText' to the 'DecafRequest'\'s query.
+addQueryItem :: QueryText -> DecafRequestCombinator
+addQueryItem ps request = setQuery (decafRequestQuery request <> ps) request
 
 
--- | Alias to 'addQuery'.
-query :: QueryText -> DecafRequestCombinator
+-- | Alias to 'addQueryItem'.
+queryItem :: QueryText -> DecafRequestCombinator
+queryItem = addQueryItem
+
+
+-- | Appends a query to the 'DecafRequest'\'s query.
+addQuery :: T.Text -> Maybe T.Text -> DecafRequestCombinator
+addQuery k mv = addQueryItem [(k, mv)]
+
+
+-- | Alias to 'addQuery'
+query :: T.Text -> Maybe T.Text -> DecafRequestCombinator
 query = addQuery
 
 
--- | Appends a 'Param' to the 'DecafRequest'\'s 'Query'.
-addParam :: T.Text -> Maybe T.Text -> DecafRequestCombinator
-addParam k mv = addQuery [(k, mv)]
-
-
--- | Alias to 'addParam'
-param :: T.Text -> Maybe T.Text -> DecafRequestCombinator
-param = addParam
+-- ** Payload Combinators
+-- $combinatorsPayload
 
 
 -- | Sets the 'DecafRequest' 'Payload'.
@@ -408,8 +483,20 @@ noPayload :: DecafRequestCombinator
 noPayload = setNoPayload
 
 
+-- * Internal
+-- $internal
+
+
 -- | /Dummy definition./
 --
 -- __TODO:__ See and follow https://github.com/haskell/haddock/issues/958
 _dummyDef :: ()
 _dummyDef = undefined
+
+
+-- | User agent value definition for the library.
+--
+-- >>> defaultUserAgent
+-- "DECAF API Client/... (Haskell)"
+defaultUserAgent :: T.Text
+defaultUserAgent = T.pack $ printf "DECAF API Client/%s (Haskell)" (showVersion version)

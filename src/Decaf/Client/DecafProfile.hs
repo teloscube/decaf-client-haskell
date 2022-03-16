@@ -1,8 +1,7 @@
 -- | This module provides definitions to work on profiles.
 
-{-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE DerivingVia     #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DataKinds   #-}
+{-# LANGUAGE DerivingVia #-}
 
 module Decaf.Client.DecafProfile where
 
@@ -16,7 +15,6 @@ import qualified Data.Yaml                         as Yaml
 import           Decaf.Client.DecafClientException (throwIOException, throwParseException)
 import           Decaf.Client.DecafCredentials     (DecafCredentials)
 import           Decaf.Client.DecafRemote          (DecafRemote)
-import           Decaf.Client.Internal.Client      (DecafClient, mkDecafClient)
 import qualified Deriving.Aeson.Stock              as DAS
 import           GHC.Stack                         (HasCallStack)
 
@@ -82,11 +80,3 @@ readDecafProfile
 readDecafProfile name fp = do
   profiles <- readDecafProfiles fp
   pure $ find ((==) name . decafProfileName) profiles
-
-
--- | Builds a 'DecafClient' from the given 'Profile'.
-mkDecafClientFromDecafProfile
-  :: DecafProfile
-  -> DecafClient
-mkDecafClientFromDecafProfile DecafProfile{..} =
-  mkDecafClient decafProfileRemote decafProfileCredentials

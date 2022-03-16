@@ -2,16 +2,16 @@
 
 module Decaf.Client.DecafRemote where
 
-import           Control.Monad.Except        (MonadError)
-import qualified Data.Aeson                  as Aeson
-import qualified Data.Char                   as C
-import           Data.Maybe                  (fromMaybe)
-import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Error (DecafClientError(unDecafClientError), throwDecafClientError)
-import           Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
-import qualified Network.URI                 as U
-import           Text.Printf                 (printf)
-import           Text.Read                   (readMaybe)
+import           Control.Monad.Catch               (MonadThrow)
+import qualified Data.Aeson                        as Aeson
+import qualified Data.Char                         as C
+import           Data.Maybe                        (fromMaybe)
+import qualified Data.Text                         as T
+import           Decaf.Client.DecafClientException (throwRemoteException)
+import           Decaf.Client.Internal.Utils       (dropLeading, dropTrailing, nonEmptyString)
+import qualified Network.URI                       as U
+import           Text.Printf                       (printf)
+import           Text.Read                         (readMaybe)
 
 
 -- | Type definition for addressing a remote DECAF Instance.
@@ -42,7 +42,7 @@ instance Show DecafRemote where
 
 instance Aeson.FromJSON DecafRemote where
   parseJSON = Aeson.withText "Remote" $ \x -> case parseRemote x of
-    Left err -> fail (unDecafClientError err)
+    Left err -> fail (show err)
     Right sr -> pure sr
 
 
@@ -105,7 +105,10 @@ remoteToUrl (DecafRemote h (Just p) True)   = "https://" <> h <> ":" <> T.pack (
 -- Left (DecafClientError {unDecafClientError = "Empty host value"})
 -- >>> parseRemote "http://a:" :: Either DecafClientError DecafRemote
 -- Left (DecafClientError {unDecafClientError = "Can not parse port from URI: 'URIAuth {uriUserInfo = \"\", uriRegName = \"a\", uriPort = \":\"}'"})
-parseRemote :: MonadError DecafClientError m => T.Text -> m DecafRemote
+parseRemote
+  :: MonadThrow m
+  => T.Text
+  -> m DecafRemote
 parseRemote url = do
   uri <- parseUri' $ T.unpack url
   (h, p) <- parseHostPort' uri
@@ -124,42 +127,60 @@ parseRemote url = do
 -- Right http://localhost
 -- >>> parseUri' "https://localhost:8443" :: Either DecafClientError U.URI
 -- Right https://localhost:8443
-parseUri' :: MonadError DecafClientError m => String -> m U.URI
+parseUri'
+  :: MonadThrow m
+  => String
+  -> m U.URI
 parseUri' x = maybe err pure $ U.parseAbsoluteURI x
   where
-    err = throwDecafClientError $ "Can not parse remote url: '" <> (x <> "'")
+    err = throwRemoteException $ T.pack ("Can not parse remote url: '" <> (x <> "'"))
 
 
 -- | Attempts to find out if the 'U.URI' scheme is secure HTTP or not.
-parseIsSecure' :: MonadError DecafClientError m => U.URI -> m Bool
+parseIsSecure'
+  :: MonadThrow m
+  => U.URI
+  -> m Bool
 parseIsSecure' = isSecureHttp' . U.uriScheme
 
 
 -- | Attempts to get the host and port values from the given 'U.URI'.
-parseHostPort' :: MonadError DecafClientError m => U.URI -> m (T.Text, Maybe Int)
+parseHostPort'
+  :: MonadThrow m
+  => U.URI
+  -> m (T.Text, Maybe Int)
 parseHostPort' uri = (\auth -> (,) <$> parseHost' auth <*> parsePort' auth) =<< parseAuthority' uri
 
 
 -- | Attempts to extrat the URI authority ('U.URIAuth') from the given 'U.URI'.
-parseAuthority' :: MonadError DecafClientError m => U.URI -> m U.URIAuth
+parseAuthority'
+  :: MonadThrow m
+  => U.URI
+  -> m U.URIAuth
 parseAuthority' uri = maybe err pure $ U.uriAuthority uri
   where
-    err = throwDecafClientError $ "Can not parse authority from URI: '" <> (show uri <> "'")
+    err = throwRemoteException $ T.pack ("Can not parse authority from URI: '" <> (show uri <> "'"))
 
 
 -- | Attempts to get a non-empty 'T.Text' value as the host from the given
 -- 'U.URIAuth'.
-parseHost' :: MonadError DecafClientError m => U.URIAuth -> m T.Text
+parseHost'
+  :: MonadThrow m
+  => U.URIAuth
+  -> m T.Text
 parseHost' a = maybe err pure $ T.pack <$> (nonEmptyString . U.uriRegName) a
   where
-    err = throwDecafClientError "Empty host value"
+    err = throwRemoteException "Empty host value"
 
 
 -- | Attempts to get the port from the given 'U.URIAuth'.
-parsePort' :: MonadError DecafClientError m => U.URIAuth -> m (Maybe Int)
+parsePort'
+  :: MonadThrow m
+  => U.URIAuth
+  -> m (Maybe Int)
 parsePort' uri = maybe err pure . sequence$ (readMaybe . dropLeading ':' <$> (nonEmptyString . U.uriPort) uri)
   where
-    err = throwDecafClientError $ "Can not parse port from URI: '" <> (show uri <> "'")
+    err = throwRemoteException $ T.pack ("Can not parse port from URI: '" <> (show uri <> "'"))
 
 
 -- | Predicate to define if the URI indicates secure HTTP or not.
@@ -175,9 +196,12 @@ parsePort' uri = maybe err pure . sequence$ (readMaybe . dropLeading ':' <$> (no
 -- [Left (DecafClientError {unDecafClientError = "Unknown protocol: htt"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htts"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htp"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htp"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htps"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htps"})]
 -- >>> fmap isSecureHttp' ["htt", "htts"] :: [Either DecafClientError Bool]
 -- [Left (DecafClientError {unDecafClientError = "Unknown protocol: htt"}),Left (DecafClientError {unDecafClientError = "Unknown protocol: htts"})]
-isSecureHttp' :: MonadError DecafClientError m => String -> m Bool
+isSecureHttp'
+  :: MonadThrow m
+  => String
+  -> m Bool
 isSecureHttp' = isSecure' . fmap C.toLower . dropTrailing ':'
   where
     isSecure' "http"  = pure False
     isSecure' "https" = pure True
-    isSecure' proto   = throwDecafClientError $ "Unknown protocol: " <> proto
+    isSecure' proto   = throwRemoteException $ T.pack ("Unknown protocol: " <> proto)

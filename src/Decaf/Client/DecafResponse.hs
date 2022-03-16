@@ -2,7 +2,10 @@
 
 module Decaf.Client.DecafResponse where
 
-import Network.HTTP.Types (ResponseHeaders, Status)
+import           Data.Aeson          ((.:))
+import qualified Data.Aeson          as Aeson
+import qualified Data.HashMap.Strict as HM
+import           Network.HTTP.Types  (ResponseHeaders, Status)
 
 
 -- | Data definition for DECAF client response values.
@@ -12,3 +15,17 @@ data DecafResponse a = DecafResponse
   , decafResponseBody    :: !a
   }
   deriving Show
+
+
+-- | Data definition for DECAF GraphQL query results.
+data DecafGraphqlQueryResult a =
+    DecafGraphqlQueryResultSuccess !a
+  | DecafGraphqlQueryResultFailure !Aeson.Value
+  deriving Show
+
+
+instance Aeson.FromJSON a => Aeson.FromJSON (DecafGraphqlQueryResult a) where
+  parseJSON = Aeson.withObject "DecafGraphqlQueryResult" $ \o -> do
+    case HM.lookup "errors" o of
+      Nothing -> DecafGraphqlQueryResultSuccess <$> o .: "data"
+      Just va -> pure (DecafGraphqlQueryResultFailure va)

@@ -13,6 +13,8 @@ import           GHC.Stack           (HasCallStack)
 data DecafClientException where
   DecafClientIOException :: HasCallStack => T.Text -> IOException -> DecafClientException
   DecafClientParseException :: HasCallStack => T.Text -> T.Text -> DecafClientException
+  DecafClientRemoteException :: HasCallStack => T.Text -> DecafClientException
+  DecafClientRequestException :: HasCallStack => T.Text -> DecafClientException
 
 
 deriving instance Show DecafClientException
@@ -39,3 +41,21 @@ throwParseException
   -> T.Text  -- ^ Parse error.
   -> m a
 throwParseException msg err = throwM (DecafClientParseException msg err)
+
+
+-- | Throws a 'DecafClientRemoteException' exception.
+throwRemoteException
+  :: HasCallStack
+  => MonadThrow m
+  => T.Text  -- ^ Message.
+  -> m a
+throwRemoteException = throwM . DecafClientRemoteException
+
+
+-- | Throws a 'DecafClientRequestException' exception.
+throwRequestException
+  :: HasCallStack
+  => MonadThrow m
+  => T.Text  -- ^ Message.
+  -> m a
+throwRequestException = throwM . DecafClientRequestException

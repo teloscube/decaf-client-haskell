@@ -7,12 +7,15 @@
 
 module Decaf.Client.Internal.Http where
 
+import           Control.Monad.Catch           (MonadCatch, MonadThrow)
 import           Control.Monad.IO.Class        (MonadIO)
-import           Data.Aeson                    (FromJSON)
+import qualified Data.Aeson.Types              as Aeson
 import qualified Data.ByteString               as B
 import           Data.ByteString.Base64        (encode)
 import qualified Data.ByteString.Char8         as BC
+import qualified Data.ByteString.Lazy          as BL
 import           Data.Maybe                    (fromMaybe)
+import qualified Data.Text                     as T
 import qualified Data.Text.Encoding            as TE
 import           Decaf.Client.DecafCredentials
                  ( DecafBasicCredentials(DecafBasicCredentials)
@@ -21,7 +24,7 @@ import           Decaf.Client.DecafCredentials
                  )
 import           Decaf.Client.DecafRemote      (DecafRemote(decafRemoteHost, decafRemotePort, decafRemoteSecure))
 import           Decaf.Client.DecafRequest     (DecafRequest(..), DecafRequestPayload(..), unDecafRequestPath)
-import           Decaf.Client.DecafResponse    (DecafResponse(DecafResponse))
+import           Decaf.Client.DecafResponse    (DecafResponse(DecafResponse, decafResponseBody))
 import           Decaf.Client.Internal.Utils   (compose)
 import qualified Network.HTTP.Client.Conduit   as HC
 import qualified Network.HTTP.Simple           as HS
@@ -31,15 +34,51 @@ import           Network.HTTP.Types            (queryTextToQuery)
 -- * HTTP Request Runners
 -- $httpRequestRunners
 
--- | Runs a request and returns a 'Response' value JSON-decoded from the
--- response body.
-runRequest :: (MonadIO m, FromJSON a) => DecafRequest -> m (DecafResponse a)
-runRequest r = mkResponse <$> (HS.httpJSON . compileRequest) r
 
-
--- | Runs a request and returns a 'Response' with 'B.ByteString' value.
-runRequestBS :: MonadIO m => DecafRequest -> m (DecafResponse B.ByteString)
+runRequestBS
+  :: MonadIO m
+  => MonadCatch m
+  => MonadThrow m
+  => DecafRequest
+  -> m (DecafResponse B.ByteString)
 runRequestBS r = mkResponse <$> (HS.httpBS . compileRequest) r
+
+
+runRequestBL
+  :: MonadIO m
+  => MonadCatch m
+  => MonadThrow m
+  => DecafRequest
+  -> m (DecafResponse BL.ByteString)
+runRequestBL r = mkResponse <$> (HS.httpLBS . compileRequest) r
+
+
+runRequestText
+  :: MonadIO m
+  => MonadCatch m
+  => MonadThrow m
+  => DecafRequest
+  -> m (DecafResponse T.Text)
+runRequestText = fmap (\x -> x { decafResponseBody = TE.decodeUtf8 (decafResponseBody x) } ) . runRequestBS
+
+
+runRequestJson
+  :: Aeson.FromJSON a
+  => MonadIO m
+  => MonadCatch m
+  => MonadThrow m
+  => DecafRequest
+  -> m (DecafResponse a)
+runRequestJson r = mkResponse <$> (HS.httpJSON . compileRequest) r
+
+
+runRequestVoid
+  :: MonadIO m
+  => MonadCatch m
+  => MonadThrow m
+  => DecafRequest
+  -> m (DecafResponse ())
+runRequestVoid r = mkResponse <$> (HS.httpNoBody . compileRequest) r
 
 
 -- * Internal

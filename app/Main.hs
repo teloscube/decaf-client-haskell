@@ -1,22 +1,21 @@
 module Main where
 
-import           Data.Aeson                  (Value, (.:))
-import qualified Data.Aeson                  as Aeson
-import qualified Data.ByteString             as B
-import qualified Data.ByteString.Lazy        as BL
-import qualified Data.ByteString.Lazy.Char8  as BLC
-import           Data.Char                   (toLower)
-import qualified Data.HashMap.Strict         as HM
-import qualified Data.Text                   as T
-import           Data.Version                (showVersion)
-import qualified Decaf.Client                as DC
-import           Decaf.Client.Internal.Utils (applyFirst)
-import           GHC.Generics                (Generic)
-import           MicrolotBatchRunner         (MicrolotBatchRunConfig(MicrolotBatchRunConfig), runBatchMicrolot)
-import qualified Options.Applicative         as OA
-import           Paths_decaf_client          (version)
-import           System.Exit                 (ExitCode, die, exitFailure, exitSuccess, exitWith)
-import           System.IO                   (hPutStrLn, stderr)
+import           Data.Aeson                 (Value, (.:))
+import qualified Data.Aeson                 as Aeson
+import qualified Data.ByteString            as B
+import qualified Data.ByteString.Lazy       as BL
+import qualified Data.ByteString.Lazy.Char8 as BLC
+import           Data.Char                  (toLower)
+import qualified Data.HashMap.Strict        as HM
+import qualified Data.Text                  as T
+import           Data.Version               (showVersion)
+import qualified Decaf.Client               as DC
+import           GHC.Generics               (Generic)
+import           MicrolotBatchRunner        (MicrolotBatchRunConfig(MicrolotBatchRunConfig), runBatchMicrolot)
+import qualified Options.Applicative        as OA
+import           Paths_decaf_client         (version)
+import           System.Exit                (ExitCode, die, exitFailure, exitSuccess, exitWith)
+import           System.IO                  (hPutStrLn, stderr)
 
 
 -- | Entrypoint of the CLI program.
