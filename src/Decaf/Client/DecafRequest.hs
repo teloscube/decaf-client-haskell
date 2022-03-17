@@ -45,6 +45,7 @@ data DecafRequest = DecafRequest
   , decafRequestTrailingSlash :: !Bool
   , decafRequestQuery         :: !QueryText
   , decafRequestPayload       :: !(Maybe DecafRequestPayload)
+  , decafRequestCheckResponse :: !Bool
   }
 
 
@@ -61,6 +62,7 @@ instance Show DecafRequest where
     , "  decafRequestTrailingSlash = " <> show (decafRequestTrailingSlash x)
     , "  decafRequestQuery         = " <> show (decafRequestQuery x)
     , "  decafRequestPayload       = " <> show (decafRequestPayload x)
+    , "  decafRequestCheckResponse = " <> show (decafRequestCheckResponse x)
     , "}"
     ]
 
@@ -170,6 +172,7 @@ decafGraphqlQueryNoVars = flip MkDecafGraphqlQuery (Aeson.object [])
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
+--   decafRequestCheckResponse = True
 -- }
 initRequest :: DecafRemote -> DecafCredentials -> DecafRequest
 initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl r)) defaultRequest
@@ -180,16 +183,17 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl 
 -- This is useful to build 'DecafRequest' values using combinators.
 defaultRequest :: DecafRequest
 defaultRequest = DecafRequest
-  { decafRequestRemote = DecafRemote "localhost" Nothing False
-  , decafRequestNamespace = mempty
-  , decafRequestCredentials = DecafCredentialsHeader "UNKNOWN"
-  , decafRequestUserAgent = defaultUserAgent
-  , decafRequestHeaders = []
-  , decafRequestMethod = GET
-  , decafRequestPath = mempty
+  { decafRequestRemote        = DecafRemote "localhost" Nothing False
+  , decafRequestNamespace     = mempty
+  , decafRequestCredentials   = DecafCredentialsHeader "UNKNOWN"
+  , decafRequestUserAgent     = defaultUserAgent
+  , decafRequestHeaders       = []
+  , decafRequestMethod        = GET
+  , decafRequestPath          = mempty
   , decafRequestTrailingSlash = False
-  , decafRequestQuery = []
-  , decafRequestPayload = Nothing
+  , decafRequestQuery         = []
+  , decafRequestPayload       = Nothing
+  , decafRequestCheckResponse = True
   }
 
 
@@ -263,6 +267,7 @@ remote = setRemote
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
+--   decafRequestCheckResponse = True
 -- }
 setNamespace :: DecafRequestPath -> DecafRequestCombinator
 setNamespace n request = request { decafRequestNamespace = n }
@@ -283,6 +288,7 @@ setNamespace n request = request { decafRequestNamespace = n }
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
+--   decafRequestCheckResponse = True
 -- }
 namespace :: T.Text -> DecafRequestCombinator
 namespace = setNamespace . mkDecafRequestPath
@@ -481,6 +487,21 @@ setNoPayload request = request { decafRequestPayload = Nothing }
 -- | Alias to 'setNoPayload'.
 noPayload :: DecafRequestCombinator
 noPayload = setNoPayload
+
+
+-- ** Response Checkers
+-- $responseCheckers
+
+
+-- | Indicates that we are expecting @2xx@ HTTP response code for the request.
+checkResponse :: DecafRequestCombinator
+checkResponse request = request { decafRequestCheckResponse = True }
+
+
+-- | Indicates that we are not necessarily expecting @2xx@ HTTP response code
+-- for the request.
+noCheckResponse :: DecafRequestCombinator
+noCheckResponse request = request { decafRequestCheckResponse = False }
 
 
 -- * Internal
