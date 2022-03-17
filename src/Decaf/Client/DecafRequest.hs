@@ -160,7 +160,7 @@ decafGraphqlQueryNoVars = flip MkDecafGraphqlQuery (Aeson.object [])
 --
 -- >>> initRequest (DecafRemote "example.com" Nothing False) (DecafCredentialsHeader "OUCH")
 -- DecafRequest {
---   decafRequestRemote        = [http]://[example.com]:[80]
+--   decafRequestRemote        = http://example.com
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = []}
 --   decafRequestCredentials   = <********>
 --   decafRequestUserAgent     = "DECAF API Client/... (Haskell)"
@@ -253,7 +253,7 @@ remote = setRemote
 -- >>> import Decaf.Client.DecafRequest (defaultRequest)
 -- >>> setNamespace (mkDecafRequestPath "api") defaultRequest
 -- DecafRequest {
---   decafRequestRemote        = [http]://[localhost]:[80]
+--   decafRequestRemote        = http://localhost
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = ["api"]}
 --   decafRequestCredentials   = <********>
 --   decafRequestUserAgent     = "DECAF API Client/... (Haskell)"
@@ -273,7 +273,7 @@ setNamespace n request = request { decafRequestNamespace = n }
 -- >>> import Decaf.Client.DecafRequest (defaultRequest)
 -- >>> namespace "///api///" defaultRequest
 -- DecafRequest {
---   decafRequestRemote        = [http]://[localhost]:[80]
+--   decafRequestRemote        = http://localhost
 --   decafRequestNamespace     = MkDecafRequestPath {unDecafRequestPath = ["api"]}
 --   decafRequestCredentials   = <********>
 --   decafRequestUserAgent     = "DECAF API Client/... (Haskell)"

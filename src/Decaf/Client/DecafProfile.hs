@@ -31,7 +31,7 @@ import           GHC.Stack                         (HasCallStack)
 -- >>> json
 -- "{\"name\":\"test\",\"remote\":\"https://telostest.decafhub.com\",\"credentials\":{\"type\":\"basic\",\"value\":{\"username\":\"username\",\"password\":\"password\"}}}"
 -- >>> Data.Aeson.decode @DecafProfile json
--- Just (DecafProfile {decafProfileName = "test", decafProfileRemote = [https]://[telostest.decafhub.com]:[443], decafProfileCredentials = <********>})
+-- Just (DecafProfile {decafProfileName = "test", decafProfileRemote = https://telostest.decafhub.com, decafProfileCredentials = <********>})
 data DecafProfile = DecafProfile
   { decafProfileName        :: !T.Text
   , decafProfileRemote      :: !DecafRemote

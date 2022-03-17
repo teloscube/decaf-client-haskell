@@ -13,7 +13,7 @@ import qualified Data.ByteString                   as B
 import qualified Data.ByteString.Lazy              as BL
 import qualified Data.Text.Lazy                    as TL
 import qualified Data.Text.Lazy.Encoding           as TLE
-import           Decaf.Client.DecafClientException (throwRequestException)
+import           Decaf.Client.DecafClientException (throwRemoteException, throwRequestException)
 import           Decaf.Client.DecafCredentials     (DecafCredentials)
 import           Decaf.Client.DecafProfile         (DecafProfile(..))
 import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
@@ -76,7 +76,7 @@ mkDecafClientM
   => T.Text
   -> DecafCredentials
   -> m DecafClient
-mkDecafClientM u c = flip mkDecafClient c <$> parseRemote u
+mkDecafClientM u c = either throwRemoteException (pure . flip mkDecafClient c) (parseRemote u)
 
 
 -- | Builds a 'DecafClient' from the given 'Profile'.
