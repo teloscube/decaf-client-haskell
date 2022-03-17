@@ -29,6 +29,11 @@ module Decaf.Client
 
   , module Decaf.Client.DecafClientException
 
+    -- * Low-Level Request Performers
+
+  , performDecafRequest
+  , performDecafRequestJson
+
   ) where
 
 import Decaf.Client.DecafClient
@@ -38,3 +43,4 @@ import Decaf.Client.DecafProfile
 import Decaf.Client.DecafRemote
 import Decaf.Client.DecafRequest
 import Decaf.Client.DecafResponse
+import Decaf.Client.Internal.Http        (performDecafRequest, performDecafRequestJson)

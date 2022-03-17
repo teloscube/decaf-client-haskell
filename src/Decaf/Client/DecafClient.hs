@@ -9,7 +9,6 @@ import qualified Data.Text                         as T
 
 import           Control.Monad.IO.Class            (MonadIO)
 import qualified Data.Aeson                        as Aeson
-import qualified Data.ByteString                   as B
 import qualified Data.ByteString.Lazy              as BL
 import qualified Data.Text.Lazy                    as TL
 import qualified Data.Text.Lazy.Encoding           as TLE
@@ -18,26 +17,20 @@ import           Decaf.Client.DecafCredentials     (DecafCredentials)
 import           Decaf.Client.DecafProfile         (DecafProfile(..))
 import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
 import           Decaf.Client.DecafRequest
-                 ( DecafGraphqlQuery
-                 , DecafRequest(decafRequestRemote)
+                 ( DecafRequest(decafRequestRemote)
                  , DecafRequestCombinator
                  , apiBarista
+                 , apiBeanbag
+                 , apiEstate
+                 , apiFunctions
                  , apiMicrolot
                  , apiModulePdms
+                 , graphql
+                 , graphqlNoVars
                  , initRequest
-                 , jsonPayload
                  )
-import           Decaf.Client.DecafResponse
-                 ( DecafGraphqlQueryResult(DecafGraphqlQueryResultFailure, DecafGraphqlQueryResultSuccess)
-                 , DecafResponse(decafResponseBody)
-                 )
-import           Decaf.Client.Internal.Http
-                 ( runRequestBL
-                 , runRequestBS
-                 , runRequestJson
-                 , runRequestText
-                 , runRequestVoid
-                 )
+import           Decaf.Client.DecafResponse        (DecafGraphqlQueryResult(..), DecafResponse(decafResponseBody))
+import           Decaf.Client.Internal.Http        (performDecafRequest, performDecafRequestJson)
 import           GHC.Stack                         (HasCallStack)
 
 
@@ -51,7 +44,7 @@ newtype DecafClient = DecafClient
   }
 
 
--- | Returns the 'Remote' for the 'DecafClient'.
+-- | Returns the 'DecafRemote' for the 'DecafClient'.
 decafClientRemote :: DecafClient -> DecafRemote
 decafClientRemote = decafRequestRemote . unDecafClient
 
@@ -79,7 +72,7 @@ mkDecafClientM
 mkDecafClientM u c = either throwRemoteException (pure . flip mkDecafClient c) (parseRemote u)
 
 
--- | Builds a 'DecafClient' from the given 'Profile'.
+-- | Builds a 'DecafClient' from the given 'DecafProfile'.
 mkDecafClientFromProfile
   :: DecafProfile
   -> DecafClient
@@ -105,161 +98,258 @@ buildDecafRequest c = c . unDecafClient
 -- $coreRunners
 
 
-runDecafRequestBS
+-- | Attempts to runs a given 'DecafRequestCombinator' over a given
+-- 'DecafClient', pick the successful response body and return it as
+-- 'BL.ByteString'.
+runDecafClient
   :: HasCallStack
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
+  => MonadIO m
   => DecafRequestCombinator
   -> DecafClient
-  -> m (DecafResponse B.ByteString)
-runDecafRequestBS c dc = runRequestBS (buildDecafRequest c dc)
+  -> m BL.ByteString
+runDecafClient c dc = decafResponseBody <$> performDecafRequest (buildDecafRequest c dc)
 
 
-runDecafRequestBL
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafRequestCombinator
-  -> DecafClient
-  -> m (DecafResponse BL.ByteString)
-runDecafRequestBL c dc = runRequestBL (buildDecafRequest c dc)
-
-
-runDecafRequestText
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafRequestCombinator
-  -> DecafClient
-  -> m (DecafResponse T.Text)
-runDecafRequestText c dc = runRequestText (buildDecafRequest c dc)
-
-
-runDecafRequestJson
+-- | Attempts to runs a given 'DecafRequestCombinator' over a given
+-- 'DecafClient', pick the successful response body, decode it into the
+-- requested type @a@ and return it.
+runDecafClientJson
   :: HasCallStack
   => Aeson.FromJSON a
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
+  => MonadIO m
   => DecafRequestCombinator
   -> DecafClient
-  -> m (DecafResponse a)
-runDecafRequestJson c dc = runRequestJson (buildDecafRequest c dc)
-
-
-runDecafRequestVoid
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafRequestCombinator
-  -> DecafClient
-  -> m (DecafResponse ())
-runDecafRequestVoid c dc = runRequestVoid (buildDecafRequest c dc)
+  -> m a
+runDecafClientJson c dc = decafResponseBody <$> performDecafRequestJson (buildDecafRequest c dc)
 
 
 -- ** Barista Runners
 -- $baristaRunners
 
 
-runDecafBaristaRequestBS
+-- | Convenience function for 'runDecafClient' that hits DECAF Barista API
+-- namespace.
+runDecafBarista
   :: HasCallStack
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafRequestCombinator
-  -> DecafClient
-  -> m B.ByteString
-runDecafBaristaRequestBS c = fmap decafResponseBody . runDecafRequestBS (c . apiBarista)
-
-
-runDecafBaristaRequestBL
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
+  => MonadIO m
   => DecafRequestCombinator
   -> DecafClient
   -> m BL.ByteString
-runDecafBaristaRequestBL c = fmap decafResponseBody . runDecafRequestBL (c . apiBarista)
+runDecafBarista c = runDecafClient (c . apiBarista)
 
 
-runDecafBaristaRequestText
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafRequestCombinator
-  -> DecafClient
-  -> m T.Text
-runDecafBaristaRequestText c = fmap decafResponseBody . runDecafRequestText (c . apiBarista)
-
-
-runDecafBaristaRequestJson
+-- | Convenience function for 'runDecafClientJson' that hits DECAF Barista API
+-- namespace.
+runDecafBaristaJson
   :: HasCallStack
   => Aeson.FromJSON a
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
+  => MonadIO m
   => DecafRequestCombinator
   -> DecafClient
   -> m a
-runDecafBaristaRequestJson c = fmap decafResponseBody . runDecafRequestJson (c . apiBarista)
+runDecafBaristaJson c = runDecafClientJson (c . apiBarista)
 
 
-runDecafBaristaRequestVoid
+-- ** Estate Runners
+-- $estateRunners
+
+
+-- | Convenience function for 'runDecafClient' that hits DECAF Estate API
+-- namespace.
+runDecafEstate
   :: HasCallStack
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
+  => MonadIO m
   => DecafRequestCombinator
   -> DecafClient
-  -> m ()
-runDecafBaristaRequestVoid c = fmap decafResponseBody . runDecafRequestVoid (c . apiBarista)
+  -> m BL.ByteString
+runDecafEstate c = runDecafClient (c . apiEstate)
 
 
--- ** Microlot Runners
--- $microlotRunners
-
-
-runDecafMicrolotRequestJson
+-- | Convenience function for 'runDecafClientJson' that hits DECAF Estate API
+-- namespace.
+runDecafEstateJson
   :: HasCallStack
-  => Show a
+  => Aeson.FromJSON a
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => DecafRequestCombinator
+  -> DecafClient
+  -> m a
+runDecafEstateJson c = runDecafClientJson (c . apiEstate)
+
+
+-- ** Function Runners
+-- $functionRunners
+
+
+-- | Convenience function for 'runDecafClient' that hits DECAF Functions API
+-- namespace.
+runDecafFunction
+  :: HasCallStack
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => DecafRequestCombinator
+  -> DecafClient
+  -> m BL.ByteString
+runDecafFunction c = runDecafClient (c . apiFunctions)
+
+
+-- | Convenience function for 'runDecafClientJson' that hits DECAF Functions API
+-- namespace.
+runDecafFunctionJson
+  :: HasCallStack
+  => Aeson.FromJSON a
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => DecafRequestCombinator
+  -> DecafClient
+  -> m a
+runDecafFunctionJson c = runDecafClientJson (c . apiFunctions)
+
+
+-- ** Beanbag Runners
+-- $beanbagRunners
+
+
+-- | Convenience function for 'runDecafClient' that hits DECAF Beanbag API
+-- namespace.
+runDecafBeanbag
+  :: HasCallStack
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => DecafRequestCombinator
+  -> DecafClient
+  -> m BL.ByteString
+runDecafBeanbag c = runDecafClient (c . apiBeanbag)
+
+
+-- | Convenience function for 'runDecafClientJson' that hits DECAF Beanbag API
+-- namespace.
+runDecafBeanbagJson
+  :: HasCallStack
+  => Aeson.FromJSON a
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => DecafRequestCombinator
+  -> DecafClient
+  -> m a
+runDecafBeanbagJson c = runDecafClientJson (c . apiBeanbag)
+
+
+-- ** GraphQL Runners
+-- $graphqlRunners
+
+
+-- | Convenience function for 'runDecafClientJson' that performs GraphQL queries
+-- as per given 'DecafRequestCombinator'.
+runDecafGraphql
+  :: HasCallStack
   => Aeson.FromJSON a
   => Aeson.ToJSON b
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafGraphqlQuery b
+  => MonadIO m
+  => DecafRequestCombinator
+  -> String
+  -> b
   -> DecafClient
   -> m a
-runDecafMicrolotRequestJson q dc = do
-  value <- decafResponseBody <$> runDecafRequestJson (jsonPayload q . apiMicrolot) dc
+runDecafGraphql c gql vars dc = do
+  value <- runDecafClientJson (graphql gql vars . c) dc
   case value of
     DecafGraphqlQueryResultSuccess x -> pure x
-    DecafGraphqlQueryResultFailure v -> throwRequestException ("Error during Microlot request: " <> TL.toStrict (TLE.decodeUtf8 (Aeson.encode v)))
+    DecafGraphqlQueryResultFailure v -> throwRequestException ("Error during parsing GraphQL response: " <> TL.toStrict (TLE.decodeUtf8 (Aeson.encode v)))
 
 
--- ** PDMS Module Runners
--- $pdmsModuleRunners
-
-
-runDecafModulePdmsRequestJson
+-- | Convenience function for 'runDecafClientJson' that performs GraphQL queries
+-- (without query variables) as per given 'DecafRequestCombinator'.
+runDecafGraphqlNoVars
   :: HasCallStack
-  => Show a
+  => Aeson.FromJSON a
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => DecafRequestCombinator
+  -> String
+  -> DecafClient
+  -> m a
+runDecafGraphqlNoVars c gql dc = do
+  value <- runDecafClientJson (graphqlNoVars gql . c) dc
+  case value of
+    DecafGraphqlQueryResultSuccess x -> pure x
+    DecafGraphqlQueryResultFailure v -> throwRequestException ("Error during parsing GraphQL response: " <> TL.toStrict (TLE.decodeUtf8 (Aeson.encode v)))
+
+
+-- | Convenience function for 'runDecafGraphql' that hits DECAF Microlot API
+-- namespace.
+runDecafMicrolot
+  :: HasCallStack
   => Aeson.FromJSON a
   => Aeson.ToJSON b
   => MonadCatch m
   => MonadThrow m
-  => Control.Monad.IO.Class.MonadIO m
-  => DecafGraphqlQuery b
+  => MonadIO m
+  => String
+  -> b
   -> DecafClient
   -> m a
-runDecafModulePdmsRequestJson q dc = do
-  value <- decafResponseBody <$> runDecafRequestJson (jsonPayload q . apiModulePdms) dc
-  case value of
-    DecafGraphqlQueryResultSuccess x -> pure x
-    DecafGraphqlQueryResultFailure v -> throwRequestException ("Error during PDMS Module request: " <> TL.toStrict (TLE.decodeUtf8 (Aeson.encode v)))
+runDecafMicrolot = runDecafGraphql apiMicrolot
+
+
+-- | Convenience function for 'runDecafGraphqlNoVars' that hits DECAF Microlot
+-- API namespace.
+runDecafMicrolotNoVars
+  :: HasCallStack
+  => Aeson.FromJSON a
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => String
+  -> DecafClient
+  -> m a
+runDecafMicrolotNoVars = runDecafGraphqlNoVars apiMicrolot
+
+
+-- | Convenience function for 'runDecafGraphql' that hits DECAF PDMS Module API
+-- namespace.
+runDecafModulePdms
+  :: HasCallStack
+  => Aeson.FromJSON a
+  => Aeson.ToJSON b
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => String
+  -> b
+  -> DecafClient
+  -> m a
+runDecafModulePdms = runDecafGraphql apiModulePdms
+
+
+-- | Convenience function for 'runDecafGraphqlNoVars' that hits DECAF PDMS
+-- Module API namespace.
+runDecafModulePdmsNoVars
+  :: HasCallStack
+  => Aeson.FromJSON a
+  => MonadCatch m
+  => MonadThrow m
+  => MonadIO m
+  => String
+  -> DecafClient
+  -> m a
+runDecafModulePdmsNoVars = runDecafGraphqlNoVars apiModulePdms

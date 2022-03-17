@@ -19,7 +19,8 @@ import qualified Deriving.Aeson.Stock              as DAS
 import           GHC.Stack                         (HasCallStack)
 
 
--- | A DECAF Instance user profile for constructing a 'DecafClient'.
+-- | A DECAF Instance user profile for constructing a
+-- 'Decaf.Client.DecafClient.DecafClient'.
 --
 -- >>> import Decaf.Client.DecafCredentials
 -- >>> import Decaf.Client.DecafRemote

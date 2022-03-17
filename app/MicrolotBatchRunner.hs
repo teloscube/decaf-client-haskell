@@ -19,13 +19,10 @@ import qualified Data.ByteString.Lazy   as BL
 import qualified Data.Text              as T
 import qualified Data.Vector            as V
 import           Decaf.Client
-                 ( DecafGraphqlQuery
-                 , DecafProfile(decafProfileName, decafProfileRemote)
-                 , decafGraphqlQuery
-                 , decafGraphqlQueryNoVars
+                 ( DecafProfile(decafProfileName, decafProfileRemote)
                  , mkDecafClientFromProfile
                  , readDecafProfiles
-                 , runDecafMicrolotRequestJson
+                 , runDecafMicrolot
                  , throwIOException
                  )
 import           GHC.Stack              (HasCallStack)
@@ -72,29 +69,12 @@ runQueryForProfile
   -> DecafProfile
   -> m Aeson.Value
 runQueryForProfile fp vars profile = do
-  query <- buildMicrolotQuery fp vars
+  gql <- liftIO (readFile fp `catch` transformIOException)
   let client = mkDecafClientFromProfile profile
-  attempt query client `catch` handle
+  attempt gql client `catch` handle
   where
-    attempt q c = runDecafMicrolotRequestJson q c
+    attempt q c = runDecafMicrolot q vars c
     handle = \(x :: SomeException) -> pure (Aeson.String (T.pack . show $ x))
 
-
--- | Attempts to build a 'MicrolotQuery' from the given GQL file path and
--- optional query variables.
-buildMicrolotQuery
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => MonadIO m
-  => FilePath
-  -> Maybe Aeson.Value
-  -> m (DecafGraphqlQuery Aeson.Value)
-buildMicrolotQuery fp mVars = do
-  gql <- BC.unpack <$> liftIO (B.readFile fp `catch` transformIOException)
-  case mVars of
-    Nothing -> pure $ decafGraphqlQueryNoVars gql
-    Just sv -> pure $ decafGraphqlQuery gql sv
-  where
     transformIOException :: MonadThrow m => IOException -> m a
     transformIOException exc = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) exc

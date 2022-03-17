@@ -107,7 +107,7 @@ instance Monoid DecafRequestPath where
   mconcat ps = MkDecafRequestPath $ concatMap unDecafRequestPath ps
 
 
--- | Sanitizes the given 'T.Text' into path segments and builds a 'Path' value.
+-- | Sanitizes the given 'T.Text' into path segments and builds a 'DecafRequestPath' value.
 --
 -- >>> mkDecafRequestPath ""
 -- MkDecafRequestPath {unDecafRequestPath = []}
@@ -214,14 +214,14 @@ apiBarista :: DecafRequestCombinator
 apiBarista = namespace "api" . withTrailingSlash
 
 
+-- | Initiates a DECAF Barista API request.
+apiEstate :: DecafRequestCombinator
+apiEstate = namespace "apis/estate" . withoutTrailingSlash
+
+
 -- | Initiates a DECAF Microlot API request.
 apiMicrolot :: DecafRequestCombinator
 apiMicrolot = post . namespace "/apis/microlot/v1/graphql" . withoutTrailingSlash
-
-
--- | Initiates a DECAF PDMS Module API request.
-apiModulePdms :: DecafRequestCombinator
-apiModulePdms = post . namespace "/apis/modules/pdms/v1/graphql" . withoutTrailingSlash
 
 
 -- | Initiates a DECAF Functions API request.
@@ -234,11 +234,16 @@ apiBeanbag :: DecafRequestCombinator
 apiBeanbag = namespace "/apis/beanbag" . withoutTrailingSlash
 
 
+-- | Initiates a DECAF PDMS Module API request.
+apiModulePdms :: DecafRequestCombinator
+apiModulePdms = post . namespace "/apis/modules/pdms/v1/graphql" . withoutTrailingSlash
+
+
 -- ** Remote Combinators
 -- $combinatorsRemote
 
 
--- | Sets the DECAF Instance 'Remote' address.
+-- | Sets the DECAF Instance 'DecafRemote' address.
 setRemote :: DecafRemote -> DecafRequestCombinator
 setRemote h request = request { decafRequestRemote = h }
 
@@ -397,35 +402,35 @@ patch = setMethod PATCH
 -- $combinatorsPath
 
 
--- | Sets the 'DecafRequest' 'Path'.
+-- | Sets the 'DecafRequest' 'DecafRequestPath'.
 setPath :: DecafRequestPath -> DecafRequestCombinator
 setPath p request = request { decafRequestPath = p}
 
 
--- | Appends a 'Path' to the 'DecafRequest'\'s existing 'Path'.
+-- | Appends a 'DecafRequestPath' to the 'DecafRequest'\'s existing 'DecafRequestPath'.
 addPath :: DecafRequestPath -> DecafRequestCombinator
 addPath p request = setPath (decafRequestPath request <> p) request
 
 
 -- | Convenience function to append a plain 'T.Text' as a path to the existing
--- 'Path' of the 'DecafRequest'.
+-- 'DecafRequestPath' of the 'DecafRequest'.
 path :: T.Text -> DecafRequestCombinator
 path = addPath . mkDecafRequestPath
 
 
--- | Makes the 'DecafRequest' 'Path' (not) contain a trailing slash when hitting the
+-- | Makes the 'DecafRequest' 'DecafRequestPath' (not) contain a trailing slash when hitting the
 -- remote.
 setTrailingSlash :: Bool -> DecafRequestCombinator
 setTrailingSlash ts request = request { decafRequestTrailingSlash = ts }
 
 
--- | Makes the 'DecafRequest' 'Path' contain a trailing slash when hitting the
+-- | Makes the 'DecafRequest' 'DecafRequestPath' contain a trailing slash when hitting the
 -- remote.
 withTrailingSlash :: DecafRequestCombinator
 withTrailingSlash = setTrailingSlash True
 
 
--- | Makes the 'DecafRequest' 'Path' not contain a trailing slash when hitting the
+-- | Makes the 'DecafRequest' 'DecafRequestPath' not contain a trailing slash when hitting the
 -- remote.
 withoutTrailingSlash :: DecafRequestCombinator
 withoutTrailingSlash = setTrailingSlash False
@@ -435,12 +440,12 @@ withoutTrailingSlash = setTrailingSlash False
 -- $combinatorsQuery
 
 
--- | Sets the 'DecafRequest' 'Query'.
+-- | Sets the 'DecafRequest' query.
 setQuery :: QueryText -> DecafRequestCombinator
 setQuery ps request = request { decafRequestQuery = ps}
 
 
--- | Appends more 'QueryText' to the 'DecafRequest'\'s query.
+-- | Appends a query item to 'DecafRequest' query.
 addQueryItem :: QueryText -> DecafRequestCombinator
 addQueryItem ps request = setQuery (decafRequestQuery request <> ps) request
 
@@ -450,7 +455,7 @@ queryItem :: QueryText -> DecafRequestCombinator
 queryItem = addQueryItem
 
 
--- | Appends a query to the 'DecafRequest'\'s query.
+-- | Appends a query item to 'DecafRequest' query.
 addQuery :: T.Text -> Maybe T.Text -> DecafRequestCombinator
 addQuery k mv = addQueryItem [(k, mv)]
 
@@ -464,7 +469,7 @@ query = addQuery
 -- $combinatorsPayload
 
 
--- | Sets the 'DecafRequest' 'Payload'.
+-- | Sets the 'DecafRequest' 'DecafRequestPayload'.
 setPayload :: T.Text -> BL.ByteString -> DecafRequestCombinator
 setPayload t c request = request { decafRequestPayload = Just $ DecafRequestPayload t c }
 
@@ -474,12 +479,12 @@ payload :: T.Text -> BL.ByteString -> DecafRequestCombinator
 payload = setPayload
 
 
--- | Sets a JSON 'Payload' as the 'DecafRequest' 'Payload'.
+-- | Sets a JSON 'DecafRequestPayload' as the 'DecafRequest' 'DecafRequestPayload'.
 jsonPayload :: Aeson.ToJSON a => a -> DecafRequestCombinator
 jsonPayload x = setPayload "application/json" $ Aeson.encode x
 
 
--- | Removes any existing 'DecafRequest' 'Payload'.
+-- | Removes any existing 'DecafRequest' 'DecafRequestPayload'.
 setNoPayload :: DecafRequestCombinator
 setNoPayload request = request { decafRequestPayload = Nothing }
 
@@ -502,6 +507,20 @@ checkResponse request = request { decafRequestCheckResponse = True }
 -- for the request.
 noCheckResponse :: DecafRequestCombinator
 noCheckResponse request = request { decafRequestCheckResponse = False }
+
+
+-- ** GraphQL Combinators
+-- $graphqlCombinators
+
+
+-- | Combinator that adds GraphQL query to the request.
+graphql :: Aeson.ToJSON a => String -> a -> DecafRequestCombinator
+graphql gql vars = jsonPayload (decafGraphqlQuery gql vars)
+
+
+-- | Combinator that adds GraphQL query (without query variables) to the request.
+graphqlNoVars :: String -> DecafRequestCombinator
+graphqlNoVars gql = jsonPayload (decafGraphqlQueryNoVars gql)
 
 
 -- * Internal
