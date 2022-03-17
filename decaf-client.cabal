@@ -154,6 +154,7 @@ test-suite decaf-client-test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Mocking
       Paths_decaf_client
   hs-source-dirs:
       test
@@ -167,6 +168,7 @@ test-suite decaf-client-test
     , decaf-client
     , deriving-aeson
     , exceptions
+    , hspec
     , http-conduit
     , http-types
     , network-uri
