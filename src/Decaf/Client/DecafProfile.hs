@@ -1,10 +1,9 @@
 -- | This module provides definitions to work on profiles.
 
-{-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE DerivingVia     #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE DataKinds   #-}
+{-# LANGUAGE DerivingVia #-}
 
-module Decaf.Client.Internal.Profile where
+module Decaf.Client.DecafProfile where
 
 import           Control.Exception                 (IOException, catch)
 import           Control.Monad.Catch               (MonadCatch, MonadThrow)
@@ -13,79 +12,72 @@ import qualified Data.ByteString                   as B
 import           Data.Foldable                     (find)
 import qualified Data.Text                         as T
 import qualified Data.Yaml                         as Yaml
-import           Decaf.Client.Internal.Client      (DecafClient, mkDecafClient)
-import           Decaf.Client.Internal.Credentials (Credentials)
-import           Decaf.Client.Internal.Exception   (throwIOException, throwParseException)
-import           Decaf.Client.Internal.Remote      (Remote)
+import           Decaf.Client.DecafClientException (throwIOException, throwParseException)
+import           Decaf.Client.DecafCredentials     (DecafCredentials)
+import           Decaf.Client.DecafRemote          (DecafRemote)
 import qualified Deriving.Aeson.Stock              as DAS
 import           GHC.Stack                         (HasCallStack)
 
 
--- | A DECAF Instance user profile for constructing a 'DecafClient'.
+-- | A DECAF Instance user profile for constructing a
+-- 'Decaf.Client.DecafClient.DecafClient'.
 --
--- >>> import Decaf.Client.Internal.Credentials
--- >>> import Decaf.Client.Internal.Remote
+-- >>> import Decaf.Client.DecafCredentials
+-- >>> import Decaf.Client.DecafRemote
 --
 -- >>> Right remote = parseRemote "https://telostest.decafhub.com"
--- >>> let credentials = CredentialsBasic (BasicCredentials "username" "password")
+-- >>> let credentials = DecafCredentialsBasic (DecafBasicCredentials "username" "password")
 --
--- >>> let json = Data.Aeson.encode (Profile "test" remote credentials)
+-- >>> let json = Data.Aeson.encode (DecafProfile "test" remote credentials)
 -- >>> json
 -- "{\"name\":\"test\",\"remote\":\"https://telostest.decafhub.com\",\"credentials\":{\"type\":\"basic\",\"value\":{\"username\":\"username\",\"password\":\"password\"}}}"
--- >>> Data.Aeson.decode @Profile json
--- Just (Profile {profileName = "test", profileRemote = [https]://[telostest.decafhub.com]:[443], profileCredentials = <********>})
-data Profile = Profile
-  { profileName        :: !T.Text
-  , profileRemote      :: !Remote
-  , profileCredentials :: !Credentials
+-- >>> Data.Aeson.decode @DecafProfile json
+-- Just (DecafProfile {decafProfileName = "test", decafProfileRemote = https://telostest.decafhub.com, decafProfileCredentials = <********>})
+data DecafProfile = DecafProfile
+  { decafProfileName        :: !T.Text
+  , decafProfileRemote      :: !DecafRemote
+  , decafProfileCredentials :: !DecafCredentials
   }
   deriving (Eq, DAS.Generic, Show)
-  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "profile" Profile
+  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "decafProfile" DecafProfile
 
 
 -- | Attempts to read and return profiles from a file at the given filepath.
-readProfiles
+readDecafProfiles
   :: HasCallStack
   => MonadIO m
   => MonadCatch m
   => MonadThrow m
   => FilePath
-  -> m [Profile]
-readProfiles fp = liftIO (B.readFile fp `catch` transformIOException) >>= parseProfiles
+  -> m [DecafProfile]
+readDecafProfiles fp = liftIO (B.readFile fp `catch` transformIOException) >>= parseDecafProfiles
   where
     transformIOException :: MonadThrow m => IOException -> m a
     transformIOException exc = throwIOException ("Cannot read profiles file: " <> T.pack fp) exc
 
 
 -- | Attempts to parse and return profiles from given JSON contents.
-parseProfiles
+parseDecafProfiles
   :: HasCallStack
   => MonadIO m
   => MonadThrow m
   => B.ByteString
-  -> m [Profile]
-parseProfiles content = case Yaml.decodeEither' content of
+  -> m [DecafProfile]
+parseDecafProfiles content = case Yaml.decodeEither' content of
   Left err -> throwParseException "Error while parsing profiles" (T.pack . show $ err)
   Right sp -> pure sp
 
 
 -- | Attempts to find and return the profile by the given name in the given
 -- profiles file.
-readProfile
+readDecafProfile
   :: HasCallStack
   => MonadIO m
   => MonadCatch m
   => MonadThrow m
   => T.Text
   -> FilePath
-  -> m (Maybe Profile)
-readProfile name fp = do
-  profiles <- readProfiles fp
-  pure $ find ((==) name . profileName) profiles
-
-
--- | Builds a 'DecafClient' from the given 'Profile'.
-mkClientFromProfile
-  :: Profile
-  -> DecafClient
-mkClientFromProfile Profile{..} = mkDecafClient profileRemote profileCredentials
+  -> m (Maybe DecafProfile)
+readDecafProfile name fp = do
+  profiles <- readDecafProfiles fp
+  pure $ find ((==) name . decafProfileName) profiles

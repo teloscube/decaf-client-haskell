@@ -24,9 +24,10 @@ dependencies:
 - deriving-aeson
 - exceptions
 - http-conduit
-- mtl
+- http-types
 - network-uri
 - text
+- unordered-containers
 - yaml
 
 library:
@@ -100,6 +101,19 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - hspec
+    - aeson
+    - base64-bytestring
+    - bytestring
+    - case-insensitive
+    - deriving-aeson
+    - exceptions
+    - http-conduit
+    - http-types
+    - network-uri
+    - text
+    - unordered-containers
+    - yaml
 
   decaf-client-doctest:
     main:                doctest.hs

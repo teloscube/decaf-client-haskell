@@ -19,16 +19,10 @@ import qualified Data.ByteString.Lazy   as BL
 import qualified Data.Text              as T
 import qualified Data.Vector            as V
 import           Decaf.Client
-                 ( DecafClient(decafClientMicrolot)
-                 , MicrolotQuery
-                 , MicrolotResponse(microlotResponseData)
-                 , Profile(profileName, profileRemote)
-                 , Response(responseValue)
-                 , mkClientFromProfile
-                 , mkMicrolotQuery
-                 , mkMicrolotQuery'
-                 , readProfiles
-                 , runMicrolot
+                 ( DecafProfile(decafProfileName, decafProfileRemote)
+                 , mkDecafClientFromProfile
+                 , readDecafProfiles
+                 , runDecafMicrolot
                  , throwIOException
                  )
 import           GHC.Stack              (HasCallStack)
@@ -53,13 +47,13 @@ runBatchMicrolot
   => MicrolotBatchRunConfig
   -> m ()
 runBatchMicrolot MicrolotBatchRunConfig{..} = do
-  allProfiles <- readProfiles microlotBatchRunConfigFile
+  allProfiles <- readDecafProfiles microlotBatchRunConfigFile
   let profiles = case microlotBatchRunConfigProfileName of
         Nothing -> allProfiles
-        Just sn -> filter (\x -> profileName x == sn) allProfiles
+        Just sn -> filter (\x -> decafProfileName x == sn) allProfiles
   results <- MP.mapM (runQueryForProfile microlotBatchRunConfigQuery microlotBatchRunConfigQueryParams) profiles
   let zipped = Aeson.Array . V.fromList
-          $ (\(x, y) -> Aeson.object ["name" .= profileName x, "remote" .= profileRemote x, "result" .= y])
+          $ (\(x, y) -> Aeson.object ["name" .= decafProfileName x, "remote" .= decafProfileRemote x, "result" .= y])
         <$> zip profiles results
   liftIO . BL.putStr $ Aeson.encode zipped
 
@@ -72,32 +66,15 @@ runQueryForProfile
   => MonadIO m
   => FilePath
   -> Maybe Aeson.Value
-  -> Profile
+  -> DecafProfile
   -> m Aeson.Value
 runQueryForProfile fp vars profile = do
-  query <- buildMicrolotQuery fp vars
-  let client = mkClientFromProfile profile
-  attempt query client `catch` handle
+  gql <- liftIO (readFile fp `catch` transformIOException)
+  let client = mkDecafClientFromProfile profile
+  attempt gql client `catch` handle
   where
-    attempt q c = microlotResponseData . responseValue <$> runMicrolot q (decafClientMicrolot c)
+    attempt q c = runDecafMicrolot q vars c
     handle = \(x :: SomeException) -> pure (Aeson.String (T.pack . show $ x))
 
-
--- | Attempts to build a 'MicrolotQuery' from the given GQL file path and
--- optional query variables.
-buildMicrolotQuery
-  :: HasCallStack
-  => MonadCatch m
-  => MonadThrow m
-  => MonadIO m
-  => FilePath
-  -> Maybe Aeson.Value
-  -> m (MicrolotQuery Aeson.Value)
-buildMicrolotQuery fp mVars = do
-  gql <- BC.unpack <$> liftIO (B.readFile fp `catch` transformIOException)
-  case mVars of
-    Nothing -> pure $ mkMicrolotQuery' gql
-    Just sv -> pure $ mkMicrolotQuery gql sv
-  where
     transformIOException :: MonadThrow m => IOException -> m a
     transformIOException exc = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) exc

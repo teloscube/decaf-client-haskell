@@ -52,14 +52,3 @@ nonEmptyString x = if x == "" then Nothing else Just x
 -- | Composes a list of functions.
 compose :: [a -> a] -> a -> a
 compose = foldl (flip (.)) id
-
-
--- | Applies a function to the first element of a list.
---
--- >>> applyFirst id [] :: [Int]
--- []
--- >>> applyFirst (1 +) [0, 2, 3] :: [Int]
--- [1,2,3]
-applyFirst :: (a -> a) -> [a] -> [a]
-applyFirst _ []     = []
-applyFirst f (x:xs) = f x : xs

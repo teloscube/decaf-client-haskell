@@ -28,20 +28,15 @@ source-repository head
 library
   exposed-modules:
       Decaf.Client
-      Decaf.Client.Internal.Apis.Barista
-      Decaf.Client.Internal.Apis.Microlot
-      Decaf.Client.Internal.Apis.Pdms
-      Decaf.Client.Internal.Client
-      Decaf.Client.Internal.Credentials
-      Decaf.Client.Internal.Error
-      Decaf.Client.Internal.Exception
+      Decaf.Client.DecafClient
+      Decaf.Client.DecafClientException
+      Decaf.Client.DecafCredentials
+      Decaf.Client.DecafProfile
+      Decaf.Client.DecafRemote
+      Decaf.Client.DecafRequest
+      Decaf.Client.DecafResponse
       Decaf.Client.Internal.Http
-      Decaf.Client.Internal.Profile
-      Decaf.Client.Internal.Remote
-      Decaf.Client.Internal.Request
-      Decaf.Client.Internal.Response
       Decaf.Client.Internal.Utils
-      Decaf.Client.Version
   other-modules:
       Paths_decaf_client
   hs-source-dirs:
@@ -94,9 +89,10 @@ library
     , deriving-aeson
     , exceptions
     , http-conduit
-    , mtl
+    , http-types
     , network-uri
     , text
+    , unordered-containers
     , yaml
   default-language: Haskell2010
 
@@ -118,8 +114,8 @@ executable decafcli
     , deriving-aeson
     , exceptions
     , http-conduit
+    , http-types
     , monad-parallel
-    , mtl
     , network-uri
     , optparse-applicative
     , text
@@ -147,9 +143,10 @@ test-suite decaf-client-doctest
     , doctest
     , exceptions
     , http-conduit
-    , mtl
+    , http-types
     , network-uri
     , text
+    , unordered-containers
     , yaml
   default-language: Haskell2010
 
@@ -157,6 +154,7 @@ test-suite decaf-client-test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Mocking
       Paths_decaf_client
   hs-source-dirs:
       test
@@ -170,9 +168,11 @@ test-suite decaf-client-test
     , decaf-client
     , deriving-aeson
     , exceptions
+    , hspec
     , http-conduit
-    , mtl
+    , http-types
     , network-uri
     , text
+    , unordered-containers
     , yaml
   default-language: Haskell2010

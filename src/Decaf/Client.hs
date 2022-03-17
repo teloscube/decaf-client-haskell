@@ -3,98 +3,44 @@
 module Decaf.Client
   ( -- * Client
 
-    DecafClient(..)
-  , mkDecafClient
-  , mkDecafClientE
-
-    -- * Barista Client
-
-  , BaristaClient
-  , mkBaristaClient
-  , mkBaristaClientM
-  , runBarista
-  , runBaristaBS
-
-    -- * Microlot Client
-
-  , MicrolotClient
-  , mkMicrolotClient
-  , mkMicrolotClientM
-  , runMicrolot
-  , mkMicrolotQuery
-  , mkMicrolotQuery'
-  , MicrolotQuery(..)
-  , MicrolotResponse(..)
-
-    -- * Pdms Client
-
-  , PdmsClient
-  , mkPdmsClient
-  , mkPdmsClientM
-  , runPdms
-  , mkPdmsQuery
-  , mkPdmsQuery'
-  , PdmsQuery(..)
-  , PdmsResponse(..)
+    module Decaf.Client.DecafClient
 
     -- * Remotes
 
-  , module Decaf.Client.Internal.Remote
+  , module Decaf.Client.DecafRemote
 
     -- * Requests
 
-  , module Decaf.Client.Internal.Request
+  , module Decaf.Client.DecafRequest
 
     -- * Responses
 
-  , module Decaf.Client.Internal.Response
+  , module Decaf.Client.DecafResponse
 
     -- * Credentials
 
-  , module Decaf.Client.Internal.Credentials
-
+  , module Decaf.Client.DecafCredentials
 
     -- * Profiles
 
-  , module Decaf.Client.Internal.Profile
-
-    -- * Errors
-
-  , module Decaf.Client.Internal.Error
+  , module Decaf.Client.DecafProfile
 
     -- * Exceptions
 
-  , module Decaf.Client.Internal.Exception
+  , module Decaf.Client.DecafClientException
+
+    -- * Low-Level Request Performers
+
+  , performDecafRequest
+  , performDecafRequestJson
 
   ) where
 
-
-import Decaf.Client.Internal.Apis.Barista  (BaristaClient, mkBaristaClient, mkBaristaClientM, runBarista, runBaristaBS)
-import Decaf.Client.Internal.Apis.Microlot
-       ( MicrolotClient
-       , MicrolotQuery(..)
-       , MicrolotResponse(..)
-       , mkMicrolotClient
-       , mkMicrolotClientM
-       , mkMicrolotQuery
-       , mkMicrolotQuery'
-       , runMicrolot
-       )
-import Decaf.Client.Internal.Apis.Pdms
-       ( PdmsClient
-       , PdmsQuery(..)
-       , PdmsResponse(..)
-       , mkPdmsClient
-       , mkPdmsClientM
-       , mkPdmsQuery
-       , mkPdmsQuery'
-       , runPdms
-       )
-import Decaf.Client.Internal.Client        (DecafClient(..), mkDecafClient, mkDecafClientE)
-import Decaf.Client.Internal.Credentials
-import Decaf.Client.Internal.Error
-import Decaf.Client.Internal.Exception
-import Decaf.Client.Internal.Profile
-import Decaf.Client.Internal.Remote
-import Decaf.Client.Internal.Request
-import Decaf.Client.Internal.Response
+import Decaf.Client.DecafClient
+import Decaf.Client.DecafClientException
+import Decaf.Client.DecafCredentials
+import Decaf.Client.DecafProfile
+import Decaf.Client.DecafRemote
+import Decaf.Client.DecafRequest
+import Decaf.Client.DecafResponse
+import Decaf.Client.Internal.Http        (performDecafRequest, performDecafRequestJson)
