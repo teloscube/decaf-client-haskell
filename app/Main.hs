@@ -1,21 +1,22 @@
 module Main where
 
-import           Data.Aeson                 (Value, (.:))
-import qualified Data.Aeson                 as Aeson
-import qualified Data.ByteString            as B
-import qualified Data.ByteString.Lazy       as BL
-import qualified Data.ByteString.Lazy.Char8 as BLC
-import           Data.Char                  (toLower)
-import qualified Data.HashMap.Strict        as HM
-import qualified Data.Text                  as T
-import           Data.Version               (showVersion)
-import qualified Decaf.Client               as DC
-import           GHC.Generics               (Generic)
-import           MicrolotBatchRunner        (MicrolotBatchRunConfig(MicrolotBatchRunConfig), runBatchMicrolot)
-import qualified Options.Applicative        as OA
-import           Paths_decaf_client         (version)
-import           System.Exit                (ExitCode, die, exitFailure, exitSuccess, exitWith)
-import           System.IO                  (hPutStrLn, stderr)
+import           Data.Aeson                           (Value, (.:))
+import qualified Data.Aeson                           as Aeson
+import qualified Data.ByteString                      as B
+import qualified Data.ByteString.Lazy                 as BL
+import qualified Data.ByteString.Lazy.Char8           as BLC
+import           Data.Char                            (toLower)
+import qualified Data.HashMap.Strict                  as HM
+import qualified Data.Text                            as T
+import           Data.Version                         (showVersion)
+import qualified Decaf.Client                         as DC
+import           Decaf.Client.Cli.SubCommands.Tui.Tui (runTui)
+import           GHC.Generics                         (Generic)
+import           MicrolotBatchRunner                  (MicrolotBatchRunConfig(MicrolotBatchRunConfig), runBatchMicrolot)
+import qualified Options.Applicative                  as OA
+import           Paths_decaf_client                   (version)
+import           System.Exit                          (ExitCode, die, exitFailure, exitSuccess, exitWith)
+import           System.IO                            (hPutStrLn, stderr)
 
 
 -- | Entrypoint of the CLI program.
@@ -25,20 +26,23 @@ main = exitWith =<< (cliProgram =<< OA.execParser cliProgramParserInfo)
 
 -- | CLI program.
 cliProgram :: Command -> IO ExitCode
+cliProgram (CommandTui config)      = runTui config >> exitSuccess
 cliProgram (CommandMicrolot config) = runBatchMicrolot config >> exitSuccess
 cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >> exitFailure
 
 
 -- | Commands registry
 data Command =
-    CommandMicrolot MicrolotBatchRunConfig
+    CommandTui FilePath
+  | CommandMicrolot MicrolotBatchRunConfig
   | CommandVersions FilePath
 
 
 -- | CLI arguments parser.
 parserProgramOptions :: OA.Parser Command
 parserProgramOptions = OA.hsubparser
-  (  OA.command "microlot" (OA.info (CommandMicrolot <$> microlotRunConfigParser) (OA.progDesc "Run DECAF Microlot query over profiles"))
+  (  OA.command "tui" (OA.info (CommandTui <$> profileFilePathParser) (OA.progDesc "Runs the TUI application"))
+  <> OA.command "microlot" (OA.info (CommandMicrolot <$> microlotRunConfigParser) (OA.progDesc "Run DECAF Microlot query over profiles"))
   <> OA.command "versions" (OA.info (CommandVersions <$> profileFilePathParser) (OA.progDesc "Get DECAF Barista versions for all profiles"))
   )
 

@@ -86,10 +86,13 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - aeson-combinators
+    - brick
     - monad-parallel
     - optparse-applicative
     - unordered-containers
     - vector
+    - vty
 
 tests:
   decaf-client-test:
