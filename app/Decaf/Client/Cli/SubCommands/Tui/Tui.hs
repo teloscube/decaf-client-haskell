@@ -96,12 +96,12 @@ handleEvent b _ = Brick.continue b
 
 attrMap :: Brick.AttrMap
 attrMap = Brick.attrMap Vty.defAttr
-    [ ("info",    Vty.blue `Brick.on` Vty.black)
-    , ("muted",   Vty.cyan  `Brick.on` Vty.black)
-    , ("success", Vty.green `Brick.on` Vty.black)
-    , ("warning", Vty.yellow `Brick.on` Vty.black)
-    , ("failure", Vty.red `Brick.on` Vty.black)
-    ]
+  [ ("info",    Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.black} )
+  , ("muted",   Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.cyan } )
+  , ("success", Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.green } )
+  , ("warning", Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.yellow } )
+  , ("failure", Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.red } )
+  ]
 
 
 -- * UI
@@ -120,6 +120,9 @@ mkFrame s = Border.hBorderWithLabel (Brick.txt " DECAF Client ")
 profilesTableWidget :: [TuiProfileInfo] -> Brick.Widget ()
 profilesTableWidget = Table.renderTable
   . Table.surroundingBorder True
+  . Table.setColAlignment Table.AlignRight 7
+  . Table.setColAlignment Table.AlignRight 8
+  . Table.setColAlignment Table.AlignRight 9
   . Table.table
   . (profilesTableHeader :)
   . fmap mkProfilesTableRow
