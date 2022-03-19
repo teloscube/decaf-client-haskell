@@ -82,6 +82,7 @@ library
   ghc-options: -Wall -Wunused-packages
   build-depends:
       aeson
+    , aeson-yaml
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring
@@ -100,6 +101,7 @@ executable decafcli
   main-is: Main.hs
   other-modules:
       Decaf.Client.Cli.SubCommands.Tui.Tui
+      ExampleProfiles
       MicrolotBatchRunner
       Paths_decaf_client
   hs-source-dirs:
@@ -108,6 +110,7 @@ executable decafcli
   build-depends:
       aeson
     , aeson-combinators
+    , aeson-yaml
     , base >=4.7 && <5
     , base64-bytestring
     , brick
@@ -138,6 +141,7 @@ test-suite decaf-client-doctest
   ghc-options: -threaded
   build-depends:
       aeson
+    , aeson-yaml
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring
@@ -165,6 +169,7 @@ test-suite decaf-client-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , aeson-yaml
     , base >=4.7 && <5
     , base64-bytestring
     , bytestring

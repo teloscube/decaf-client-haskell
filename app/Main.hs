@@ -11,6 +11,7 @@ import qualified Data.Text                            as T
 import           Data.Version                         (showVersion)
 import qualified Decaf.Client                         as DC
 import           Decaf.Client.Cli.SubCommands.Tui.Tui (runTui)
+import           ExampleProfiles                      (runExampleProfiles)
 import           GHC.Generics                         (Generic)
 import           MicrolotBatchRunner                  (MicrolotBatchRunConfig(MicrolotBatchRunConfig), runBatchMicrolot)
 import qualified Options.Applicative                  as OA
@@ -28,6 +29,7 @@ main = exitWith =<< (cliProgram =<< OA.execParser cliProgramParserInfo)
 cliProgram :: Command -> IO ExitCode
 cliProgram (CommandTui config)      = runTui config >> exitSuccess
 cliProgram (CommandMicrolot config) = runBatchMicrolot config >> exitSuccess
+cliProgram (CommandProfiles config) = runExampleProfiles config >> exitFailure
 cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >> exitFailure
 
 
@@ -35,6 +37,7 @@ cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >>
 data Command =
     CommandTui FilePath
   | CommandMicrolot MicrolotBatchRunConfig
+  | CommandProfiles FilePath
   | CommandVersions FilePath
 
 
@@ -43,6 +46,7 @@ parserProgramOptions :: OA.Parser Command
 parserProgramOptions = OA.hsubparser
   (  OA.command "tui" (OA.info (CommandTui <$> profileFilePathParser) (OA.progDesc "Runs the TUI application"))
   <> OA.command "microlot" (OA.info (CommandMicrolot <$> microlotRunConfigParser) (OA.progDesc "Run DECAF Microlot query over profiles"))
+  <> OA.command "example-profiles" (OA.info (CommandProfiles <$> profileFilePathParser) (OA.progDesc "Produce example yaml file for profiles"))
   <> OA.command "versions" (OA.info (CommandVersions <$> profileFilePathParser) (OA.progDesc "Get DECAF Barista versions for all profiles"))
   )
 
