@@ -44,4 +44,9 @@ getExampleProfiles =  [
     { decafProfileName = "example3"
     , decafProfileRemote = DecafRemote "example3.com" Nothing True
     , decafProfileCredentials = DecafCredentialsKey (DecafKeyCredentials "key" "secret")
+    },
+  DecafProfile
+    { decafProfileName = "example4"
+    , decafProfileRemote = DecafRemote "example4.com" Nothing True
+    , decafProfileCredentials = DecafCredentialsToken "authToken"
     }]
