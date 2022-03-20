@@ -23,9 +23,8 @@ import           GHC.Stack                     (HasCallStack)
 runExampleProfiles
   :: HasCallStack
   => MonadIO m
-  => FilePath
-  -> m ()
-runExampleProfiles _ = liftIO $ B.putStr (Yaml.encode getExampleProfiles)
+  => m ()
+runExampleProfiles = liftIO $ B.putStr (Yaml.encode getExampleProfiles)
 
 
 getExampleProfiles :: [DecafProfile]
