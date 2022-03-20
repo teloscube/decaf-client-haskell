@@ -29,7 +29,7 @@ main = exitWith =<< (cliProgram =<< OA.execParser cliProgramParserInfo)
 cliProgram :: Command -> IO ExitCode
 cliProgram (CommandTui config)      = runTui config >> exitSuccess
 cliProgram (CommandMicrolot config) = runBatchMicrolot config >> exitSuccess
-cliProgram (CommandProfiles config) = runExampleProfiles config >> exitFailure
+cliProgram (CommandProfiles config) = runExampleProfiles config >> exitSuccess
 cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >> exitFailure
 
 

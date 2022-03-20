@@ -5,8 +5,9 @@
 module ExampleProfiles where
 
 import           Control.Monad.IO.Class        (MonadIO(liftIO))
-import qualified Data.Aeson.Yaml               as Aeson.Yaml
+import qualified Data.ByteString               as B
 import qualified Data.Text                     as T
+import qualified Data.Yaml                     as Yaml
 import           Decaf.Client.DecafCredentials
                  ( DecafBasicCredentials(..)
                  , DecafCredentials(..)
@@ -24,7 +25,7 @@ runExampleProfiles
   => MonadIO m
   => FilePath
   -> m ()
-runExampleProfiles _ = liftIO $ print (Aeson.Yaml.encode getExampleProfiles)
+runExampleProfiles _ = liftIO $ B.putStr (Yaml.encode getExampleProfiles)
 
 
 getExampleProfiles :: [DecafProfile]
