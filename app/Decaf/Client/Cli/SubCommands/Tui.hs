@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Decaf.Client.Cli.SubCommands.Tui.Tui where
+module Decaf.Client.Cli.SubCommands.Tui where
 
 import           Brick                         ((<=>))
 import qualified Brick
