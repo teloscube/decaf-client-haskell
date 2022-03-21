@@ -71,8 +71,6 @@ runQueryForProfile fp vars profile = do
   let client = mkDecafClientFromProfile profile
   attempt gql client `catch` handle
   where
-    attempt q c = runDecafMicrolot q vars c
-    handle = \(x :: SomeException) -> pure (Aeson.String (T.pack . show $ x))
-
-    transformIOException :: MonadThrow m => IOException -> m a
-    transformIOException exc = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) exc
+    attempt q = runDecafMicrolot q vars
+    handle (x :: SomeException) = pure (Aeson.String (T.pack . show $ x))
+    transformIOException (x :: IOException) = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) x

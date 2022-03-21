@@ -199,7 +199,7 @@ getTuiProfileInfo profile = do
     }
   where
     portfolioCountQuery = "query {\n  portfolio_aggregate {\n    aggregate {\n      count\n    }\n  }\n}"
-    handleError = \(_ :: DC.DecafClientException) -> pure $ Left "ERR"  -- (T.pack (show s))
+    handleError (_ :: DC.DecafClientException) = pure $ Left "ERR"
 
 
 getCultproxyVersion :: DC.DecafClient -> IO (Either T.Text T.Text)

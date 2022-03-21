@@ -52,8 +52,7 @@ readDecafProfiles
   -> m [DecafProfile]
 readDecafProfiles fp = liftIO (B.readFile fp `catch` transformIOException) >>= parseDecafProfiles
   where
-    transformIOException :: MonadThrow m => IOException -> m a
-    transformIOException exc = throwIOException ("Cannot read profiles file: " <> T.pack fp) exc
+    transformIOException (x :: IOException) = throwIOException ("Cannot read profiles file: " <> T.pack fp) x
 
 
 -- | Attempts to parse and return profiles from given JSON contents.
