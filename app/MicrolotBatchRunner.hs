@@ -1,9 +1,7 @@
 -- | This module provides the runner for batch DECAF Microlot query for
 -- requested profiles.
 
-{-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE RecordWildCards     #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module MicrolotBatchRunner where
 

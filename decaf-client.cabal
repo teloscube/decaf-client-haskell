@@ -100,10 +100,14 @@ executable decafcli
   main-is: Main.hs
   other-modules:
       Decaf.Client.Cli.SubCommands.Tui.Tui
+      ExampleProfiles
       MicrolotBatchRunner
       Paths_decaf_client
   hs-source-dirs:
       app
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
