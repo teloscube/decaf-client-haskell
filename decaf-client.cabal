@@ -101,6 +101,8 @@ executable decafcli
   other-modules:
       Decaf.Client.Cli.SubCommands.ExampleProfiles
       Decaf.Client.Cli.SubCommands.Microlot
+      Decaf.Client.Cli.SubCommands.Serve
+      Decaf.Client.Cli.SubCommands.Serve.Serve
       Decaf.Client.Cli.SubCommands.Tui
       Paths_decaf_client
   hs-source-dirs:
@@ -114,9 +116,12 @@ executable decafcli
     , aeson-combinators
     , base >=4.7 && <5
     , base64-bytestring
+    , blaze-html
+    , blaze-markup
     , brick
     , bytestring
     , case-insensitive
+    , data-default-class
     , decaf-client
     , deriving-aeson
     , exceptions
@@ -125,10 +130,12 @@ executable decafcli
     , monad-parallel
     , network-uri
     , optparse-applicative
+    , scotty
     , text
     , unordered-containers
     , vector
     , vty
+    , warp
     , yaml
   default-language: Haskell2010
 

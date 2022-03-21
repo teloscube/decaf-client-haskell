@@ -87,12 +87,17 @@ executables:
     dependencies:
     - decaf-client
     - aeson-combinators
+    - blaze-html
+    - blaze-markup
     - brick
+    - data-default-class
     - monad-parallel
     - optparse-applicative
+    - scotty
     - unordered-containers
     - vector
     - vty
+    - warp
     default-extensions:
     - OverloadedStrings
     - ScopedTypeVariables

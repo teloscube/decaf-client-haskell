@@ -12,6 +12,7 @@ import           Data.Version                                 (showVersion)
 import qualified Decaf.Client                                 as DC
 import           Decaf.Client.Cli.SubCommands.ExampleProfiles (runExampleProfiles)
 import           Decaf.Client.Cli.SubCommands.Microlot        (MicrolotRunConfig(MicrolotRunConfig), runMicrolot)
+import           Decaf.Client.Cli.SubCommands.Serve           (ServeRunConfig(ServeRunConfig), runServe)
 import           Decaf.Client.Cli.SubCommands.Tui             (runTui)
 import           GHC.Generics                                 (Generic)
 import qualified Options.Applicative                          as OA
@@ -29,6 +30,7 @@ main = exitWith =<< (cliProgram =<< OA.execParser cliProgramParserInfo)
 cliProgram :: Command -> IO ExitCode
 cliProgram CommandProfiles          = runExampleProfiles >> exitSuccess
 cliProgram (CommandTui config)      = runTui config >> exitSuccess
+cliProgram (CommandServe config)    = runServe config >> exitSuccess
 cliProgram (CommandMicrolot config) = runMicrolot config >> exitSuccess
 cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >> exitFailure
 
@@ -37,6 +39,7 @@ cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >>
 data Command =
     CommandProfiles
   | CommandTui FilePath
+  | CommandServe ServeRunConfig
   | CommandMicrolot MicrolotRunConfig
   | CommandVersions FilePath
 
@@ -46,6 +49,7 @@ parserProgramOptions :: OA.Parser Command
 parserProgramOptions = OA.hsubparser
   (  OA.command "example-profiles" (OA.info (pure CommandProfiles) (OA.progDesc "Produce example yaml file for profiles"))
   <> OA.command "tui" (OA.info (CommandTui <$> profileFilePathParser) (OA.progDesc "Runs the TUI application"))
+  <> OA.command "serve" (OA.info (CommandServe <$> serveRunConfigParser) (OA.progDesc "Runs the server application"))
   <> OA.command "microlot" (OA.info (CommandMicrolot <$> microlotRunConfigParser) (OA.progDesc "Run DECAF Microlot query over profiles"))
   <> OA.command "versions" (OA.info (CommandVersions <$> profileFilePathParser) (OA.progDesc "Get DECAF Barista versions for all profiles"))
   )
@@ -73,6 +77,12 @@ microlotRunConfigParser = MicrolotRunConfig
   <*> OA.optional profileNameParser
   <*> OA.strOption (OA.long "query" <> OA.metavar "QUERY" <> OA.help "Microlot GraphQL query")
   <*> OA.optional (queryParametersOption (OA.long "params" <> OA.metavar "PARAM" <> OA.help "Microlot GraphQL query parameters"))
+
+
+serveRunConfigParser :: OA.Parser ServeRunConfig
+serveRunConfigParser = ServeRunConfig
+  <$> profileFilePathParser
+  <*> OA.option OA.auto (OA.long "port" <> OA.metavar "PORT" <> OA.value 2888 <> OA.help "Port to run server on")
 
 
 profileFilePathParser :: OA.Parser FilePath
