@@ -93,6 +93,9 @@ executables:
     - unordered-containers
     - vector
     - vty
+    default-extensions:
+    - OverloadedStrings
+    - ScopedTypeVariables
 
 tests:
   decaf-client-test:

@@ -25,7 +25,10 @@
 
 - extensions:
   - default: false # All extension are banned by default
-  - name: [] # Only these listed extensions can be used
+  - name: # Only these listed extensions can be used
+    - DataKinds
+    - DerivingVia
+    - RecordWildCards
 
 ################
 # CUSTOM RULES #

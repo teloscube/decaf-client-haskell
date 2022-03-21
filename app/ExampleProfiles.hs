@@ -1,7 +1,3 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DerivingVia       #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module ExampleProfiles where
 
 import           Control.Monad.IO.Class        (MonadIO(liftIO))
