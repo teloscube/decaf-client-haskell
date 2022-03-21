@@ -3,7 +3,7 @@
 
 {-# LANGUAGE RecordWildCards #-}
 
-module MicrolotBatchRunner where
+module Decaf.Client.Cli.SubCommands.Microlot where
 
 import           Control.Exception      (IOException, SomeException)
 import           Control.Monad.Catch    (MonadCatch(catch), MonadThrow)
@@ -27,29 +27,29 @@ import           GHC.Stack              (HasCallStack)
 
 
 -- | Data definition for DECAF Microlot batch run configuration.
-data MicrolotBatchRunConfig = MicrolotBatchRunConfig
-  { microlotBatchRunConfigFile        :: !FilePath
-  , microlotBatchRunConfigProfileName :: !(Maybe T.Text)
-  , microlotBatchRunConfigQuery       :: !FilePath
-  , microlotBatchRunConfigQueryParams :: !(Maybe Aeson.Value)
+data MicrolotRunConfig = MicrolotRunConfig
+  { microlotRunConfigFile        :: !FilePath
+  , microlotRunConfigProfileName :: !(Maybe T.Text)
+  , microlotRunConfigQuery       :: !FilePath
+  , microlotRunConfigQueryParams :: !(Maybe Aeson.Value)
   }
 
 
 -- | Attempts to run the config.
-runBatchMicrolot
+runMicrolot
   :: HasCallStack
   => MP.MonadParallel m
   => MonadCatch m
   => MonadThrow m
   => MonadIO m
-  => MicrolotBatchRunConfig
+  => MicrolotRunConfig
   -> m ()
-runBatchMicrolot MicrolotBatchRunConfig{..} = do
-  allProfiles <- readDecafProfiles microlotBatchRunConfigFile
-  let profiles = case microlotBatchRunConfigProfileName of
+runMicrolot MicrolotRunConfig{..} = do
+  allProfiles <- readDecafProfiles microlotRunConfigFile
+  let profiles = case microlotRunConfigProfileName of
         Nothing -> allProfiles
         Just sn -> filter (\x -> decafProfileName x == sn) allProfiles
-  results <- MP.mapM (runQueryForProfile microlotBatchRunConfigQuery microlotBatchRunConfigQueryParams) profiles
+  results <- MP.mapM (runQueryForProfile microlotRunConfigQuery microlotRunConfigQueryParams) profiles
   let zipped = Aeson.Array . V.fromList
           $ (\(x, y) -> Aeson.object ["name" .= decafProfileName x, "remote" .= decafProfileRemote x, "result" .= y])
         <$> zip profiles results
@@ -71,8 +71,6 @@ runQueryForProfile fp vars profile = do
   let client = mkDecafClientFromProfile profile
   attempt gql client `catch` handle
   where
-    attempt q c = runDecafMicrolot q vars c
-    handle = \(x :: SomeException) -> pure (Aeson.String (T.pack . show $ x))
-
-    transformIOException :: MonadThrow m => IOException -> m a
-    transformIOException exc = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) exc
+    attempt q = runDecafMicrolot q vars
+    handle (x :: SomeException) = pure (Aeson.String (T.pack . show $ x))
+    transformIOException (x :: IOException) = throwIOException (T.pack $ "Cannot read GraphQL query file: " <> fp) x

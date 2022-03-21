@@ -99,9 +99,9 @@ library
 executable decafcli
   main-is: Main.hs
   other-modules:
-      Decaf.Client.Cli.SubCommands.Tui.Tui
-      ExampleProfiles
-      MicrolotBatchRunner
+      Decaf.Client.Cli.SubCommands.ExampleProfiles
+      Decaf.Client.Cli.SubCommands.Microlot
+      Decaf.Client.Cli.SubCommands.Tui
       Paths_decaf_client
   hs-source-dirs:
       app

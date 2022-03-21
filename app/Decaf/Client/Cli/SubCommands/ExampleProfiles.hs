@@ -1,4 +1,4 @@
-module ExampleProfiles where
+module Decaf.Client.Cli.SubCommands.ExampleProfiles where
 
 import           Control.Monad.IO.Class        (MonadIO(liftIO))
 import qualified Data.ByteString               as B
