@@ -3,10 +3,12 @@
 module Decaf.Client.Cli.SubCommands.Serve.Serve where
 
 import           Data.Default.Class            (def)
+import qualified Data.List                     as DL
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
 import           Data.Version                  (showVersion)
 import qualified Decaf.Client                  as DC
+import qualified Network.HTTP.Types.Status     as Http
 import qualified Network.Wai.Handler.Warp      as Warp
 import           Paths_decaf_client            (version)
 import qualified Text.Blaze                    as BM
@@ -32,6 +34,12 @@ runServe ServeRunConfig{..} = do
   Web.scottyOpts scottyOpts $ do
     Web.get "/" . blazeHtml $ viewIndex allProfiles
     Web.get "/about" . blazeHtml $ viewAbout
+    Web.get "/:profileName" $ do
+      profileName <- Web.param "profileName"
+      let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
+      case mProfile of
+        Nothing -> Web.status Http.status404
+        Just p  -> blazeHtml $ viewProfileDetails p
   where
     scottyOpts = def
       { Web.settings =
@@ -52,18 +60,49 @@ viewIndex dps = BH5.table $ do
     mapM_ toRow dps
   where
     toRow dp = BH5.tr $ do
-      BH5.td . BH.toHtml $ DC.decafProfileName dp
+      BH5.td $ do
+         BH5.a (BH.toHtml (DC.decafProfileName dp))
+          ! BH5.Attributes.href (BM.toValue (DC.decafProfileName dp))
       BH5.td $ do
         let url = DC.remoteToUrl (DC.decafProfileRemote dp)
         BH5.a (BH.toHtml url)
           ! BH5.Attributes.href (BM.toValue url)
           ! BH5.Attributes.target "_blank"
-      BH5.td . BH.toHtml $ case DC.decafProfileCredentials dp of
-         DC.DecafCredentialsHeader _ -> ("HEADER" :: T.Text)
-         DC.DecafCredentialsBasic _  -> "BASIC"
-         DC.DecafCredentialsKey _    -> "KEY"
-         DC.DecafCredentialsToken _  -> "TOKEN"
+      BH5.td $ viewCredentials (DC.decafProfileCredentials dp)
 
+
+viewCredentials :: DC.DecafCredentials -> BH.Html
+viewCredentials cred = BH.toHtml $ case cred of
+  DC.DecafCredentialsHeader _ -> ("HEADER" :: T.Text)
+  DC.DecafCredentialsBasic _  -> "BASIC"
+  DC.DecafCredentialsKey _    -> "KEY"
+  DC.DecafCredentialsToken _  -> "TOKEN"
+
+
+viewProfileDetails :: DC.DecafProfile -> BH.Html
+viewProfileDetails dp@DC.DecafProfile{..} = BH5.ul $ do
+  BH5.li $ "Profile Name: " <> BH.toHtml decafProfileName
+  BH5.li $ "Profile Remote: " <>
+    BH5.a (BH.toHtml url)
+      ! BH5.Attributes.href (BM.toValue url)
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Profile Credentials Type: " <> viewCredentials decafProfileCredentials
+  BH5.li $ "Barista API URL: " <> BH5.a (BH.toHtml (url <> "/api"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/api"))
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Microlot GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/microlot/v1/graphql"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/apis/microlot/v1/graphql"))
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Module PDMS GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/modules/pdms/v1/graphql"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/apis/modules/pdms/v1/graphql"))
+      ! BH5.Attributes.target "_blank"
+  where
+    url = DC.remoteToUrl decafProfileRemote
+
+
+-------------
+-- HELPERS --
+-------------
 
 viewAbout :: BH.Html
 viewAbout = BH5.p ("DECAF Client Application v" <> BH.toHtml (showVersion version))
