@@ -34,6 +34,18 @@ runServe ServeRunConfig{..} = do
   Web.scottyOpts scottyOpts $ do
     Web.get "/" . blazeHtml $ viewIndex allProfiles
     Web.get "/about" . blazeHtml $ viewAbout
+    Web.get "/profiles/:profileName/graphiql/microlot" $ do
+      profileName <- Web.param "profileName"
+      let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
+      case mProfile of
+        Nothing -> Web.status Http.status404
+        Just p  -> graphiqlMicrolot p
+    Web.get "/profiles/:profileName/graphiql/module-pdms" $ do
+      profileName <- Web.param "profileName"
+      let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
+      case mProfile of
+        Nothing -> Web.status Http.status404
+        Just p  -> graphiqlModulePdms p
     Web.get "/:profileName" $ do
       profileName <- Web.param "profileName"
       let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
@@ -71,6 +83,14 @@ viewIndex dps = BH5.table $ do
       BH5.td $ viewCredentials (DC.decafProfileCredentials dp)
 
 
+credentialsToHeader :: DC.DecafCredentials -> T.Text
+credentialsToHeader cred = case cred of
+  DC.DecafCredentialsHeader _    -> undefined
+  DC.DecafCredentialsBasic _     -> undefined
+  DC.DecafCredentialsKey _       -> undefined
+  DC.DecafCredentialsToken token -> "'Authorization': 'TOKEN " <> token <> "'"
+
+
 viewCredentials :: DC.DecafCredentials -> BH.Html
 viewCredentials cred = BH.toHtml $ case cred of
   DC.DecafCredentialsHeader _ -> ("HEADER" :: T.Text)
@@ -91,7 +111,7 @@ viewProfileDetails dp@DC.DecafProfile{..} = BH5.ul $ do
       ! BH5.Attributes.href (BM.toValue (url <> "/api"))
       ! BH5.Attributes.target "_blank"
   BH5.li $ "Microlot GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/microlot/v1/graphql"))
-      ! BH5.Attributes.href (BM.toValue (url <> "/apis/microlot/v1/graphql"))
+      ! BH5.Attributes.href (BM.toValue ("/profiles/" <> decafProfileName <> "/graphiql/microlot"))
       ! BH5.Attributes.target "_blank"
   BH5.li $ "Module PDMS GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/modules/pdms/v1/graphql"))
       ! BH5.Attributes.href (BM.toValue (url <> "/apis/modules/pdms/v1/graphql"))
@@ -100,13 +120,25 @@ viewProfileDetails dp@DC.DecafProfile{..} = BH5.ul $ do
     url = DC.remoteToUrl decafProfileRemote
 
 
--------------
--- HELPERS --
--------------
+graphiqlMicrolot :: DC.DecafProfile -> Web.ActionM ()
+graphiqlMicrolot p = graphiqlHtml (url <> "/apis/microlot/v1/graphql") (credentialsToHeader (DC.decafProfileCredentials p))
+  where
+    url = DC.remoteToUrl (DC.decafProfileRemote p)
+
+
+graphiqlModulePdms :: DC.DecafProfile -> Web.ActionM ()
+graphiqlModulePdms p = graphiqlHtml (url <> "/apis/modules/pdms/v1/graphql") (credentialsToHeader (DC.decafProfileCredentials p))
+  where
+    url = DC.remoteToUrl (DC.decafProfileRemote p)
+
 
 viewAbout :: BH.Html
 viewAbout = BH5.p ("DECAF Client Application v" <> BH.toHtml (showVersion version))
 
+
+-------------
+-- HELPERS --
+-------------
 
 blazeHtml :: BH.Html -> Web.ActionM ()
 blazeHtml main = Web.html . BH.Text.renderHtml $ do
@@ -129,3 +161,50 @@ blazeHtml main = Web.html . BH.Text.renderHtml $ do
             BH5.a "About " ! BH5.Attributes.href "/about"
       BH5.div ! BH5.Attributes.class_ "container-fluid" $ do
         main
+
+
+graphiqlHtml :: T.Text -> T.Text ->  Web.ActionM ()
+graphiqlHtml graphqlUrl authHeader = Web.html . BH.Text.renderHtml $ do
+  BH5.docType
+  BH5.html $ do
+    BH5.head $ do
+      BH5.style $ BH5.toHtml ("body { height: 100%; margin: 0; width: 100%; overflow: hidden; } #graphiql { height: 100vh; }" :: T.Text)
+      BH5.script ! BH5.Attributes.src "https://unpkg.com/react@16/umd/react.development.js" $ pure ()
+      BH5.script ! BH5.Attributes.src "https://unpkg.com/react-dom@16/umd/react-dom.development.js" $ pure ()
+      BH5.link
+        ! BH5.Attributes.rel "stylesheet"
+        ! BH5.Attributes.href "https://unpkg.com/graphiql/graphiql.min.css"
+    BH5.body $ do
+      BH5.div ! BH5.Attributes.id "graphiql" $ BH5.html "Loading..."
+      BH5.script
+        ! BH5.Attributes.src "https://unpkg.com/graphiql/graphiql.min.js"
+        ! BH5.Attributes.type_ "application/javascript" $ pure ()
+      -- <script src="/renderExample.js" type="application/javascript"></script>
+      BH5.script $ BH5.toHtml (a <> graphqlUrl <> b <> authHeader <> c :: T.Text)
+  where
+    a = "function graphQLFetcher(graphQLParams) {  \
+\        return fetch('"
+    b = "', \
+\          { \
+\            method: 'post', \
+\            headers: { \
+\              Accept: 'application/json', \
+\              'Content-Type': 'application/json',"
+    c = ", \
+\            }, \
+\            body: JSON.stringify(graphQLParams), \
+\            credentials: 'omit', \
+\          }, \
+\        ).then(function (response) { \
+\          return response.json().catch(function () { \
+\            return response.text(); \
+\          }); \
+\        }); \
+\      } \
+\      ReactDOM.render( \
+\        React.createElement(GraphiQL, { \
+\          fetcher: graphQLFetcher, \
+\          defaultVariableEditorOpen: true, \
+\        }), \
+\        document.getElementById('graphiql'), \
+\      );"
