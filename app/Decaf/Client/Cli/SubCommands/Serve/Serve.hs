@@ -117,7 +117,7 @@ viewProfileDetails dp@DC.DecafProfile{..} = BH5.ul $ do
       ! BH5.Attributes.href (BM.toValue ("/profiles/" <> decafProfileName <> "/graphiql/microlot"))
       ! BH5.Attributes.target "_blank"
   BH5.li $ "Module PDMS GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/modules/pdms/v1/graphql"))
-      ! BH5.Attributes.href (BM.toValue (url <> "/apis/modules/pdms/v1/graphql"))
+      ! BH5.Attributes.href (BM.toValue ("/profiles/" <> decafProfileName <> "/graphiql/module-pdms"))
       ! BH5.Attributes.target "_blank"
   where
     url = DC.remoteToUrl decafProfileRemote
