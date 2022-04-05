@@ -88,9 +88,9 @@ viewIndex dps = BH5.table $ do
 
 credentialsToHeader :: DC.DecafCredentials -> T.Text
 credentialsToHeader cred = case cred of
-  DC.DecafCredentialsHeader _    -> undefined
-  DC.DecafCredentialsBasic _     -> undefined
-  DC.DecafCredentialsKey _       -> undefined
+  DC.DecafCredentialsHeader header    -> "'Authorization': '" <> header <> "'"
+  DC.DecafCredentialsBasic (DC.DecafBasicCredentials username password) -> "'Authorization': 'BASIC ' + btoa('" <> username <> ":" <> password <> "')"
+  DC.DecafCredentialsKey (DC.DecafKeyCredentials key secret) -> "'Authorization': 'KEY " <> key <> ":" <> secret <> "'"
   DC.DecafCredentialsToken token -> "'Authorization': 'TOKEN " <> token <> "'"
 
 
