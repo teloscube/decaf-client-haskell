@@ -131,6 +131,7 @@ executable decafcli
     , network-uri
     , optparse-applicative
     , scotty
+    , string-interpolate
     , text
     , unordered-containers
     , vector

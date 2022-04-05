@@ -94,6 +94,7 @@ executables:
     - monad-parallel
     - optparse-applicative
     - scotty
+    - string-interpolate
     - unordered-containers
     - vector
     - vty

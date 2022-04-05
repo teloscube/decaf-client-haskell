@@ -1,9 +1,12 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE QuasiQuotes      #-}
+{-# LANGUAGE RecordWildCards  #-}
 
 module Decaf.Client.Cli.SubCommands.Serve.Serve where
 
 import           Data.Default.Class            (def)
 import qualified Data.List                     as DL
+import           Data.String.Interpolate       (i)
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
 import           Data.Version                  (showVersion)
@@ -180,31 +183,34 @@ graphiqlHtml graphqlUrl authHeader = Web.html . BH.Text.renderHtml $ do
         ! BH5.Attributes.src "https://unpkg.com/graphiql/graphiql.min.js"
         ! BH5.Attributes.type_ "application/javascript" $ pure ()
       -- <script src="/renderExample.js" type="application/javascript"></script>
-      BH5.script $ BH5.toHtml (a <> graphqlUrl <> b <> authHeader <> c :: T.Text)
-  where
-    a = "function graphQLFetcher(graphQLParams) {  \
-\        return fetch('"
-    b = "', \
-\          { \
-\            method: 'post', \
-\            headers: { \
-\              Accept: 'application/json', \
-\              'Content-Type': 'application/json',"
-    c = ", \
-\            }, \
-\            body: JSON.stringify(graphQLParams), \
-\            credentials: 'omit', \
-\          }, \
-\        ).then(function (response) { \
-\          return response.json().catch(function () { \
-\            return response.text(); \
-\          }); \
-\        }); \
-\      } \
-\      ReactDOM.render( \
-\        React.createElement(GraphiQL, { \
-\          fetcher: graphQLFetcher, \
-\          defaultVariableEditorOpen: true, \
-\        }), \
-\        document.getElementById('graphiql'), \
-\      );"
+      BH5.script . BH5.toHtml $ generateScriptBody graphqlUrl authHeader
+
+
+generateScriptBody :: T.Text -> T.Text -> T.Text
+generateScriptBody graphqlUrl authHeader = [i| function graphQLFetcher(graphQLParams) {
+        return fetch(
+          '#{graphqlUrl}',
+          {
+            method: 'post',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              #{authHeader},
+            },
+            body: JSON.stringify(graphQLParams),
+            credentials: 'omit',
+          },
+        ).then(function (response) {
+          return response.json().catch(function () {
+            return response.text();
+          });
+        });
+      }
+
+      ReactDOM.render(
+        React.createElement(GraphiQL, {
+          fetcher: graphQLFetcher,
+          defaultVariableEditorOpen: true,
+        }),
+        document.getElementById('graphiql'),
+      );|] :: T.Text
