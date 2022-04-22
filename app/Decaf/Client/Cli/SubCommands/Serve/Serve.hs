@@ -113,11 +113,23 @@ viewProfileDetails dp@DC.DecafProfile{..} = BH5.ul $ do
   BH5.li $ "Barista API URL: " <> BH5.a (BH.toHtml (url <> "/api"))
       ! BH5.Attributes.href (BM.toValue (url <> "/api"))
       ! BH5.Attributes.target "_blank"
-  BH5.li $ "Microlot GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/microlot/v1/graphql"))
+  BH5.li $ "Microlot GraphQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/microlot/v1/graphql"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/apis/microlot/v1/graphql"))
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Microlot GraphiQL: " <> BH5.a (BH.toHtml ("/profiles/" <> decafProfileName <> "/graphiql/microlot"))
       ! BH5.Attributes.href (BM.toValue ("/profiles/" <> decafProfileName <> "/graphiql/microlot"))
       ! BH5.Attributes.target "_blank"
-  BH5.li $ "Module PDMS GraphiQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/modules/pdms/v1/graphql"))
-      ! BH5.Attributes.href (BM.toValue ("/profiles/" <> decafProfileName <> "/graphiql/module-pdms"))
+  BH5.li $ "Microlot Console: " <> BH5.a (BH.toHtml (url <> "/apis/microlot/console"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/apis/microlot/console"))
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Module PDMS GraphQL URL: " <> BH5.a (BH.toHtml (url <> "/apis/modules/pdms/v1/graphql"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/apis/modules/pdms/v1/graphql"))
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Module PDMS GraphiQL: " <> BH5.a (BH.toHtml ("/profiles/" <> decafProfileName <> "/graphiql/modules/pdms"))
+      ! BH5.Attributes.href (BM.toValue ("/profiles/" <> decafProfileName <> "/graphiql/modules/pdms"))
+      ! BH5.Attributes.target "_blank"
+  BH5.li $ "Module PDMS Console: " <> BH5.a (BH.toHtml (url <> "/apis/modules/pdms/console"))
+      ! BH5.Attributes.href (BM.toValue (url <> "/apis/modules/pdms/console"))
       ! BH5.Attributes.target "_blank"
   where
     url = DC.remoteToUrl decafProfileRemote
