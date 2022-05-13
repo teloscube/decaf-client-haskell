@@ -3,3 +3,6 @@ ghc-options:
   "$locals": -fwrite-ide-info
 packages:
 - .
+nix:
+  enable: true
+  shell-file: shell.nix
