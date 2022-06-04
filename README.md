@@ -1,7 +1,7 @@
 # DECAF API Client Suite For Haskell
 
-A Haskell client library to DECAF API and an application demonstrating
-library usage and providing some utilities.
+A Haskell client library to DECAF API and a small application demonstrating
+library usage and providing some utilities useful working with DECAF instances.
 
 > **TODO:** Provide full README.
 
@@ -11,6 +11,24 @@ library usage and providing some utilities.
 
 ```sh
 stack install
+```
+
+If you are using Nix, build:
+
+```sh
+nix-build -A decaf-client.components.exes.decafcli
+```
+
+... or install from within the codebase:
+
+```sh
+nix-env -f default.nix -iA decaf-client.components.exes.decafcli
+```
+
+... or install directly from GitHub:
+
+```sh
+nix-env -f https://github.com/teloscube/decaf-client-haskell/archive/main.tar.gz -iA decaf-client.components.exes.decafcli
 ```
 
 ### Shell Completion
@@ -54,6 +72,38 @@ Dump FX rates for a given FX pair:
 
 ```sh
 decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/fxrates.gql --params '{"pair": "EURUSD"}'
+```
+
+## Development
+
+Enter the Nix shell and run all the commands below inside the Nix shell:
+
+```sh
+nix-shell
+```
+
+Build:
+
+```sh
+stack build
+```
+
+Open VSCode if you wish to do so:
+
+```sh
+code .
+```
+
+Run hlint:
+
+```sh
+hlint app/ src/
+```
+
+Format codebase:
+
+```sh
+stylish-haskell -ir app/ src/
 ```
 
 ## License
