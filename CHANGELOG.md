@@ -1,16 +1,64 @@
 # CHANGELOG
 
 
+<a name="0.0.0.4"></a>
+## [0.0.0.4](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.3...0.0.0.4) (2022-06-04)
+
+### Chore
+
+* make the command work without an option
+* revisit DecafRemote constructor signature, fix tests
+* add profiles.yaml.tmpl file as a reference
+* upgrade to lts-18.28
+* depend on yaml instead of Aeson-yaml. Exit with exitSuccess instead of exitFailure
+* use string interpolation to generate script body
+* fix hlint warnings
+* add example for Token Authentication
+* fix hlint warnings
+* bump development version to 0.0.0.4
+* **build:** nixify
+* **cli:** add header, basic and key authorization headers
+* **cli:** separate graphq url from graphiql. Add console url.
+* **dev:** adopt haskell.nix
+* **docs:** update README
+* **test:** start mock tests using httpbin
+
+### Feat
+
+* add graphiql for microlot and module-pdms using key authentication
+* implement profile details page
+* add Web application that lists profiles on homepage
+* implement example-profiles sub-command
+* start TUI application
+* finish major refactoring for new API (with MonadThrow)
+* add request combinator indicating checking of response codes
+
+### Fix
+
+* **cli:** fix module-pdms graphiql url
+
+### Refactor
+
+* revisit main app module layout
+* reformat table, finish TUI application
+* start major refactoring for new API (with MonadThrow)
+* rename exception module
+* revisit DecafCredentials module
+* revisit DecafProfile module
+* revisit DecafRemote module
+* revisit DecafRequest and DecafResponse modules
+
+
 <a name="0.0.0.3"></a>
 ## [0.0.0.3](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.2...0.0.0.3) (2022-03-16)
 
 ### Chore
 
-* rename ChangeLog.md to CHANGELOG.md
-* bump development version to 0.0.0.3
-* remove example application from build configuration
 * improve Profile module definitions
+* bump development version to 0.0.0.3
 * update copyright notice and LICENSE text
+* remove example application from build configuration
+* rename ChangeLog.md to CHANGELOG.md
 * **build:** do not use -Werror, use -Wunused-packages, revisit deps
 * **deps:** upgrade to lts-18.27
 * **dev:** revisit default language extensions list
@@ -19,6 +67,7 @@
 * **dev:** add .editorconfig
 * **dev:** write IDE info when compiling
 * **docs:** fix Haddock warnings
+* **release:** 0.0.0.3
 * **test:** fix doctests
 * **test:** fix doctest location
 
