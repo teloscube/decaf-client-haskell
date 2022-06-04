@@ -1,37 +1,109 @@
 # DECAF API Client Suite For Haskell
 
+A Haskell client library to DECAF API and a small application demonstrating
+library usage and providing some utilities useful working with DECAF instances.
+
 > **TODO:** Provide full README.
 
 ## Command-line Application
 
+### Installation
+
+```sh
+stack install
+```
+
+If you are using Nix, build:
+
+```sh
+nix-build -A decaf-client.components.exes.decafcli
+```
+
+... or install from within the codebase:
+
+```sh
+nix-env -f default.nix -iA decaf-client.components.exes.decafcli
+```
+
+... or install directly from GitHub:
+
+```sh
+nix-env -f https://github.com/teloscube/decaf-client-haskell/archive/main.tar.gz -iA decaf-client.components.exes.decafcli
+```
+
+### Shell Completion
+
+Add to your shell init script:
+
+```sh
+source <(decafcli --bash-completion-script `which decafcli`)
+```
+
 ### Usage
 
-```
-$ decafcli microlot --help
-Usage: decafcli microlot --config CONFIG --profile PROFILE --query QUERY
-                         [--param PARAM]
-  Run Barista
+```console
+$ decafcli --help
+decafcli - DECAF Command-line Client Application
+
+Usage: decafcli [--version] COMMAND
+  DECAF Client
 
 Available options:
-  --config CONFIG          Path to generic DECAF configuration file
-  --profile PROFILE        Profile name
-  --query QUERY            Microlot GraphQL query
-  --param PARAM            Microlot GraphQL query parameters
   -h,--help                Show this help text
+  --version                Show version
+
+Available commands:
+  example-profiles         Produce example yaml file for profiles
+  tui                      Runs the TUI application
+  microlot                 Run DECAF Microlot query over profiles
+  versions                 Get DECAF Barista versions for all profiles
+
 ```
 
 ### Examples
 
 Dump user ids and usernames:
 
-```
-decafcli microlot --config ~/.decaf.json --profile telosinvest --query examples/microlot/queries/principals.gql
+```sh
+decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/principals.gql
 ```
 
 Dump FX rates for a given FX pair:
 
+```sh
+decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/fxrates.gql --params '{"pair": "EURUSD"}'
 ```
-decafcli microlot --config ~/.decaf.json --profile telosinvest --query examples/microlot/queries/fxrates.gql --params '{"pair": "EURUSD"}'
+
+## Development
+
+Enter the Nix shell and run all the commands below inside the Nix shell:
+
+```sh
+nix-shell
+```
+
+Build:
+
+```sh
+stack build
+```
+
+Open VSCode if you wish to do so:
+
+```sh
+code .
+```
+
+Run hlint:
+
+```sh
+hlint app/ src/
+```
+
+Format codebase:
+
+```sh
+stylish-haskell -ir app/ src/
 ```
 
 ## License

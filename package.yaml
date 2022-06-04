@@ -1,5 +1,5 @@
 name:                decaf-client
-version:             0.0.0.3
+version:             0.0.0.4
 github:              "teloscube/decaf-client-haskell"
 license:             BSD3
 author:              "Vehbi Sinan Tunalioglu"
@@ -24,9 +24,10 @@ dependencies:
 - deriving-aeson
 - exceptions
 - http-conduit
-- mtl
+- http-types
 - network-uri
 - text
+- unordered-containers
 - yaml
 
 library:
@@ -85,10 +86,22 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - aeson-combinators
+    - blaze-html
+    - blaze-markup
+    - brick
+    - data-default-class
     - monad-parallel
     - optparse-applicative
+    - scotty
+    - string-interpolate
     - unordered-containers
     - vector
+    - vty
+    - warp
+    default-extensions:
+    - OverloadedStrings
+    - ScopedTypeVariables
 
 tests:
   decaf-client-test:
@@ -100,6 +113,19 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - decaf-client
+    - hspec
+    - aeson
+    - base64-bytestring
+    - bytestring
+    - case-insensitive
+    - deriving-aeson
+    - exceptions
+    - http-conduit
+    - http-types
+    - network-uri
+    - text
+    - unordered-containers
+    - yaml
 
   decaf-client-doctest:
     main:                doctest.hs
