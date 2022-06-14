@@ -1,11 +1,1 @@
-resolver: lts-18.28
-
-ghc-options:
-  "$locals": -fwrite-ide-info
-
-packages:
-- .
-
-nix:
-  enable: true
-  packages: [zlib]
+stack-19.11.yaml
