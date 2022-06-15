@@ -86,7 +86,6 @@ library
     , base64-bytestring
     , bytestring
     , case-insensitive
-    , deriving-aeson
     , exceptions
     , http-conduit
     , http-types
@@ -123,7 +122,6 @@ executable decafcli
     , case-insensitive
     , data-default-class
     , decaf-client
-    , deriving-aeson
     , exceptions
     , http-conduit
     , http-types
@@ -155,7 +153,6 @@ test-suite decaf-client-doctest
     , bytestring
     , case-insensitive
     , decaf-client
-    , deriving-aeson
     , doctest
     , exceptions
     , http-conduit
@@ -182,7 +179,6 @@ test-suite decaf-client-test
     , bytestring
     , case-insensitive
     , decaf-client
-    , deriving-aeson
     , exceptions
     , hspec
     , http-conduit

@@ -11,7 +11,6 @@ import           Decaf.Client.DecafCredentials
                  )
 import           Decaf.Client.DecafProfile     (DecafProfile(..))
 import           Decaf.Client.DecafRemote      (DecafRemote(..))
-import           Deriving.Aeson.Stock          (CustomJSON(CustomJSON), PrefixedSnake, ToJSON)
 import           GHC.Generics                  (Generic)
 import           GHC.Stack                     (HasCallStack)
 

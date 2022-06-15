@@ -8,6 +8,7 @@ module Decaf.Client.DecafProfile where
 import           Control.Exception                 (IOException, catch)
 import           Control.Monad.Catch               (MonadCatch, MonadThrow)
 import           Control.Monad.IO.Class            (MonadIO(liftIO))
+import qualified Data.Aeson                        as Aeson
 import qualified Data.ByteString                   as B
 import           Data.Foldable                     (find)
 import qualified Data.Text                         as T
@@ -15,7 +16,8 @@ import qualified Data.Yaml                         as Yaml
 import           Decaf.Client.DecafClientException (throwIOException, throwParseException)
 import           Decaf.Client.DecafCredentials     (DecafCredentials)
 import           Decaf.Client.DecafRemote          (DecafRemote)
-import qualified Deriving.Aeson.Stock              as DAS
+import           Decaf.Client.Internal.Utils       (commonAesonOptions)
+import           GHC.Generics                      (Generic)
 import           GHC.Stack                         (HasCallStack)
 
 
@@ -30,7 +32,7 @@ import           GHC.Stack                         (HasCallStack)
 --
 -- >>> let json = Data.Aeson.encode (DecafProfile "test" remote credentials)
 -- >>> json
--- "{\"name\":\"test\",\"remote\":\"https://telostest.decafhub.com\",\"credentials\":{\"type\":\"basic\",\"value\":{\"username\":\"username\",\"password\":\"password\"}}}"
+-- "{\"credentials\":{\"type\":\"basic\",\"value\":{\"password\":\"password\",\"username\":\"username\"}},\"name\":\"test\",\"remote\":\"https://telostest.decafhub.com\"}"
 -- >>> Data.Aeson.decode @DecafProfile json
 -- Just (DecafProfile {decafProfileName = "test", decafProfileRemote = https://telostest.decafhub.com, decafProfileCredentials = <********>})
 data DecafProfile = DecafProfile
@@ -38,8 +40,15 @@ data DecafProfile = DecafProfile
   , decafProfileRemote      :: !DecafRemote
   , decafProfileCredentials :: !DecafCredentials
   }
-  deriving (Eq, DAS.Generic, Show)
-  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "decafProfile" DecafProfile
+  deriving (Eq, Generic, Show)
+
+
+instance Aeson.FromJSON DecafProfile where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "decafProfile"
+
+
+instance Aeson.ToJSON DecafProfile where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "decafProfile"
 
 
 -- | Attempts to read and return profiles from a file at the given filepath.

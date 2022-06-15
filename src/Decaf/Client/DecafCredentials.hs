@@ -5,10 +5,10 @@
 
 module Decaf.Client.DecafCredentials where
 
-import qualified Data.Char            as C
-import qualified Data.Text            as T
-import qualified Deriving.Aeson       as DA
-import qualified Deriving.Aeson.Stock as DAS
+import qualified Data.Aeson                  as Aeson
+import qualified Data.Text                   as T
+import           Decaf.Client.Internal.Utils (commonAesonOptions)
+import           GHC.Generics                (Generic)
 
 
 -- | Data definition for available DECAF credentials types.
@@ -16,7 +16,7 @@ import qualified Deriving.Aeson.Stock as DAS
 -- >>> Data.Aeson.encode (DecafCredentialsHeader "some-header-value")
 -- "{\"type\":\"header\",\"value\":\"some-header-value\"}"
 -- >>> Data.Aeson.encode (DecafCredentialsBasic (DecafBasicCredentials "some-username" "some-password"))
--- "{\"type\":\"basic\",\"value\":{\"username\":\"some-username\",\"password\":\"some-password\"}}"
+-- "{\"type\":\"basic\",\"value\":{\"password\":\"some-password\",\"username\":\"some-username\"}}"
 -- >>> Data.Aeson.encode (DecafCredentialsKey (DecafKeyCredentials "some-api-key" "some-api-secret"))
 -- "{\"type\":\"key\",\"value\":{\"key\":\"some-api-key\",\"secret\":\"some-api-secret\"}}"
 -- >>> Data.Aeson.encode (DecafCredentialsToken "some-api-token")
@@ -26,8 +26,18 @@ data DecafCredentials =
   | DecafCredentialsBasic !DecafBasicCredentials
   | DecafCredentialsKey !DecafKeyCredentials
   | DecafCredentialsToken !T.Text
-  deriving (Eq, DA.Generic)
-  deriving (DA.FromJSON, DA.ToJSON) via DA.CustomJSON '[DA.ConstructorTagModifier '[DA.StripPrefix "DecafCredentials", FirstToLower], DA.SumTaggedObject "type" "value"] DecafCredentials
+  deriving (Eq, Generic)
+
+
+instance Aeson.FromJSON DecafCredentials where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "DecafCredentials"
+
+
+instance Aeson.ToJSON DecafCredentials where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "DecafCredentials"
+
+
+
 
 
 instance Show DecafCredentials where
@@ -38,15 +48,22 @@ instance Show DecafCredentials where
 --
 -- >>> let x = DecafBasicCredentials "some-username" "some-password"
 -- >>> Data.Aeson.encode x
--- "{\"username\":\"some-username\",\"password\":\"some-password\"}"
+-- "{\"password\":\"some-password\",\"username\":\"some-username\"}"
 -- >>> Just x == Data.Aeson.decode @DecafBasicCredentials (Data.Aeson.encode x)
 -- True
 data DecafBasicCredentials = DecafBasicCredentials
   { decafBasicCredentialsUsername :: !T.Text
   , decafBasicCredentialsPassword :: !T.Text
   }
-  deriving (Eq, DA.Generic)
-  deriving (DA.FromJSON, DA.ToJSON) via DAS.PrefixedSnake "decafBasicCredentials" DecafBasicCredentials
+  deriving (Eq, Generic)
+
+
+instance Aeson.FromJSON DecafBasicCredentials where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "decafBasicCredentials"
+
+
+instance Aeson.ToJSON DecafBasicCredentials where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "decafBasicCredentials"
 
 
 -- | Data definition for HTTP basic authentication credentials.
@@ -60,18 +77,12 @@ data DecafKeyCredentials = DecafKeyCredentials
   { decafKeyCredentialsKey    :: !T.Text
   , decafKeyCredentialsSecret :: !T.Text
   }
-  deriving (Eq, DA.Generic)
-  deriving (DA.FromJSON, DA.ToJSON) via DAS.PrefixedSnake "decafKeyCredentials" DecafKeyCredentials
+  deriving (Eq, Generic)
 
 
--- * Internal
--- $internal
+instance Aeson.FromJSON DecafKeyCredentials where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "decafKeyCredentials"
 
 
--- | Data definition for string modifier that lowers the first character.
-data FirstToLower
-
-
-instance DA.StringModifier FirstToLower where
-  getStringModifier []       = []
-  getStringModifier (x : xs) = C.toLower x : xs
+instance Aeson.ToJSON DecafKeyCredentials where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "decafKeyCredentials"

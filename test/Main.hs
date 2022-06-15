@@ -3,11 +3,11 @@
 
 module Main where
 
-import qualified Data.Aeson                 as Aeson
+import qualified Data.Aeson         as Aeson
 import           Decaf.Client
-import           Mocking                    (MockAnythingResponseBody(..), runMockRequest, runMockRequestJson)
-import           Network.HTTP.Types         (Status(statusCode))
-import           Test.Hspec                 (Selector, describe, hspec, it, shouldReturn, shouldThrow)
+import           Mocking            (MockAnythingResponseBody(..), runMockRequest, runMockRequestJson)
+import           Network.HTTP.Types (Status(statusCode))
+import           Test.Hspec         (Selector, describe, hspec, it, shouldReturn, shouldThrow)
 
 
 main :: IO ()

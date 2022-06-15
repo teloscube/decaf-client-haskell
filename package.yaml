@@ -21,7 +21,6 @@ dependencies:
 - base64-bytestring
 - bytestring
 - case-insensitive
-- deriving-aeson
 - exceptions
 - http-conduit
 - http-types
@@ -118,7 +117,6 @@ tests:
     - base64-bytestring
     - bytestring
     - case-insensitive
-    - deriving-aeson
     - exceptions
     - http-conduit
     - http-types

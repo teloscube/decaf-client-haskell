@@ -8,12 +8,13 @@ module Mocking where
 
 import           Control.Monad.Catch
 import           Control.Monad.IO.Class
-import qualified Data.Aeson                 as Aeson
-import qualified Data.ByteString.Lazy       as BL
-import qualified Data.HashMap.Strict        as HM
-import qualified Data.Text                  as T
+import qualified Data.Aeson                  as Aeson
+import qualified Data.ByteString.Lazy        as BL
+import qualified Data.HashMap.Strict         as HM
+import qualified Data.Text                   as T
 import           Decaf.Client
-import qualified Deriving.Aeson.Stock       as DAS
+import           Decaf.Client.Internal.Utils (commonAesonOptions)
+import           GHC.Generics                (Generic)
 import           GHC.Stack
 
 
@@ -55,8 +56,15 @@ data MockAnythingResponseBody = MockAnythingResponseBody
   , mockAnythingResponseBodyOrigin  :: !T.Text
   , mockAnythingResponseBodyUrl     :: !T.Text
   }
-  deriving (DAS.Generic, Show)
-  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "mockAnythingResponseBody" MockAnythingResponseBody
+  deriving (Generic, Show)
+
+
+instance Aeson.FromJSON MockAnythingResponseBody where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "mockAnythingResponseBody"
+
+
+instance Aeson.ToJSON MockAnythingResponseBody where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "mockAnythingResponseBody"
 
 
 runMockRequest
