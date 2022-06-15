@@ -1,13 +1,15 @@
 # DECAF API Client Suite For Haskell
 
 A Haskell client library to DECAF API and a small application demonstrating
-library usage and providing some utilities useful working with DECAF instances.
+library usage and providing some utilities for working with DECAF instances.
 
 > **TODO:** Provide full README.
 
 ## Command-line Application
 
 ### Installation
+
+If you are not on Nix and have installed Stack:
 
 ```sh
 stack install
@@ -55,9 +57,9 @@ Available options:
 Available commands:
   example-profiles         Produce example yaml file for profiles
   tui                      Runs the TUI application
+  serve                    Runs the server application
   microlot                 Run DECAF Microlot query over profiles
   versions                 Get DECAF Barista versions for all profiles
-
 ```
 
 ### Examples
