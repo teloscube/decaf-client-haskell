@@ -1,5 +1,5 @@
 name:                decaf-client
-version:             0.0.0.5
+version:             0.0.0.6
 github:              "teloscube/decaf-client-haskell"
 license:             BSD3
 author:              "Vehbi Sinan Tunalioglu"
