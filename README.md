@@ -64,16 +64,42 @@ Available commands:
 
 ### Examples
 
-Dump user ids and usernames:
+For the given GraphQL query:
 
 ```sh
-decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/principals.gql
+cat << EOM > /tmp/myquery1.gql
+query {
+  principals: principal {
+    id
+    username
+  }
+}
+EOM
 ```
 
-Dump FX rates for a given FX pair:
+... dump user ids and usernames:
 
 ```sh
-decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/fxrates.gql --params '{"pair": "EURUSD"}'
+decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query /tmp/myquery1.gql
+```
+
+For the given GraphQL query:
+
+```sh
+cat <<EOM > /tmp/myquery2.gql
+query(\$pair: String!) {
+  fxrates: ohlc_observation(where: {series: {symbol: {_eq: \$pair}}}) {
+    date
+    rate: close
+  }
+}
+EOM
+```
+
+... dump FX rates of a given FX pair:
+
+```sh
+decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query /tmp/myquery2.gql --params '{"pair": "EURUSD"}'
 ```
 
 ## Development
