@@ -1,10 +1,13 @@
-resolver: lts-18.28
+resolver: lts-19.11
 
 ghc-options:
   "$locals": -fwrite-ide-info
 
 packages:
 - .
+
+extra-deps:
+- aeson-combinators-0.1.0.1@sha256:519092b6441a7361a77e8cd5b3aef8142051cd87febe9c83bf4a588605b81329,3151
 
 nix:
   enable: true

@@ -26,8 +26,10 @@
 - extensions:
   - default: false # All extension are banned by default
   - name: # Only these listed extensions can be used
+    - CPP
     - DataKinds
     - DerivingVia
+    - QuasiQuotes
     - RecordWildCards
 
 ################

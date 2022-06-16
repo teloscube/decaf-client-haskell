@@ -1,42 +1,40 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE DerivingVia       #-}
-{-# LANGUAGE NamedFieldPuns    #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds   #-}
+{-# LANGUAGE DerivingVia #-}
 
 module Mocking where
 
-import           Control.Monad.Catch
-import           Control.Monad.IO.Class
-import qualified Data.Aeson                 as Aeson
-import qualified Data.ByteString.Lazy       as BL
-import qualified Data.HashMap.Strict        as HM
-import qualified Data.Text                  as T
-import           Decaf.Client
-import qualified Deriving.Aeson.Stock       as DAS
-import           GHC.Stack
+import           Control.Monad.Catch         (MonadCatch, MonadThrow)
+import           Control.Monad.IO.Class      (MonadIO)
+import qualified Data.Aeson                  as Aeson
+import qualified Data.ByteString.Lazy        as BL
+import qualified Data.HashMap.Strict         as HM
+import qualified Data.Text                   as T
+import qualified Decaf.Client                as DC
+import           Decaf.Client.Internal.Utils (commonAesonOptions)
+import           GHC.Generics                (Generic)
+import           GHC.Stack                   (HasCallStack)
 
 
 -- * Mock Client
 -- $client
 
 
-mockClient :: DecafClient
-mockClient = mkDecafClient mockRemote mockCredentials
+mockClient :: DC.DecafClient
+mockClient = DC.mkDecafClient mockRemote mockCredentials
 
 
-mockRemote :: DecafRemote
-mockRemote = DecafRemote
-    { decafRemoteHost   = "httpbin.org"
-    , decafRemotePort   = Nothing
-    , decafRemoteSecure = True
+mockRemote :: DC.DecafRemote
+mockRemote = DC.DecafRemote
+    { DC.decafRemoteHost   = "httpbin.org"
+    , DC.decafRemotePort   = Nothing
+    , DC.decafRemoteSecure = True
     }
 
 
-mockCredentials :: DecafCredentials
-mockCredentials = DecafCredentialsBasic $ DecafBasicCredentials
-  { decafBasicCredentialsUsername = "hebele"
-  , decafBasicCredentialsPassword = "hubele"
+mockCredentials :: DC.DecafCredentials
+mockCredentials = DC.DecafCredentialsBasic $ DC.DecafBasicCredentials
+  { DC.decafBasicCredentialsUsername = "hebele"
+  , DC.decafBasicCredentialsPassword = "hubele"
   }
 
 
@@ -55,8 +53,15 @@ data MockAnythingResponseBody = MockAnythingResponseBody
   , mockAnythingResponseBodyOrigin  :: !T.Text
   , mockAnythingResponseBodyUrl     :: !T.Text
   }
-  deriving (DAS.Generic, Show)
-  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "mockAnythingResponseBody" MockAnythingResponseBody
+  deriving (Generic, Show)
+
+
+instance Aeson.FromJSON MockAnythingResponseBody where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "mockAnythingResponseBody"
+
+
+instance Aeson.ToJSON MockAnythingResponseBody where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "mockAnythingResponseBody"
 
 
 runMockRequest
@@ -64,10 +69,10 @@ runMockRequest
   => MonadIO m
   => MonadCatch m
   => MonadThrow m
-  => DecafRequestCombinator
-  -> m (DecafResponse BL.ByteString)
+  => DC.DecafRequestCombinator
+  -> m (DC.DecafResponse BL.ByteString)
 runMockRequest =
-  performDecafRequest . flip buildDecafRequest mockClient
+  DC.performDecafRequest . flip DC.buildDecafRequest mockClient
 
 
 runMockRequestJson
@@ -76,7 +81,7 @@ runMockRequestJson
   => MonadIO m
   => MonadCatch m
   => MonadThrow m
-  => DecafRequestCombinator
-  -> m (DecafResponse a)
+  => DC.DecafRequestCombinator
+  -> m (DC.DecafResponse a)
 runMockRequestJson =
-  performDecafRequestJson . flip buildDecafRequest mockClient
+  DC.performDecafRequestJson . flip DC.buildDecafRequest mockClient

@@ -1,6 +1,0 @@
-query($pair: String!) {
-  fxrates: ohlc_observation(where: {series: {symbol: {_eq: $pair}}}) {
-    date
-    rate: close
-  }
-}

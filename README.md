@@ -1,13 +1,15 @@
 # DECAF API Client Suite For Haskell
 
 A Haskell client library to DECAF API and a small application demonstrating
-library usage and providing some utilities useful working with DECAF instances.
+library usage and providing some utilities for working with DECAF instances.
 
 > **TODO:** Provide full README.
 
 ## Command-line Application
 
 ### Installation
+
+If you are not on Nix and have installed Stack:
 
 ```sh
 stack install
@@ -55,23 +57,49 @@ Available options:
 Available commands:
   example-profiles         Produce example yaml file for profiles
   tui                      Runs the TUI application
+  serve                    Runs the server application
   microlot                 Run DECAF Microlot query over profiles
   versions                 Get DECAF Barista versions for all profiles
-
 ```
 
 ### Examples
 
-Dump user ids and usernames:
+For the given GraphQL query:
 
 ```sh
-decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/principals.gql
+cat << EOM > /tmp/myquery1.gql
+query {
+  principals: principal {
+    id
+    username
+  }
+}
+EOM
 ```
 
-Dump FX rates for a given FX pair:
+... dump user ids and usernames:
 
 ```sh
-decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query examples/microlot/queries/fxrates.gql --params '{"pair": "EURUSD"}'
+decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query /tmp/myquery1.gql
+```
+
+For the given GraphQL query:
+
+```sh
+cat <<EOM > /tmp/myquery2.gql
+query(\$pair: String!) {
+  fxrates: ohlc_observation(where: {series: {symbol: {_eq: \$pair}}}) {
+    date
+    rate: close
+  }
+}
+EOM
+```
+
+... dump FX rates of a given FX pair:
+
+```sh
+decafcli microlot --file-profiles ~/.decaf/profiles.yaml --profile <my-profile> --query /tmp/myquery2.gql --params '{"pair": "EURUSD"}'
 ```
 
 ## Development
@@ -97,13 +125,13 @@ code .
 Run hlint:
 
 ```sh
-hlint app/ src/
+hlint app/ src/ test/
 ```
 
 Format codebase:
 
 ```sh
-stylish-haskell -ir app/ src/
+stylish-haskell -ir app/ src/ test/
 ```
 
 ## License
