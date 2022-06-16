@@ -13,8 +13,8 @@ import qualified Data.Text.Encoding            as TE
 import           Data.Version                  (showVersion)
 import           Decaf.Client.DecafCredentials (DecafCredentials(DecafCredentialsHeader))
 import           Decaf.Client.DecafRemote      (DecafRemote(..), remoteToUrl)
-import           Decaf.Client.Internal.Utils   (dropTrailing)
-import qualified Deriving.Aeson.Stock          as DAS
+import           Decaf.Client.Internal.Utils   (commonAesonOptions, dropTrailing)
+import           GHC.Generics                  (Generic)
 import           Network.HTTP.Types
                  ( Header
                  , QueryText
@@ -140,8 +140,15 @@ data DecafGraphqlQuery a = MkDecafGraphqlQuery
   { decafGraphqlQueryQuery     :: !String
   , decafGraphqlQueryVariables :: !a
   }
-  deriving (DAS.Generic, Show)
-  deriving (DAS.FromJSON, DAS.ToJSON) via DAS.PrefixedSnake "decafGraphqlQuery" (DecafGraphqlQuery a)
+  deriving (Generic, Show)
+
+
+instance Aeson.FromJSON a => Aeson.FromJSON (DecafGraphqlQuery a) where
+  parseJSON = Aeson.genericParseJSON $ commonAesonOptions "decafGraphqlQuery"
+
+
+instance Aeson.ToJSON a => Aeson.ToJSON (DecafGraphqlQuery a) where
+  toJSON = Aeson.genericToJSON $ commonAesonOptions "decafGraphqlQuery"
 
 
 -- | Builds a 'DecafGraphqlQuery' with given query and query variables.

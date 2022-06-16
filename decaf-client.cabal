@@ -86,7 +86,6 @@ library
     , base64-bytestring
     , bytestring
     , case-insensitive
-    , deriving-aeson
     , exceptions
     , http-conduit
     , http-types
@@ -108,8 +107,43 @@ executable decafcli
   hs-source-dirs:
       app
   default-extensions:
-      OverloadedStrings
+      BangPatterns
+      BinaryLiterals
+      ConstrainedClassMethods
+      ConstraintKinds
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      EmptyCase
+      EmptyDataDeriving
+      ExistentialQuantification
+      ExplicitForAll
+      FlexibleContexts
+      FlexibleInstances
+      GADTSyntax
+      GeneralisedNewtypeDeriving
+      HexFloatLiterals
+      ImportQualifiedPost
+      InstanceSigs
+      KindSignatures
+      MultiParamTypeClasses
+      NamedFieldPuns
+      NamedWildCards
+      NumericUnderscores
+      PolyKinds
+      PostfixOperators
+      RankNTypes
       ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      TupleSections
+      TypeApplications
+      TypeOperators
+      TypeSynonymInstances
+      OverloadedStrings
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -123,7 +157,6 @@ executable decafcli
     , case-insensitive
     , data-default-class
     , decaf-client
-    , deriving-aeson
     , exceptions
     , http-conduit
     , http-types
@@ -155,7 +188,6 @@ test-suite decaf-client-doctest
     , bytestring
     , case-insensitive
     , decaf-client
-    , deriving-aeson
     , doctest
     , exceptions
     , http-conduit
@@ -174,6 +206,44 @@ test-suite decaf-client-test
       Paths_decaf_client
   hs-source-dirs:
       test
+  default-extensions:
+      BangPatterns
+      BinaryLiterals
+      ConstrainedClassMethods
+      ConstraintKinds
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      EmptyCase
+      EmptyDataDeriving
+      ExistentialQuantification
+      ExplicitForAll
+      FlexibleContexts
+      FlexibleInstances
+      GADTSyntax
+      GeneralisedNewtypeDeriving
+      HexFloatLiterals
+      ImportQualifiedPost
+      InstanceSigs
+      KindSignatures
+      MultiParamTypeClasses
+      NamedFieldPuns
+      NamedWildCards
+      NumericUnderscores
+      PolyKinds
+      PostfixOperators
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      TupleSections
+      TypeApplications
+      TypeOperators
+      TypeSynonymInstances
+      OverloadedStrings
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -182,7 +252,6 @@ test-suite decaf-client-test
     , bytestring
     , case-insensitive
     , decaf-client
-    , deriving-aeson
     , exceptions
     , hspec
     , http-conduit

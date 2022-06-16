@@ -1,6 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE RecordWildCards  #-}
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Decaf.Client.Cli.SubCommands.Serve.Serve where
 
@@ -15,9 +14,9 @@ import qualified Network.HTTP.Types.Status     as Http
 import qualified Network.Wai.Handler.Warp      as Warp
 import           Paths_decaf_client            (version)
 import qualified Text.Blaze                    as BM
-import           Text.Blaze.Html               ((!))
 import qualified Text.Blaze.Html               as BH
 import qualified Text.Blaze.Html               as BH5.Attibutes
+import           Text.Blaze.Html               ((!))
 import qualified Text.Blaze.Html.Renderer.Text as BH.Text
 import qualified Text.Blaze.Html.Renderer.Utf8 as BH.Utf8
 import qualified Text.Blaze.Html5              as BH5
