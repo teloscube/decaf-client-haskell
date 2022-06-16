@@ -1,26 +1,46 @@
 # CHANGELOG
 
 
+<a name="0.0.0.5"></a>
+## [0.0.0.5](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.4...0.0.0.5) (2022-06-16)
+
+### Chore
+
+* purge examples directory, update README for Microlot examples
+* revisit language pragmas and language extensions lists
+* remove deriving-aeson dependency
+* add cabal file for v0.0.0.5
+* bump development version to 0.0.0.5
+* remove haskell4nix Nix module
+* remove explicit Stack 19.11 YAML file
+* **build:** bump haskell.nix dependency
+* **deps:** adopt Stack lts-19.11
+* **dev:** sideload development tools from nixpkgs
+* **docs:** update README
+* **test:** enable mock tests
+
+
 <a name="0.0.0.4"></a>
 ## [0.0.0.4](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.3...0.0.0.4) (2022-06-04)
 
 ### Chore
 
-* make the command work without an option
-* revisit DecafRemote constructor signature, fix tests
-* add profiles.yaml.tmpl file as a reference
-* upgrade to lts-18.28
+* bump development version to 0.0.0.4
 * depend on yaml instead of Aeson-yaml. Exit with exitSuccess instead of exitFailure
+* add example for Token Authentication
+* make the command work without an option
+* upgrade to lts-18.28
+* fix hlint warnings
 * use string interpolation to generate script body
 * fix hlint warnings
-* add example for Token Authentication
-* fix hlint warnings
-* bump development version to 0.0.0.4
+* revisit DecafRemote constructor signature, fix tests
+* add profiles.yaml.tmpl file as a reference
 * **build:** nixify
 * **cli:** add header, basic and key authorization headers
 * **cli:** separate graphq url from graphiql. Add console url.
 * **dev:** adopt haskell.nix
 * **docs:** update README
+* **release:** 0.0.0.4
 * **test:** start mock tests using httpbin
 
 ### Feat
