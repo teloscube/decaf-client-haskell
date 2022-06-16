@@ -3,38 +3,38 @@
 
 module Mocking where
 
-import           Control.Monad.Catch
-import           Control.Monad.IO.Class
+import           Control.Monad.Catch         (MonadCatch, MonadThrow)
+import           Control.Monad.IO.Class      (MonadIO)
 import qualified Data.Aeson                  as Aeson
 import qualified Data.ByteString.Lazy        as BL
 import qualified Data.HashMap.Strict         as HM
 import qualified Data.Text                   as T
-import           Decaf.Client
+import qualified Decaf.Client                as DC
 import           Decaf.Client.Internal.Utils (commonAesonOptions)
 import           GHC.Generics                (Generic)
-import           GHC.Stack
+import           GHC.Stack                   (HasCallStack)
 
 
 -- * Mock Client
 -- $client
 
 
-mockClient :: DecafClient
-mockClient = mkDecafClient mockRemote mockCredentials
+mockClient :: DC.DecafClient
+mockClient = DC.mkDecafClient mockRemote mockCredentials
 
 
-mockRemote :: DecafRemote
-mockRemote = DecafRemote
-    { decafRemoteHost   = "httpbin.org"
-    , decafRemotePort   = Nothing
-    , decafRemoteSecure = True
+mockRemote :: DC.DecafRemote
+mockRemote = DC.DecafRemote
+    { DC.decafRemoteHost   = "httpbin.org"
+    , DC.decafRemotePort   = Nothing
+    , DC.decafRemoteSecure = True
     }
 
 
-mockCredentials :: DecafCredentials
-mockCredentials = DecafCredentialsBasic $ DecafBasicCredentials
-  { decafBasicCredentialsUsername = "hebele"
-  , decafBasicCredentialsPassword = "hubele"
+mockCredentials :: DC.DecafCredentials
+mockCredentials = DC.DecafCredentialsBasic $ DC.DecafBasicCredentials
+  { DC.decafBasicCredentialsUsername = "hebele"
+  , DC.decafBasicCredentialsPassword = "hubele"
   }
 
 
@@ -69,10 +69,10 @@ runMockRequest
   => MonadIO m
   => MonadCatch m
   => MonadThrow m
-  => DecafRequestCombinator
-  -> m (DecafResponse BL.ByteString)
+  => DC.DecafRequestCombinator
+  -> m (DC.DecafResponse BL.ByteString)
 runMockRequest =
-  performDecafRequest . flip buildDecafRequest mockClient
+  DC.performDecafRequest . flip DC.buildDecafRequest mockClient
 
 
 runMockRequestJson
@@ -81,7 +81,7 @@ runMockRequestJson
   => MonadIO m
   => MonadCatch m
   => MonadThrow m
-  => DecafRequestCombinator
-  -> m (DecafResponse a)
+  => DC.DecafRequestCombinator
+  -> m (DC.DecafResponse a)
 runMockRequestJson =
-  performDecafRequestJson . flip buildDecafRequest mockClient
+  DC.performDecafRequestJson . flip DC.buildDecafRequest mockClient
