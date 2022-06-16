@@ -1,6 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE RecordWildCards  #-}
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Decaf.Client.Cli.SubCommands.Serve.Serve where
 

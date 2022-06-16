@@ -99,13 +99,13 @@ code .
 Run hlint:
 
 ```sh
-hlint app/ src/
+hlint app/ src/ test/
 ```
 
 Format codebase:
 
 ```sh
-stylish-haskell -ir app/ src/
+stylish-haskell -ir app/ src/ test/
 ```
 
 ## License

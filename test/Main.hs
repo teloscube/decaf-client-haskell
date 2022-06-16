@@ -1,6 +1,3 @@
-{-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Main where
 
 import qualified Data.Aeson         as Aeson
