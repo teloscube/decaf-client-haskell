@@ -1,17 +1,26 @@
+{ compiler ? "ghc902"
+, ...
+}:
+
 let
-  ## Read in the Niv sources:
-  sources = import ./nix/sources.nix { };
+  ## Import sources:
+  sources = import ./nix/sources.nix;
 
-  ## Fetch the haskell.nix commit we have pinned with Niv:
-  haskellNix = import sources.haskellNix { };
+  ## Import utilities:
+  utils = import ./nix/utils.nix;
 
-  ## Import nixpkgs and pass the haskell.nix provided nixpkgsArgs
-  pkgs = import haskellNix.sources.nixpkgs-unstable haskellNix.nixpkgsArgs;
-in
-pkgs.haskell-nix.project {
-  ## Note that 'cleanGit' cleans a source directory based on the files known by git.
-  src = pkgs.haskell-nix.haskellLib.cleanGit {
-    name = "haskell-nix-project";
+  ## Import nixpkgs:
+  pkgs = import sources.nixpkgs { };
+
+  ## Get the haskell set:
+  haskell = pkgs.haskell.packages.${compiler};
+
+  ## Get this package:
+  thisPackage = utils.mkThisPackage {
+    haskell = haskell;
+    name = "decaf-client";
     src = ./.;
+    args = "--no-check --no-haddock";
   };
-}
+in
+pkgs.haskell.lib.justStaticExecutables thisPackage
