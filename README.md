@@ -9,28 +9,16 @@ library usage and providing some utilities for working with DECAF instances.
 
 ### Installation
 
-If you are not on Nix and have installed Stack:
+If you are using Nix, install from within the codebase:
 
 ```sh
-stack install
-```
-
-If you are using Nix, build:
-
-```sh
-nix-build -A decaf-client.components.exes.decafcli
-```
-
-... or install from within the codebase:
-
-```sh
-nix-env -f default.nix -iA decaf-client.components.exes.decafcli
+nix-env -f default.nix -i
 ```
 
 ... or install directly from GitHub:
 
 ```sh
-nix-env -f https://github.com/teloscube/decaf-client-haskell/archive/main.tar.gz -iA decaf-client.components.exes.decafcli
+nix-env -f https://github.com/teloscube/decaf-client-haskell/archive/main.tar.gz -i
 ```
 
 ### Shell Completion
@@ -113,7 +101,7 @@ nix-shell
 Build:
 
 ```sh
-stack build
+cabal build
 ```
 
 Open VSCode if you wish to do so:
