@@ -5,7 +5,6 @@ module Main where
 import qualified Data.Aeson         as Aeson
 import qualified Decaf.Client       as DC
 import           Mocking            (MockAnythingResponseBody(..), runMockRequest, runMockRequestJson)
-import           Network.HTTP.Types (Status(statusCode))
 import           Test.Hspec         (Selector, describe, hspec, it, shouldReturn, shouldThrow)
 
 

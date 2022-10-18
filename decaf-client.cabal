@@ -120,7 +120,6 @@ test-suite decaf-client-test
     , decaf-client
     , exceptions
     , hspec
-    , http-types
     , text
     , unordered-containers
   default-language: Haskell2010
