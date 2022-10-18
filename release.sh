@@ -20,8 +20,7 @@ _usage() {
 
 ## Declare variables:
 _version=""
-_regname="registry.docker.decafhub.com"
-_appname="decaf-function-data-export"
+_appname="decaf-client"
 
 ## Parse command line arguments:
 while getopts "n:h" o; do
@@ -47,7 +46,6 @@ if [ -z "${_version}" ]; then
   exit 1
 else
   _log "Version is \"${_version}\". Proceeding..."
-  _log "Registry name is \"${_regname}\". Proceeding..."
   _log "Application name is \"${_appname}\". Proceeding..."
 fi
 
@@ -75,16 +73,10 @@ git commit -m "chore(release): ${_version}"
 _log "Tagging version..."
 git tag -a -m "Release ${_version}" "${_version}"
 
-_log "Building..."
-docker load <$(nix-build docker.nix --arg registry "\"${_regname}\"" --arg repository "\"${_appname}\"" --arg tag "\"${_version}\"")
-
-_log "Pushing build..."
-docker push "${_regname}/${_appname}:${_version}"
-
 _log "Pushing changes to remote..."
 git push --follow-tags origin main
 
 _log "Creating the release..."
-gh release create "${_version}" --title "${_version}" --generate-notes
+gh release create "${_version}" --title "v${_version}" --generate-notes
 
 _log "Finished!"
