@@ -1,30 +1,11 @@
-{ compiler ? "ghc902"
-, ...
-}:
+{ ... }:
 
 let
-  ## Import sources:
-  sources = import ./nix/sources.nix;
+  ## Import this codebase's Nix helper set:
+  nix = import ./nix { };
 
-  ## Import utilities:
-  utils = import ./nix/utils.nix;
-
-  ## Pinned nixpkgs:
-  pkgs = import sources.nixpkgs { };
-
-  ## Get the haskell set:
-  haskell = pkgs.haskell.packages.${compiler};
-
-  ## Get this package:
-  thisPackageDeps = utils.mkThisPackageDeps pkgs {
-    haskell = haskell;
-    name = "decaf-client";
-    src = ./.;
-    args = "--no-haddock";
-  };
-
-  ## Get our GHC for development:
-  ghc = haskell.ghcWithPackages (_: thisPackageDeps);
+  ## Get packages:
+  pkgs = nix.pkgs;
 in
 pkgs.mkShell {
   buildInputs = [
@@ -37,18 +18,13 @@ pkgs.mkShell {
     pkgs.gh
     pkgs.git
     pkgs.git-chglog
-
-    ## Haskell stuff:
-    ghc
-    pkgs.cabal-install
-    pkgs.cabal2nix
-    pkgs.haskell-language-server
-    pkgs.haskellPackages.apply-refact
-    pkgs.hlint
-    pkgs.stylish-haskell
-  ];
+  ] ++ nix.haskell-dev-tools;
 
   shellHook = ''
     figlet -w 999 "DECAF CLIENT DEV SHELL" | lolcat -S 42
+
+    ## Make sure that doctest finds correct GHC executable and libraries:
+    export NIX_GHC=${nix.ghc}/bin/ghc
+    export NIX_GHC_LIBDIR=${nix.ghc}/lib/${nix.ghc.meta.name}
   '';
 }
