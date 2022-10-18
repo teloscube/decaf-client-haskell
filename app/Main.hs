@@ -1,23 +1,16 @@
 module Main where
 
-import           Data.Aeson                                   (Value, (.:))
 import qualified Data.Aeson                                   as Aeson
-import qualified Data.ByteString                              as B
-import qualified Data.ByteString.Lazy                         as BL
 import qualified Data.ByteString.Lazy.Char8                   as BLC
-import           Data.Char                                    (toLower)
-import qualified Data.HashMap.Strict                          as HM
 import qualified Data.Text                                    as T
 import           Data.Version                                 (showVersion)
-import qualified Decaf.Client                                 as DC
 import           Decaf.Client.Cli.SubCommands.ExampleProfiles (runExampleProfiles)
 import           Decaf.Client.Cli.SubCommands.Microlot        (MicrolotRunConfig(MicrolotRunConfig), runMicrolot)
 import           Decaf.Client.Cli.SubCommands.Serve           (ServeRunConfig(ServeRunConfig), runServe)
 import           Decaf.Client.Cli.SubCommands.Tui             (runTui)
-import           GHC.Generics                                 (Generic)
 import qualified Options.Applicative                          as OA
 import           Paths_decaf_client                           (version)
-import           System.Exit                                  (ExitCode, die, exitFailure, exitSuccess, exitWith)
+import           System.Exit                                  (ExitCode, exitFailure, exitSuccess, exitWith)
 import           System.IO                                    (hPutStrLn, stderr)
 
 
@@ -32,7 +25,7 @@ cliProgram CommandProfiles          = runExampleProfiles >> exitSuccess
 cliProgram (CommandTui config)      = runTui config >> exitSuccess
 cliProgram (CommandServe config)    = runServe config >> exitSuccess
 cliProgram (CommandMicrolot config) = runMicrolot config >> exitSuccess
-cliProgram (CommandVersions fp)     = hPutStrLn stderr "Not implemented yet." >> exitFailure
+cliProgram (CommandVersions _)      = hPutStrLn stderr "Not implemented yet." >> exitFailure
 
 
 -- | Commands registry
@@ -95,9 +88,9 @@ profileNameParser =
   OA.strOption (OA.long "profile" <> OA.metavar "PROFILE-NAME" <> OA.help "Name of the profile")
 
 
-queryParametersOption :: OA.Mod OA.OptionFields Value -> OA.Parser Value
+queryParametersOption :: OA.Mod OA.OptionFields Aeson.Value -> OA.Parser Aeson.Value
 queryParametersOption = OA.option optionQueryParameters
 
 
-optionQueryParameters :: OA.ReadM Value
+optionQueryParameters :: OA.ReadM Aeson.Value
 optionQueryParameters = OA.eitherReader (\x -> maybe (Left ("Invalid JSON for query parameters: \"" <> x <> "\"")) Right (Aeson.decode (BLC.pack x)))

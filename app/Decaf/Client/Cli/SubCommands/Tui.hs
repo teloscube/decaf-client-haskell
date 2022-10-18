@@ -14,13 +14,11 @@ import           Control.Monad.IO.Class        (liftIO)
 import qualified Control.Monad.Parallel        as MP
 import qualified Data.Aeson.Combinators.Decode as ACD
 import qualified Data.Text                     as T
-import qualified Data.Text.Encoding            as TE
 import qualified Data.Text.Lazy                as TL
 import qualified Data.Text.Lazy.Encoding       as TLE
 import qualified Decaf.Client                  as DC
 import qualified Graphics.Vty                  as Vty
 import           Network.HTTP.Types            (statusCode)
-import           System.Exit                   (ExitCode(ExitSuccess))
 
 
 -- * Top-Level
@@ -200,7 +198,6 @@ getTuiProfileInfo profile = do
     , tuiProfileInfoCountPolicy          = policyCount
     }
   where
-    portfolioCountQuery = "query {\n  portfolio_aggregate {\n    aggregate {\n      count\n    }\n  }\n}"
     handleError (_ :: DC.DecafClientException) = pure $ Left "ERR"
 
 

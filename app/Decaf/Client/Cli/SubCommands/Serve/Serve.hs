@@ -5,10 +5,9 @@
 module Decaf.Client.Cli.SubCommands.Serve.Serve where
 
 import           Data.Default.Class            (def)
-import qualified Data.List                     as DL
+import qualified Data.List                     as List
 import           Data.String.Interpolate       (i)
 import qualified Data.Text                     as T
-import qualified Data.Text.Lazy                as TL
 import           Data.Version                  (showVersion)
 import qualified Decaf.Client                  as DC
 import qualified Network.HTTP.Types.Status     as Http
@@ -16,10 +15,8 @@ import qualified Network.Wai.Handler.Warp      as Warp
 import           Paths_decaf_client            (version)
 import qualified Text.Blaze                    as BM
 import qualified Text.Blaze.Html               as BH
-import qualified Text.Blaze.Html               as BH5.Attibutes
 import           Text.Blaze.Html               ((!))
 import qualified Text.Blaze.Html.Renderer.Text as BH.Text
-import qualified Text.Blaze.Html.Renderer.Utf8 as BH.Utf8
 import qualified Text.Blaze.Html5              as BH5
 import qualified Text.Blaze.Html5.Attributes   as BH5.Attributes
 import qualified Web.Scotty                    as Web
@@ -39,19 +36,19 @@ runServe ServeRunConfig{..} = do
     Web.get "/about" . blazeHtml $ viewAbout
     Web.get "/profiles/:profileName/graphiql/microlot" $ do
       profileName <- Web.param "profileName"
-      let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
+      let mProfile = List.find (\p -> DC.decafProfileName p == profileName) allProfiles
       case mProfile of
         Nothing -> Web.status Http.status404
         Just p  -> graphiqlMicrolot p
     Web.get "/profiles/:profileName/graphiql/module-pdms" $ do
       profileName <- Web.param "profileName"
-      let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
+      let mProfile = List.find (\p -> DC.decafProfileName p == profileName) allProfiles
       case mProfile of
         Nothing -> Web.status Http.status404
         Just p  -> graphiqlModulePdms p
     Web.get "/:profileName" $ do
       profileName <- Web.param "profileName"
-      let mProfile = DL.find (\p -> DC.decafProfileName p == profileName) allProfiles
+      let mProfile = List.find (\p -> DC.decafProfileName p == profileName) allProfiles
       case mProfile of
         Nothing -> Web.status Http.status404
         Just p  -> blazeHtml $ viewProfileDetails p
@@ -103,7 +100,7 @@ viewCredentials cred = BH.toHtml $ case cred of
 
 
 viewProfileDetails :: DC.DecafProfile -> BH.Html
-viewProfileDetails dp@DC.DecafProfile{..} = BH5.ul $ do
+viewProfileDetails DC.DecafProfile{..} = BH5.ul $ do
   BH5.li $ "Profile Name: " <> BH.toHtml decafProfileName
   BH5.li $ "Profile Remote: " <>
     BH5.a (BH.toHtml url)

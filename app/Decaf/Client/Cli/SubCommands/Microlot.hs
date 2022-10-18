@@ -13,8 +13,6 @@ import           Control.Monad.IO.Class (MonadIO(..))
 import qualified Control.Monad.Parallel as MP
 import           Data.Aeson             ((.=))
 import qualified Data.Aeson             as Aeson
-import qualified Data.ByteString        as B
-import qualified Data.ByteString.Char8  as BC
 import qualified Data.ByteString.Lazy   as BL
 import qualified Data.Text              as T
 import qualified Data.Vector            as V

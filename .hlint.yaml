@@ -15,6 +15,7 @@
   - {name: Data.ByteString.Char8, as: BC }
   - {name: Data.ByteString.Lazy, as: BL }
   - {name: Data.ByteString.Lazy.Char8, as: BLC }
+  - {name: Data.List, as: List }
   - {name: Data.Text, as: T }
   - {name: Data.Text.Lazy, as: TL }
   - {name: Data.Text.Encoding, as: TE }

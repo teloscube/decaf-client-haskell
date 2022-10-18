@@ -4,7 +4,6 @@ module Decaf.Client.Cli.SubCommands.ExampleProfiles where
 
 import           Control.Monad.IO.Class        (MonadIO(liftIO))
 import qualified Data.ByteString               as B
-import qualified Data.Text                     as T
 import qualified Data.Yaml                     as Yaml
 import           Decaf.Client.DecafCredentials
                  ( DecafBasicCredentials(..)
@@ -13,7 +12,6 @@ import           Decaf.Client.DecafCredentials
                  )
 import           Decaf.Client.DecafProfile     (DecafProfile(..))
 import           Decaf.Client.DecafRemote      (DecafRemote(..))
-import           GHC.Generics                  (Generic)
 import           GHC.Stack                     (HasCallStack)
 
 

@@ -4,4 +4,4 @@ module Decaf.Client.Cli.SubCommands.Serve
   )
   where
 
-import Decaf.Client.Cli.SubCommands.Serve.Serve
+import Decaf.Client.Cli.SubCommands.Serve.Serve (runServe, ServeRunConfig(ServeRunConfig))
