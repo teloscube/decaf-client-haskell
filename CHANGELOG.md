@@ -1,22 +1,46 @@
 # CHANGELOG
 
 
+<a name="0.0.1"></a>
+## [0.0.1](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.5...0.0.1) (2022-10-18)
+
+### Chore
+
+* fix release script
+* add release script, mention it in README
+* adopt fourmolu, drop stylish-haskell, reformat codebase
+* remove unnecessary import and dependency
+* attend compiler warnings (mainly unusued defs/imports)
+* revisit hlint configuration, remove redundant language pragmas
+* remove default extensions in favour of explicit language pragmas
+* adopt telos.nix (Nix helpers)
+* bump development version to 0.0.0.6
+* **deps:** drop Aeson <2 support
+* **deps:** revisit dependencies, refine how they are declared
+* **dev:** switch from haskell.nix to haskell4nix
+
+### Fix
+
+* capture callstack in DecafClientException Show instance
+
+
 <a name="0.0.0.5"></a>
 ## [0.0.0.5](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.4...0.0.0.5) (2022-06-16)
 
 ### Chore
 
+* bump development version to 0.0.0.5
 * purge examples directory, update README for Microlot examples
+* add cabal file for v0.0.0.5
 * revisit language pragmas and language extensions lists
 * remove deriving-aeson dependency
-* add cabal file for v0.0.0.5
-* bump development version to 0.0.0.5
 * remove haskell4nix Nix module
 * remove explicit Stack 19.11 YAML file
 * **build:** bump haskell.nix dependency
 * **deps:** adopt Stack lts-19.11
 * **dev:** sideload development tools from nixpkgs
 * **docs:** update README
+* **release:** 0.0.0.5
 * **test:** enable mock tests
 
 
