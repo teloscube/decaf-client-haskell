@@ -17,76 +17,83 @@ description:         Please see the README on GitHub at <https://github.com/telo
 
 dependencies:
 - base >= 4.7 && < 5
-- aeson
-- base64-bytestring
-- bytestring
-- case-insensitive
-- exceptions
-- http-conduit
-- http-types
-- network-uri
-- text
-- unordered-containers
-- yaml
 
 library:
   source-dirs: src
   ghc-options:
   - -Wall
   - -Wunused-packages
+  dependencies:
+  - aeson
+  - base64-bytestring
+  - bytestring
+  - case-insensitive
+  - exceptions
+  - http-conduit
+  - http-types
+  - network-uri
+  - text
+  - unordered-containers
+  - yaml
 
 executables:
   decafcli:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -Wall
+    - -Wunused-packages
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - decaf-client
+    - aeson
     - aeson-combinators
     - blaze-html
     - blaze-markup
     - brick
+    - bytestring
     - data-default-class
+    - decaf-client
+    - exceptions
+    - http-types
     - monad-parallel
     - optparse-applicative
     - scotty
     - string-interpolate
+    - text
     - unordered-containers
     - vector
     - vty
     - warp
+    - yaml
 
 tests:
   decaf-client-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
+    - -Wall
+    - -Wunused-packages
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - decaf-client
-    - hspec
     - aeson
-    - base64-bytestring
     - bytestring
-    - case-insensitive
+    - decaf-client
     - exceptions
-    - http-conduit
+    - hspec
     - http-types
-    - network-uri
     - text
     - unordered-containers
-    - yaml
 
   decaf-client-doctest:
     main:                doctest.hs
     source-dirs:         .
     ghc-options:
+    - -Wall
+    - -Wunused-packages
     - -threaded
     dependencies:
-    - decaf-client
     - doctest

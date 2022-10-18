@@ -68,24 +68,20 @@ executable decafcli
       Paths_decaf_client
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , aeson-combinators
     , base >=4.7 && <5
-    , base64-bytestring
     , blaze-html
     , blaze-markup
     , brick
     , bytestring
-    , case-insensitive
     , data-default-class
     , decaf-client
     , exceptions
-    , http-conduit
     , http-types
     , monad-parallel
-    , network-uri
     , optparse-applicative
     , scotty
     , string-interpolate
@@ -104,22 +100,10 @@ test-suite decaf-client-doctest
       Paths_decaf_client
   hs-source-dirs:
       ./
-  ghc-options: -threaded
+  ghc-options: -Wall -Wunused-packages -threaded
   build-depends:
-      aeson
-    , base >=4.7 && <5
-    , base64-bytestring
-    , bytestring
-    , case-insensitive
-    , decaf-client
+      base >=4.7 && <5
     , doctest
-    , exceptions
-    , http-conduit
-    , http-types
-    , network-uri
-    , text
-    , unordered-containers
-    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-test
@@ -130,20 +114,15 @@ test-suite decaf-client-test
       Paths_decaf_client
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5
-    , base64-bytestring
     , bytestring
-    , case-insensitive
     , decaf-client
     , exceptions
     , hspec
-    , http-conduit
     , http-types
-    , network-uri
     , text
     , unordered-containers
-    , yaml
   default-language: Haskell2010
