@@ -1,24 +1,24 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 -- | This module provides definitions to work on profiles.
-
-{-# LANGUAGE DataKinds   #-}
-{-# LANGUAGE DerivingVia #-}
-
 module Decaf.Client.DecafProfile where
 
-import           Control.Exception                 (IOException, catch)
-import           Control.Monad.Catch               (MonadCatch, MonadThrow)
-import           Control.Monad.IO.Class            (MonadIO(liftIO))
-import qualified Data.Aeson                        as Aeson
-import qualified Data.ByteString                   as B
-import           Data.Foldable                     (find)
-import qualified Data.Text                         as T
-import qualified Data.Yaml                         as Yaml
-import           Decaf.Client.DecafClientException (throwIOException, throwParseException)
-import           Decaf.Client.DecafCredentials     (DecafCredentials)
-import           Decaf.Client.DecafRemote          (DecafRemote)
-import           Decaf.Client.Internal.Utils       (commonAesonOptions)
-import           GHC.Generics                      (Generic)
-import           GHC.Stack                         (HasCallStack)
+import Control.Exception (IOException, catch)
+import Control.Monad.Catch (MonadCatch, MonadThrow)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString as B
+import Data.Foldable (find)
+import qualified Data.Text as T
+import qualified Data.Yaml as Yaml
+import Decaf.Client.DecafClientException (throwIOException, throwParseException)
+import Decaf.Client.DecafCredentials (DecafCredentials)
+import Decaf.Client.DecafRemote (DecafRemote)
+import Decaf.Client.Internal.Utils (commonAesonOptions)
+import GHC.Generics (Generic)
+import GHC.Stack (HasCallStack)
 
 
 -- | A DECAF Instance user profile for constructing a
@@ -36,8 +36,8 @@ import           GHC.Stack                         (HasCallStack)
 -- >>> Data.Aeson.decode @DecafProfile json
 -- Just (DecafProfile {decafProfileName = "test", decafProfileRemote = https://telostest.decafhub.com, decafProfileCredentials = <********>})
 data DecafProfile = DecafProfile
-  { decafProfileName        :: !T.Text
-  , decafProfileRemote      :: !DecafRemote
+  { decafProfileName :: !T.Text
+  , decafProfileRemote :: !DecafRemote
   , decafProfileCredentials :: !DecafCredentials
   }
   deriving (Eq, Generic, Show)

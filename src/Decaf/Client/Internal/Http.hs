@@ -1,39 +1,38 @@
--- | This module provides machinery to abstract over the underlying
--- "http-conduit" library.
-
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
+-- | This module provides machinery to abstract over the underlying
+-- "http-conduit" library.
 module Decaf.Client.Internal.Http where
 
-import           Control.Monad                     (when)
-import           Control.Monad.Catch               (MonadCatch(catch), MonadThrow)
-import           Control.Monad.IO.Class            (MonadIO)
-import qualified Data.Aeson                        as Aeson
-import qualified Data.ByteString                   as B
-import           Data.ByteString.Base64            (encode)
-import qualified Data.ByteString.Char8             as BC
-import qualified Data.ByteString.Lazy              as BL
-import           Data.Maybe                        (fromMaybe)
-import qualified Data.Text                         as T
-import qualified Data.Text.Encoding                as TE
-import           Decaf.Client.DecafClientException (throwHttpException, throwParseException, throwStatusException)
-import           Decaf.Client.DecafCredentials
-                 ( DecafBasicCredentials(..)
-                 , DecafCredentials(..)
-                 , DecafKeyCredentials(..)
-                 )
-import           Decaf.Client.DecafRemote          (DecafRemote(..))
-import           Decaf.Client.DecafRequest         (DecafRequest(..), DecafRequestPayload(..), unDecafRequestPath)
-import           Decaf.Client.DecafResponse        (DecafResponse(..))
-import           Decaf.Client.Internal.Utils       (compose)
-import           GHC.Stack                         (HasCallStack)
-import qualified Network.HTTP.Conduit              as HC
-import qualified Network.HTTP.Simple               as HS
-import           Network.HTTP.Types                (Status(statusCode), queryTextToQuery)
+import Control.Monad (when)
+import Control.Monad.Catch (MonadCatch (catch), MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString as B
+import Data.ByteString.Base64 (encode)
+import qualified Data.ByteString.Char8 as BC
+import qualified Data.ByteString.Lazy as BL
+import Data.Maybe (fromMaybe)
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
+import Decaf.Client.DecafClientException (throwHttpException, throwParseException, throwStatusException)
+import Decaf.Client.DecafCredentials (
+  DecafBasicCredentials (..),
+  DecafCredentials (..),
+  DecafKeyCredentials (..),
+ )
+import Decaf.Client.DecafRemote (DecafRemote (..))
+import Decaf.Client.DecafRequest (DecafRequest (..), DecafRequestPayload (..), unDecafRequestPath)
+import Decaf.Client.DecafResponse (DecafResponse (..))
+import Decaf.Client.Internal.Utils (compose)
+import GHC.Stack (HasCallStack)
+import qualified Network.HTTP.Conduit as HC
+import qualified Network.HTTP.Simple as HS
+import Network.HTTP.Types (Status (statusCode), queryTextToQuery)
 
 
 -- * HTTP Request Runners
--- $httpRequestRunners
 
 
 -- | Provides the canonical, low-level request performer for this library.
@@ -72,27 +71,29 @@ performDecafRequestJson
   => DecafRequest
   -> m (DecafResponse a)
 performDecafRequestJson request = do
-  DecafResponse{..} <- performDecafRequest request
+  DecafResponse {..} <- performDecafRequest request
   case Aeson.eitherDecode decafResponseBody of
     Left err -> throwParseException "Error while parsing response body" (T.pack err)
-    Right sv -> pure $ DecafResponse
-      { decafResponseStatus  = decafResponseStatus
-      , decafResponseHeaders = decafResponseHeaders
-      , decafResponseBody    = sv
-      }
+    Right sv ->
+      pure $
+        DecafResponse
+          { decafResponseStatus = decafResponseStatus
+          , decafResponseHeaders = decafResponseHeaders
+          , decafResponseBody = sv
+          }
 
 
 -- * Internal
--- $internal
 
 
 -- | Converts the underlying "http-conduit" 'HS.Response' value into a DECAF
 -- client 'DecafResponse' value.
 mkResponse :: HS.Response a -> DecafResponse a
-mkResponse = DecafResponse
-  <$> HS.getResponseStatus
-  <*> HS.getResponseHeaders
-  <*> HS.getResponseBody
+mkResponse =
+  DecafResponse
+    <$> HS.getResponseStatus
+    <*> HS.getResponseHeaders
+    <*> HS.getResponseBody
 
 
 -- | Throws 'Decaf.Client.DecafClientException.DecafClientHttpStatusException'
@@ -118,14 +119,17 @@ compileRequest request = compiler request HS.defaultRequest
 
 -- | Request compiler.
 compiler :: RequestFieldSetter
-compiler r = compose $ fmap (\x -> x r)
-   [ setRemote
-   , setMethod
-   , setPath
-   , setHeaders
-   , setParams
-   , setPayload
-   ]
+compiler r =
+  compose $
+    fmap
+      (\x -> x r)
+      [ setRemote
+      , setMethod
+      , setPath
+      , setHeaders
+      , setParams
+      , setPayload
+      ]
 
 
 -- | Sets the request's remote information.
@@ -159,7 +163,7 @@ setHeaders r = HS.setRequestHeaders h''
   where
     a = ("Authorization", mkAuthorization . decafRequestCredentials $ r)
     u = ("UserAgent", TE.encodeUtf8 . decafRequestUserAgent $ r)
-    p =  foldMap (\x -> [("Content-Type", TE.encodeUtf8 . decafRequestPayloadType $ x)]) (decafRequestPayload r)
+    p = foldMap (\x -> [("Content-Type", TE.encodeUtf8 . decafRequestPayloadType $ x)]) (decafRequestPayload r)
     h' = decafRequestHeaders r
     h'' = a : u : (p <> h')
 
@@ -186,10 +190,10 @@ setPayload r = maybe id (HS.setRequestBody . HC.RequestBodyLBS . decafRequestPay
 -- >>> mkAuthorization $ DecafCredentialsToken "token"
 -- "Token token"
 mkAuthorization :: DecafCredentials -> B.ByteString
-mkAuthorization (DecafCredentialsHeader x)                          = TE.encodeUtf8 x
+mkAuthorization (DecafCredentialsHeader x) = TE.encodeUtf8 x
 mkAuthorization (DecafCredentialsBasic (DecafBasicCredentials u p)) = mkBasicAuth (TE.encodeUtf8 u) (TE.encodeUtf8 p)
-mkAuthorization (DecafCredentialsKey (DecafKeyCredentials k v))     = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
-mkAuthorization (DecafCredentialsToken t)                           = mkTokenAuth (TE.encodeUtf8 t)
+mkAuthorization (DecafCredentialsKey (DecafKeyCredentials k v)) = mkKeyAuth (TE.encodeUtf8 k) (TE.encodeUtf8 v)
+mkAuthorization (DecafCredentialsToken t) = mkTokenAuth (TE.encodeUtf8 t)
 
 
 -- | Builds an HTTP @Authorization@ header value from username and password (HTTP Basic Auth).

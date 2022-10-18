@@ -1,10 +1,9 @@
 -- | This module provides generic auxiliaries.
-
 module Decaf.Client.Internal.Utils where
 
 import qualified Data.Aeson as Aeson
-import           Data.List  (dropWhileEnd, stripPrefix)
-import           Data.Maybe (fromMaybe)
+import Data.List (dropWhileEnd, stripPrefix)
+import Data.Maybe (fromMaybe)
 
 
 -- | Removes leading, successive elements from a list of elements if it is equal
@@ -63,8 +62,9 @@ commonAesonOptions prefix =
     { Aeson.omitNothingFields = True
     , Aeson.fieldLabelModifier = \l -> Aeson.camelTo2 '_' . fromMaybe l $ stripPrefix prefix l
     , Aeson.constructorTagModifier = \l -> Aeson.camelTo2 '_' . fromMaybe l $ stripPrefix prefix l
-    , Aeson.sumEncoding = Aeson.TaggedObject
-        { Aeson.tagFieldName = "type"
-        , Aeson.contentsFieldName = "value"
-        }
+    , Aeson.sumEncoding =
+        Aeson.TaggedObject
+          { Aeson.tagFieldName = "type"
+          , Aeson.contentsFieldName = "value"
+          }
     }

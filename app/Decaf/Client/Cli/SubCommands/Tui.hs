@@ -1,129 +1,133 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Decaf.Client.Cli.SubCommands.Tui where
 
-import           Brick                         ((<=>))
+import Brick ((<=>))
 import qualified Brick
-import qualified Brick.Widgets.Border          as Border
-import qualified Brick.Widgets.Table           as Table
-import           Control.Monad                 (void)
-import           Control.Monad.Catch           (catch)
-import           Control.Monad.IO.Class        (liftIO)
-import qualified Control.Monad.Parallel        as MP
+import qualified Brick.Widgets.Border as Border
+import qualified Brick.Widgets.Table as Table
+import Control.Monad (void)
+import Control.Monad.Catch (catch)
+import Control.Monad.IO.Class (liftIO)
+import qualified Control.Monad.Parallel as MP
 import qualified Data.Aeson.Combinators.Decode as ACD
-import qualified Data.Text                     as T
-import qualified Data.Text.Encoding            as TE
-import qualified Data.Text.Lazy                as TL
-import qualified Data.Text.Lazy.Encoding       as TLE
-import qualified Decaf.Client                  as DC
-import qualified Graphics.Vty                  as Vty
-import           Network.HTTP.Types            (statusCode)
-import           System.Exit                   (ExitCode(ExitSuccess))
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
+import qualified Decaf.Client as DC
+import qualified Graphics.Vty as Vty
+import Network.HTTP.Types (statusCode)
 
 
 -- * Top-Level
--- $topLevel
 
 
 runTui :: FilePath -> IO ()
 runTui fp = do
   profiles <- DC.readDecafProfiles fp
-  void . Brick.defaultMain app $ TuiState
-     { tuiStateProfiles = profiles
-     , tuiStateWorld    = TuiStateWorldProfileInfos []
-     }
+  void . Brick.defaultMain app $
+    TuiState
+      { tuiStateProfiles = profiles
+      , tuiStateWorld = TuiStateWorldProfileInfos []
+      }
 
 
 -- * Data Definitions
--- $dataDefinitions
 
 
 data TuiState = TuiState
   { tuiStateProfiles :: ![DC.DecafProfile]
-  , tuiStateWorld    :: !TuiStateWorld
+  , tuiStateWorld :: !TuiStateWorld
   }
 
 
-data TuiStateWorld =
-    TuiStateWorldAbout
+data TuiStateWorld
+  = TuiStateWorldAbout
   | TuiStateWorldProfileInfos [TuiProfileInfo]
 
 
 data TuiProfileInfo = TuiProfileInfo
-  { tuiProfileInfoProfile              :: !DC.DecafProfile
-  , tuiProfileInfoVersionCultproxy     :: !(Either T.Text T.Text)
-  , tuiProfileInfoVersionBarista       :: !(Either T.Text T.Text)
-  , tuiProfileInfoVersionEstate        :: !(Either T.Text T.Text)
-  , tuiProfileInfoStatusFunction       :: !(Either T.Text T.Text)
-  , tuiProfileInfoStatusBeanbag        :: !(Either T.Text T.Text)
-  , tuiProfileInfoCountPortfolio       :: !(Either T.Text T.Text)
+  { tuiProfileInfoProfile :: !DC.DecafProfile
+  , tuiProfileInfoVersionCultproxy :: !(Either T.Text T.Text)
+  , tuiProfileInfoVersionBarista :: !(Either T.Text T.Text)
+  , tuiProfileInfoVersionEstate :: !(Either T.Text T.Text)
+  , tuiProfileInfoStatusFunction :: !(Either T.Text T.Text)
+  , tuiProfileInfoStatusBeanbag :: !(Either T.Text T.Text)
+  , tuiProfileInfoCountPortfolio :: !(Either T.Text T.Text)
   , tuiProfileInfoCountActivePrincipal :: !(Either T.Text T.Text)
-  , tuiProfileInfoCountPolicy          :: !(Either T.Text T.Text)
+  , tuiProfileInfoCountPolicy :: !(Either T.Text T.Text)
   }
 
 
 -- * Application
--- $application
 
 
 app :: Brick.App TuiState e ()
-app = Brick.App
-  { Brick.appDraw         = \s -> [mkFrame s]
-  , Brick.appChooseCursor = Brick.neverShowCursor
-  , Brick.appHandleEvent  = handleEvent
-  , Brick.appStartEvent   = reloadTuiProfileInfos
-  , Brick.appAttrMap      = const attrMap
-  }
+app =
+  Brick.App
+    { Brick.appDraw = \s -> [mkFrame s]
+    , Brick.appChooseCursor = Brick.neverShowCursor
+    , Brick.appHandleEvent = handleEvent
+    , Brick.appStartEvent = reloadTuiProfileInfos
+    , Brick.appAttrMap = const attrMap
+    }
 
 
 handleEvent :: TuiState -> Brick.BrickEvent () e -> Brick.EventM () (Brick.Next TuiState)
 handleEvent s (Brick.VtyEvent ev) = case ev of
-  Vty.EvKey Vty.KEsc []            -> Brick.halt s
-  Vty.EvKey (Vty.KChar 'q') _      -> Brick.halt s
-  Vty.EvKey (Vty.KChar 'a') _      -> Brick.continue (s { tuiStateWorld = TuiStateWorldAbout })
-  Vty.EvKey (Vty.KChar 'r') _      -> reloadTuiProfileInfos s >>= Brick.continue
-  Vty.EvKey _ _                    -> Brick.continue s
+  Vty.EvKey Vty.KEsc [] -> Brick.halt s
+  Vty.EvKey (Vty.KChar 'q') _ -> Brick.halt s
+  Vty.EvKey (Vty.KChar 'a') _ -> Brick.continue (s {tuiStateWorld = TuiStateWorldAbout})
+  Vty.EvKey (Vty.KChar 'r') _ -> reloadTuiProfileInfos s >>= Brick.continue
+  Vty.EvKey _ _ -> Brick.continue s
   Vty.EvMouseDown _n _i _but _mods -> Brick.continue s
-  Vty.EvMouseUp _n _i _mBut        -> Brick.continue s
-  Vty.EvResize _n _i               -> Brick.continue s
-  Vty.EvPaste _bs                  -> Brick.continue s
-  Vty.EvLostFocus                  -> Brick.continue s
-  Vty.EvGainedFocus                -> Brick.continue s
+  Vty.EvMouseUp _n _i _mBut -> Brick.continue s
+  Vty.EvResize _n _i -> Brick.continue s
+  Vty.EvPaste _bs -> Brick.continue s
+  Vty.EvLostFocus -> Brick.continue s
+  Vty.EvGainedFocus -> Brick.continue s
 handleEvent b _ = Brick.continue b
 
 
 attrMap :: Brick.AttrMap
-attrMap = Brick.attrMap Vty.defAttr
-  [ ("info",    Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.black} )
-  , ("muted",   Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.cyan } )
-  , ("success", Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.green } )
-  , ("warning", Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.yellow } )
-  , ("failure", Vty.defAttr { Vty.attrForeColor = Vty.SetTo Vty.red } )
-  ]
+attrMap =
+  Brick.attrMap
+    Vty.defAttr
+    [ ("info", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.black})
+    , ("muted", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.cyan})
+    , ("success", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.green})
+    , ("warning", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.yellow})
+    , ("failure", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.red})
+    ]
 
 
 -- * UI
--- $ui
 
 
 mkFrame :: TuiState -> Brick.Widget ()
-mkFrame s = Border.hBorderWithLabel (Brick.txt " DECAF Client ")
-  <=> Brick.padBottom Brick.Max (case tuiStateWorld s of
-    TuiStateWorldAbout           -> Brick.txt "This application is a simple TUI interface to DECAF Client Library."
-    TuiStateWorldProfileInfos xs -> profilesTableWidget xs
-  )
-  <=> Border.hBorderWithLabel (Brick.txt " ESC: Quit - q: Quit - r: Refresh Status - a: About ")
+mkFrame s =
+  Border.hBorderWithLabel (Brick.txt " DECAF Client ")
+    <=> Brick.padBottom
+      Brick.Max
+      ( case tuiStateWorld s of
+          TuiStateWorldAbout -> Brick.txt "This application is a simple TUI interface to DECAF Client Library."
+          TuiStateWorldProfileInfos xs -> profilesTableWidget xs
+      )
+    <=> Border.hBorderWithLabel (Brick.txt " ESC: Quit - q: Quit - r: Refresh Status - a: About ")
 
 
 profilesTableWidget :: [TuiProfileInfo] -> Brick.Widget ()
-profilesTableWidget = Table.renderTable
-  . Table.surroundingBorder True
-  . Table.setColAlignment Table.AlignRight 7
-  . Table.setColAlignment Table.AlignRight 8
-  . Table.setColAlignment Table.AlignRight 9
-  . Table.table
-  . (profilesTableHeader :)
-  . fmap mkProfilesTableRow
+profilesTableWidget =
+  Table.renderTable
+    . Table.surroundingBorder True
+    . Table.setColAlignment Table.AlignRight 7
+    . Table.setColAlignment Table.AlignRight 8
+    . Table.setColAlignment Table.AlignRight 9
+    . Table.table
+    . (profilesTableHeader :)
+    . fmap mkProfilesTableRow
 
 
 profilesTableHeader :: [Brick.Widget ()]
@@ -142,7 +146,7 @@ profilesTableHeader =
 
 
 mkProfilesTableRow :: TuiProfileInfo -> [Brick.Widget ()]
-mkProfilesTableRow TuiProfileInfo{..} =
+mkProfilesTableRow TuiProfileInfo {..} =
   [ Brick.txt (DC.decafProfileName tuiProfileInfoProfile)
   , Brick.txt (DC.remoteToUrl . DC.decafProfileRemote $ tuiProfileInfoProfile)
   , widget tuiProfileInfoVersionCultproxy
@@ -160,15 +164,15 @@ mkProfilesTableRow TuiProfileInfo{..} =
 
 
 -- * Event Logic
--- $eventLogic
 
 
 reloadTuiProfileInfos :: TuiState -> Brick.EventM () TuiState
-reloadTuiProfileInfos state@TuiState{..} = do
+reloadTuiProfileInfos state@TuiState {..} = do
   infos <- liftIO $ getTuiProfileInfos tuiStateProfiles
-  pure $ state
-    { tuiStateWorld = TuiStateWorldProfileInfos infos
-    }
+  pure $
+    state
+      { tuiStateWorld = TuiStateWorldProfileInfos infos
+      }
 
 
 getTuiProfileInfos :: [DC.DecafProfile] -> IO [TuiProfileInfo]
@@ -186,19 +190,19 @@ getTuiProfileInfo profile = do
   portfolioCount <- getPortfolioCount client `catch` handleError
   activePrincipalCount <- getActivePrincipalCount client `catch` handleError
   policyCount <- getPolicyCount client `catch` handleError
-  pure $ TuiProfileInfo
-    { tuiProfileInfoProfile              = profile
-    , tuiProfileInfoVersionCultproxy     = cultproxy
-    , tuiProfileInfoVersionBarista       = barista
-    , tuiProfileInfoVersionEstate        = estate
-    , tuiProfileInfoStatusFunction       = function
-    , tuiProfileInfoStatusBeanbag        = beanbag
-    , tuiProfileInfoCountPortfolio       = portfolioCount
-    , tuiProfileInfoCountActivePrincipal = activePrincipalCount
-    , tuiProfileInfoCountPolicy          = policyCount
-    }
+  pure $
+    TuiProfileInfo
+      { tuiProfileInfoProfile = profile
+      , tuiProfileInfoVersionCultproxy = cultproxy
+      , tuiProfileInfoVersionBarista = barista
+      , tuiProfileInfoVersionEstate = estate
+      , tuiProfileInfoStatusFunction = function
+      , tuiProfileInfoStatusBeanbag = beanbag
+      , tuiProfileInfoCountPortfolio = portfolioCount
+      , tuiProfileInfoCountActivePrincipal = activePrincipalCount
+      , tuiProfileInfoCountPolicy = policyCount
+      }
   where
-    portfolioCountQuery = "query {\n  portfolio_aggregate {\n    aggregate {\n      count\n    }\n  }\n}"
     handleError (_ :: DC.DecafClientException) = pure $ Left "ERR"
 
 
@@ -259,9 +263,9 @@ getPolicyCount client = do
   response <- DC.performDecafRequest (DC.buildDecafRequest (DC.noCheckResponse . DC.graphqlNoVars query . DC.apiModulePdms) client)
   case statusCode (DC.decafResponseStatus response) of
     200 -> case ACD.eitherDecode (ACD.at ["data", "policy_aggregate", "aggregate", "count"] ACD.auto) (DC.decafResponseBody response) of
-       Left err -> pure $ Left (T.pack err)
-       Right sv -> pure $ Right (T.pack (show (sv :: Int)))
+      Left err -> pure $ Left (T.pack err)
+      Right sv -> pure $ Right (T.pack (show (sv :: Int)))
     404 -> pure (Right " ")
-    _   -> pure (Left "Err")
+    _ -> pure (Left "Err")
   where
     query = "query {\n  policy_aggregate(where: {closed_on: {_is_null: true}}) {\n    aggregate {\n      count\n    }\n  }\n}"

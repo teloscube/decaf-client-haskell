@@ -1,41 +1,39 @@
--- | This module provides high-level DECAF API client and related definitions.
-
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
+-- | This module provides high-level DECAF API client and related definitions.
 module Decaf.Client.DecafClient where
 
-import           Control.Monad.Catch               (MonadCatch, MonadThrow)
-import qualified Data.Text                         as T
-
-import           Control.Monad.IO.Class            (MonadIO)
-import qualified Data.Aeson                        as Aeson
-import qualified Data.ByteString.Lazy              as BL
-import qualified Data.Text.Lazy                    as TL
-import qualified Data.Text.Lazy.Encoding           as TLE
-import           Decaf.Client.DecafClientException (throwRemoteException, throwRequestException)
-import           Decaf.Client.DecafCredentials     (DecafCredentials)
-import           Decaf.Client.DecafProfile         (DecafProfile(..))
-import           Decaf.Client.DecafRemote          (DecafRemote, parseRemote)
-import           Decaf.Client.DecafRequest
-                 ( DecafRequest(decafRequestRemote)
-                 , DecafRequestCombinator
-                 , apiBarista
-                 , apiBeanbag
-                 , apiEstate
-                 , apiFunctions
-                 , apiMicrolot
-                 , apiModulePdms
-                 , graphql
-                 , graphqlNoVars
-                 , initRequest
-                 )
-import           Decaf.Client.DecafResponse        (DecafGraphqlQueryResult(..), DecafResponse(decafResponseBody))
-import           Decaf.Client.Internal.Http        (performDecafRequest, performDecafRequestJson)
-import           GHC.Stack                         (HasCallStack)
+import Control.Monad.Catch (MonadCatch, MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
+import Decaf.Client.DecafClientException (throwRemoteException, throwRequestException)
+import Decaf.Client.DecafCredentials (DecafCredentials)
+import Decaf.Client.DecafProfile (DecafProfile (..))
+import Decaf.Client.DecafRemote (DecafRemote, parseRemote)
+import Decaf.Client.DecafRequest (
+  DecafRequest (decafRequestRemote),
+  DecafRequestCombinator,
+  apiBarista,
+  apiBeanbag,
+  apiEstate,
+  apiFunctions,
+  apiMicrolot,
+  apiModulePdms,
+  graphql,
+  graphqlNoVars,
+  initRequest,
+ )
+import Decaf.Client.DecafResponse (DecafGraphqlQueryResult (..), DecafResponse (decafResponseBody))
+import Decaf.Client.Internal.Http (performDecafRequest, performDecafRequestJson)
+import GHC.Stack (HasCallStack)
 
 
 -- * DECAF Client
--- $dataDefinition
 
 
 -- | Data definition that represents a DECAF API client.
@@ -50,7 +48,6 @@ decafClientRemote = decafRequestRemote . unDecafClient
 
 
 -- * Constructors
--- $constructors
 
 
 -- | Builds a 'DecafClient' from a given 'DecafRemote' and 'DecafCredentials'.
@@ -76,12 +73,11 @@ mkDecafClientM u c = either throwRemoteException (pure . flip mkDecafClient c) (
 mkDecafClientFromProfile
   :: DecafProfile
   -> DecafClient
-mkDecafClientFromProfile DecafProfile{..} =
+mkDecafClientFromProfile DecafProfile {..} =
   mkDecafClient decafProfileRemote decafProfileCredentials
 
 
 -- * Request Builders
--- $requestBuilders
 
 
 -- | Builds a 'DecafRequest' for the given 'DecafClient' with the given
@@ -91,11 +87,9 @@ buildDecafRequest c = c . unDecafClient
 
 
 -- * Runners
--- $runners
 
 
 -- ** Core Runners
--- $coreRunners
 
 
 -- | Attempts to runs a given 'DecafRequestCombinator' over a given
@@ -128,7 +122,6 @@ runDecafClientJson c dc = decafResponseBody <$> performDecafRequestJson (buildDe
 
 
 -- ** Barista Runners
--- $baristaRunners
 
 
 -- | Convenience function for 'runDecafClient' that hits DECAF Barista API
@@ -159,7 +152,6 @@ runDecafBaristaJson c = runDecafClientJson (c . apiBarista)
 
 
 -- ** Estate Runners
--- $estateRunners
 
 
 -- | Convenience function for 'runDecafClient' that hits DECAF Estate API
@@ -190,7 +182,6 @@ runDecafEstateJson c = runDecafClientJson (c . apiEstate)
 
 
 -- ** Function Runners
--- $functionRunners
 
 
 -- | Convenience function for 'runDecafClient' that hits DECAF Functions API
@@ -221,7 +212,6 @@ runDecafFunctionJson c = runDecafClientJson (c . apiFunctions)
 
 
 -- ** Beanbag Runners
--- $beanbagRunners
 
 
 -- | Convenience function for 'runDecafClient' that hits DECAF Beanbag API
@@ -252,7 +242,6 @@ runDecafBeanbagJson c = runDecafClientJson (c . apiBeanbag)
 
 
 -- ** GraphQL Runners
--- $graphqlRunners
 
 
 -- | Convenience function for 'runDecafClientJson' that performs GraphQL queries

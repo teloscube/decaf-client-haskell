@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           decaf-client
-version:        0.0.0.5
+version:        0.0.0.6
 synopsis:       DECAF API Client Suite for Haskell
 description:    Please see the README on GitHub at <https://github.com/teloscube/decaf-client-haskell#readme>
 category:       Web
@@ -41,44 +41,6 @@ library
       Paths_decaf_client
   hs-source-dirs:
       src
-  default-extensions:
-      BangPatterns
-      BinaryLiterals
-      ConstrainedClassMethods
-      ConstraintKinds
-      DeriveDataTypeable
-      DeriveFoldable
-      DeriveFunctor
-      DeriveGeneric
-      DeriveLift
-      DeriveTraversable
-      EmptyCase
-      EmptyDataDeriving
-      ExistentialQuantification
-      ExplicitForAll
-      FlexibleContexts
-      FlexibleInstances
-      GADTSyntax
-      GeneralisedNewtypeDeriving
-      HexFloatLiterals
-      ImportQualifiedPost
-      InstanceSigs
-      KindSignatures
-      MultiParamTypeClasses
-      NamedFieldPuns
-      NamedWildCards
-      NumericUnderscores
-      PolyKinds
-      PostfixOperators
-      RankNTypes
-      ScopedTypeVariables
-      StandaloneDeriving
-      StandaloneKindSignatures
-      TupleSections
-      TypeApplications
-      TypeOperators
-      TypeSynonymInstances
-      OverloadedStrings
   ghc-options: -Wall -Wunused-packages
   build-depends:
       aeson
@@ -91,7 +53,6 @@ library
     , http-types
     , network-uri
     , text
-    , unordered-containers
     , yaml
   default-language: Haskell2010
 
@@ -106,67 +67,24 @@ executable decafcli
       Paths_decaf_client
   hs-source-dirs:
       app
-  default-extensions:
-      BangPatterns
-      BinaryLiterals
-      ConstrainedClassMethods
-      ConstraintKinds
-      DeriveDataTypeable
-      DeriveFoldable
-      DeriveFunctor
-      DeriveGeneric
-      DeriveLift
-      DeriveTraversable
-      EmptyCase
-      EmptyDataDeriving
-      ExistentialQuantification
-      ExplicitForAll
-      FlexibleContexts
-      FlexibleInstances
-      GADTSyntax
-      GeneralisedNewtypeDeriving
-      HexFloatLiterals
-      ImportQualifiedPost
-      InstanceSigs
-      KindSignatures
-      MultiParamTypeClasses
-      NamedFieldPuns
-      NamedWildCards
-      NumericUnderscores
-      PolyKinds
-      PostfixOperators
-      RankNTypes
-      ScopedTypeVariables
-      StandaloneDeriving
-      StandaloneKindSignatures
-      TupleSections
-      TypeApplications
-      TypeOperators
-      TypeSynonymInstances
-      OverloadedStrings
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , aeson-combinators
     , base >=4.7 && <5
-    , base64-bytestring
     , blaze-html
     , blaze-markup
     , brick
     , bytestring
-    , case-insensitive
     , data-default-class
     , decaf-client
     , exceptions
-    , http-conduit
     , http-types
     , monad-parallel
-    , network-uri
     , optparse-applicative
     , scotty
     , string-interpolate
     , text
-    , unordered-containers
     , vector
     , vty
     , warp
@@ -180,22 +98,10 @@ test-suite decaf-client-doctest
       Paths_decaf_client
   hs-source-dirs:
       ./
-  ghc-options: -threaded
+  ghc-options: -Wall -Wunused-packages -threaded
   build-depends:
-      aeson
-    , base >=4.7 && <5
-    , base64-bytestring
-    , bytestring
-    , case-insensitive
-    , decaf-client
+      base >=4.7 && <5
     , doctest
-    , exceptions
-    , http-conduit
-    , http-types
-    , network-uri
-    , text
-    , unordered-containers
-    , yaml
   default-language: Haskell2010
 
 test-suite decaf-client-test
@@ -206,58 +112,14 @@ test-suite decaf-client-test
       Paths_decaf_client
   hs-source-dirs:
       test
-  default-extensions:
-      BangPatterns
-      BinaryLiterals
-      ConstrainedClassMethods
-      ConstraintKinds
-      DeriveDataTypeable
-      DeriveFoldable
-      DeriveFunctor
-      DeriveGeneric
-      DeriveLift
-      DeriveTraversable
-      EmptyCase
-      EmptyDataDeriving
-      ExistentialQuantification
-      ExplicitForAll
-      FlexibleContexts
-      FlexibleInstances
-      GADTSyntax
-      GeneralisedNewtypeDeriving
-      HexFloatLiterals
-      ImportQualifiedPost
-      InstanceSigs
-      KindSignatures
-      MultiParamTypeClasses
-      NamedFieldPuns
-      NamedWildCards
-      NumericUnderscores
-      PolyKinds
-      PostfixOperators
-      RankNTypes
-      ScopedTypeVariables
-      StandaloneDeriving
-      StandaloneKindSignatures
-      TupleSections
-      TypeApplications
-      TypeOperators
-      TypeSynonymInstances
-      OverloadedStrings
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , base >=4.7 && <5
-    , base64-bytestring
     , bytestring
-    , case-insensitive
     , decaf-client
     , exceptions
     , hspec
-    , http-conduit
-    , http-types
-    , network-uri
     , text
     , unordered-containers
-    , yaml
   default-language: Haskell2010

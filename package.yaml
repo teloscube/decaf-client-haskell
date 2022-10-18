@@ -1,5 +1,5 @@
 name:                decaf-client
-version:             0.0.0.5
+version:             0.0.0.6
 github:              "teloscube/decaf-client-haskell"
 license:             BSD3
 author:              "Vehbi Sinan Tunalioglu"
@@ -17,196 +17,80 @@ description:         Please see the README on GitHub at <https://github.com/telo
 
 dependencies:
 - base >= 4.7 && < 5
-- aeson
-- base64-bytestring
-- bytestring
-- case-insensitive
-- exceptions
-- http-conduit
-- http-types
-- network-uri
-- text
-- unordered-containers
-- yaml
 
 library:
   source-dirs: src
   ghc-options:
   - -Wall
   - -Wunused-packages
-  default-extensions:
-  ## Begin: Haskell 2021 Extensions List
-  - BangPatterns
-  - BinaryLiterals
-  - ConstrainedClassMethods
-  - ConstraintKinds
-  - DeriveDataTypeable
-  - DeriveFoldable
-  - DeriveFunctor
-  - DeriveGeneric
-  - DeriveLift
-  - DeriveTraversable
-  - EmptyCase
-  - EmptyDataDeriving
-  - ExistentialQuantification
-  - ExplicitForAll
-  - FlexibleContexts
-  - FlexibleInstances
-  - GADTSyntax
-  - GeneralisedNewtypeDeriving
-  - HexFloatLiterals
-  - ImportQualifiedPost
-  - InstanceSigs
-  - KindSignatures
-  - MultiParamTypeClasses
-  - NamedFieldPuns
-  - NamedWildCards
-  - NumericUnderscores
-  - PolyKinds
-  - PostfixOperators
-  - RankNTypes
-  - ScopedTypeVariables
-  - StandaloneDeriving
-  - StandaloneKindSignatures
-  - TupleSections
-  - TypeApplications
-  - TypeOperators
-  - TypeSynonymInstances
-  ## End: Haskell 2021 Extensions List
-  - OverloadedStrings
+  dependencies:
+  - aeson
+  - base64-bytestring
+  - bytestring
+  - case-insensitive
+  - exceptions
+  - http-conduit
+  - http-types
+  - network-uri
+  - text
+  - yaml
 
 executables:
   decafcli:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
+    - -Wall
+    - -Wunused-packages
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - decaf-client
+    - aeson
     - aeson-combinators
     - blaze-html
     - blaze-markup
     - brick
+    - bytestring
     - data-default-class
+    - decaf-client
+    - exceptions
+    - http-types
     - monad-parallel
     - optparse-applicative
     - scotty
     - string-interpolate
-    - unordered-containers
+    - text
     - vector
     - vty
     - warp
-    default-extensions:
-    ## Begin: Haskell 2021 Extensions List
-    - BangPatterns
-    - BinaryLiterals
-    - ConstrainedClassMethods
-    - ConstraintKinds
-    - DeriveDataTypeable
-    - DeriveFoldable
-    - DeriveFunctor
-    - DeriveGeneric
-    - DeriveLift
-    - DeriveTraversable
-    - EmptyCase
-    - EmptyDataDeriving
-    - ExistentialQuantification
-    - ExplicitForAll
-    - FlexibleContexts
-    - FlexibleInstances
-    - GADTSyntax
-    - GeneralisedNewtypeDeriving
-    - HexFloatLiterals
-    - ImportQualifiedPost
-    - InstanceSigs
-    - KindSignatures
-    - MultiParamTypeClasses
-    - NamedFieldPuns
-    - NamedWildCards
-    - NumericUnderscores
-    - PolyKinds
-    - PostfixOperators
-    - RankNTypes
-    - ScopedTypeVariables
-    - StandaloneDeriving
-    - StandaloneKindSignatures
-    - TupleSections
-    - TypeApplications
-    - TypeOperators
-    - TypeSynonymInstances
-    ## End: Haskell 2021 Extensions List
-    - OverloadedStrings
+    - yaml
 
 tests:
   decaf-client-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
+    - -Wall
+    - -Wunused-packages
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - decaf-client
-    - hspec
     - aeson
-    - base64-bytestring
     - bytestring
-    - case-insensitive
+    - decaf-client
     - exceptions
-    - http-conduit
-    - http-types
-    - network-uri
+    - hspec
     - text
     - unordered-containers
-    - yaml
-    default-extensions:
-    ## Begin: Haskell 2021 Extensions List
-    - BangPatterns
-    - BinaryLiterals
-    - ConstrainedClassMethods
-    - ConstraintKinds
-    - DeriveDataTypeable
-    - DeriveFoldable
-    - DeriveFunctor
-    - DeriveGeneric
-    - DeriveLift
-    - DeriveTraversable
-    - EmptyCase
-    - EmptyDataDeriving
-    - ExistentialQuantification
-    - ExplicitForAll
-    - FlexibleContexts
-    - FlexibleInstances
-    - GADTSyntax
-    - GeneralisedNewtypeDeriving
-    - HexFloatLiterals
-    - ImportQualifiedPost
-    - InstanceSigs
-    - KindSignatures
-    - MultiParamTypeClasses
-    - NamedFieldPuns
-    - NamedWildCards
-    - NumericUnderscores
-    - PolyKinds
-    - PostfixOperators
-    - RankNTypes
-    - ScopedTypeVariables
-    - StandaloneDeriving
-    - StandaloneKindSignatures
-    - TupleSections
-    - TypeApplications
-    - TypeOperators
-    - TypeSynonymInstances
-    ## End: Haskell 2021 Extensions List
-    - OverloadedStrings
 
   decaf-client-doctest:
     main:                doctest.hs
     source-dirs:         .
     ghc-options:
+    - -Wall
+    - -Wunused-packages
     - -threaded
     dependencies:
-    - decaf-client
     - doctest

@@ -1,26 +1,14 @@
 {
-    "haskellNix": {
-        "branch": "master",
-        "description": "Alternative Haskell Infrastructure for Nixpkgs",
-        "homepage": "https://input-output-hk.github.io/haskell.nix",
-        "owner": "input-output-hk",
-        "repo": "haskell.nix",
-        "rev": "beb2d052f86e96e34372fadb8f35a920ec075cc4",
-        "sha256": "08n2hjsfndvxahxk6rxnfwcqiqy4fwbgmjdcqkxj90ggrnhqcncz",
+    "telosnix": {
+        "branch": "v0.0.4",
+        "description": null,
+        "homepage": null,
+        "owner": "telostat",
+        "repo": "telos.nix",
+        "rev": "4d45ee0f57fb6979781b726cdf87eb68f4ef672d",
+        "sha256": "0my9pmbvyfpj3n747zmwhl6fk8mhnmirl18zmlpy29g1pcd891k2",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/haskell.nix/archive/beb2d052f86e96e34372fadb8f35a920ec075cc4.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "nixpkgs": {
-        "branch": "22.05",
-        "description": "Nix Packages collection",
-        "homepage": "",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "ce6aa13369b667ac2542593170993504932eb836",
-        "sha256": "0d643wp3l77hv2pmg2fi7vyxn4rwy0iyr8djcw1h5x72315ck9ik",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/ce6aa13369b667ac2542593170993504932eb836.tar.gz",
+        "url": "https://github.com/telostat/telos.nix/archive/4d45ee0f57fb6979781b726cdf87eb68f4ef672d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

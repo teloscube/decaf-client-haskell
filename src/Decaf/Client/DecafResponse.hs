@@ -1,42 +1,32 @@
--- | This module provides definitions to work with DECAF client responses.
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 
+-- | This module provides definitions to work with DECAF client responses.
 module Decaf.Client.DecafResponse where
 
-import           Data.Aeson          ((.:))
-import qualified Data.Aeson          as Aeson
-import           Network.HTTP.Types  (ResponseHeaders, Status)
-
-#if MIN_VERSION_aeson(2,0,0)
+import Data.Aeson ((.:))
+import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.KeyMap
-#else
-import qualified Data.HashMap.Strict as HM
-#endif
+import Network.HTTP.Types (ResponseHeaders, Status)
 
 
 -- | Data definition for DECAF client response values.
 data DecafResponse a = DecafResponse
-  { decafResponseStatus  :: !Status
+  { decafResponseStatus :: !Status
   , decafResponseHeaders :: !ResponseHeaders
-  , decafResponseBody    :: !a
+  , decafResponseBody :: !a
   }
-  deriving Show
+  deriving (Show)
 
 
 -- | Data definition for DECAF GraphQL query results.
-data DecafGraphqlQueryResult a =
-    DecafGraphqlQueryResultSuccess !a
+data DecafGraphqlQueryResult a
+  = DecafGraphqlQueryResultSuccess !a
   | DecafGraphqlQueryResultFailure !Aeson.Value
-  deriving Show
+  deriving (Show)
 
 
 instance Aeson.FromJSON a => Aeson.FromJSON (DecafGraphqlQueryResult a) where
   parseJSON = Aeson.withObject "DecafGraphqlQueryResult" $ \o -> do
-#if MIN_VERSION_aeson(2,0,0)
-    let merrs = Data.Aeson.KeyMap.lookup "errors" o
-#else
-    let merrs = HM.lookup "errors" o
-#endif
-    case merrs of
+    case Data.Aeson.KeyMap.lookup "errors" o of
       Nothing -> DecafGraphqlQueryResultSuccess <$> o .: "data"
       Just va -> pure (DecafGraphqlQueryResultFailure va)
