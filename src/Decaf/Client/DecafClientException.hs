@@ -3,17 +3,16 @@
 
 -- | This module provides definitions for exceptions "Decaf.Client" module can
 -- throw and related helpers.
-
 module Decaf.Client.DecafClientException where
 
-import           Control.Exception          (Exception, IOException)
-import           Control.Monad.Catch        (MonadThrow(throwM))
-import qualified Data.ByteString.Lazy       as BL
-import qualified Data.Text                  as T
-import           Decaf.Client.DecafRequest  (DecafRequest)
-import           Decaf.Client.DecafResponse (DecafResponse)
-import           GHC.Stack                  (HasCallStack)
-import qualified Network.HTTP.Simple        as HS
+import Control.Exception (Exception, IOException)
+import Control.Monad.Catch (MonadThrow (throwM))
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.Text as T
+import Decaf.Client.DecafRequest (DecafRequest)
+import Decaf.Client.DecafResponse (DecafResponse)
+import GHC.Stack (HasCallStack)
+import qualified Network.HTTP.Simple as HS
 
 
 -- | Type encoding of the exception that can be thrown by "Decaf.Client".
@@ -36,8 +35,10 @@ instance Exception DecafClientException
 throwIOException
   :: HasCallStack
   => MonadThrow m
-  => T.Text       -- ^ Message.
-  -> IOException  -- ^ Underlying IO exception.
+  => T.Text
+  -- ^ Message.
+  -> IOException
+  -- ^ Underlying IO exception.
   -> m a
 throwIOException msg exc = throwM (DecafClientIOException msg exc)
 
@@ -46,8 +47,10 @@ throwIOException msg exc = throwM (DecafClientIOException msg exc)
 throwParseException
   :: HasCallStack
   => MonadThrow m
-  => T.Text  -- ^ Message.
-  -> T.Text  -- ^ Parse error.
+  => T.Text
+  -- ^ Message.
+  -> T.Text
+  -- ^ Parse error.
   -> m a
 throwParseException msg err = throwM (DecafClientParseException msg err)
 
@@ -56,7 +59,8 @@ throwParseException msg err = throwM (DecafClientParseException msg err)
 throwRemoteException
   :: HasCallStack
   => MonadThrow m
-  => T.Text  -- ^ Message.
+  => T.Text
+  -- ^ Message.
   -> m a
 throwRemoteException = throwM . DecafClientRemoteException
 
@@ -65,7 +69,8 @@ throwRemoteException = throwM . DecafClientRemoteException
 throwRequestException
   :: HasCallStack
   => MonadThrow m
-  => T.Text  -- ^ Message.
+  => T.Text
+  -- ^ Message.
   -> m a
 throwRequestException = throwM . DecafClientRequestException
 
@@ -74,7 +79,8 @@ throwRequestException = throwM . DecafClientRequestException
 throwStatusException
   :: HasCallStack
   => MonadThrow m
-  => DecafResponse BL.ByteString  -- ^ Raw-response that causes HTTP status exception.
+  => DecafResponse BL.ByteString
+  -- ^ Raw-response that causes HTTP status exception.
   -> m a
 throwStatusException = throwM . DecafClientHttpStatusException
 

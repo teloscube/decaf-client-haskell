@@ -3,20 +3,19 @@
 
 module Mocking where
 
-import           Control.Monad.Catch         (MonadCatch, MonadThrow)
-import           Control.Monad.IO.Class      (MonadIO)
-import qualified Data.Aeson                  as Aeson
-import qualified Data.ByteString.Lazy        as BL
-import qualified Data.HashMap.Strict         as HM
-import qualified Data.Text                   as T
-import qualified Decaf.Client                as DC
-import           Decaf.Client.Internal.Utils (commonAesonOptions)
-import           GHC.Generics                (Generic)
-import           GHC.Stack                   (HasCallStack)
+import Control.Monad.Catch (MonadCatch, MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.HashMap.Strict as HM
+import qualified Data.Text as T
+import qualified Decaf.Client as DC
+import Decaf.Client.Internal.Utils (commonAesonOptions)
+import GHC.Generics (Generic)
+import GHC.Stack (HasCallStack)
 
 
 -- * Mock Client
--- $client
 
 
 mockClient :: DC.DecafClient
@@ -24,34 +23,36 @@ mockClient = DC.mkDecafClient mockRemote mockCredentials
 
 
 mockRemote :: DC.DecafRemote
-mockRemote = DC.DecafRemote
-    { DC.decafRemoteHost   = "httpbin.org"
-    , DC.decafRemotePort   = Nothing
+mockRemote =
+  DC.DecafRemote
+    { DC.decafRemoteHost = "httpbin.org"
+    , DC.decafRemotePort = Nothing
     , DC.decafRemoteSecure = True
     }
 
 
 mockCredentials :: DC.DecafCredentials
-mockCredentials = DC.DecafCredentialsBasic $ DC.DecafBasicCredentials
-  { DC.decafBasicCredentialsUsername = "hebele"
-  , DC.decafBasicCredentialsPassword = "hubele"
-  }
+mockCredentials =
+  DC.DecafCredentialsBasic $
+    DC.DecafBasicCredentials
+      { DC.decafBasicCredentialsUsername = "hebele"
+      , DC.decafBasicCredentialsPassword = "hubele"
+      }
 
 
 -- * Anything
--- $anything
 
 
 data MockAnythingResponseBody = MockAnythingResponseBody
-  { mockAnythingResponseBodyArgs    :: !(HM.HashMap T.Text (Maybe T.Text))
-  , mockAnythingResponseBodyData    :: !T.Text
-  , mockAnythingResponseBodyFiles   :: !(HM.HashMap T.Text Aeson.Value)
-  , mockAnythingResponseBodyForm    :: !(HM.HashMap T.Text (Maybe T.Text))
+  { mockAnythingResponseBodyArgs :: !(HM.HashMap T.Text (Maybe T.Text))
+  , mockAnythingResponseBodyData :: !T.Text
+  , mockAnythingResponseBodyFiles :: !(HM.HashMap T.Text Aeson.Value)
+  , mockAnythingResponseBodyForm :: !(HM.HashMap T.Text (Maybe T.Text))
   , mockAnythingResponseBodyHeaders :: !(HM.HashMap T.Text (Maybe T.Text))
-  , mockAnythingResponseBodyJson    :: !Aeson.Value
-  , mockAnythingResponseBodyMethod  :: !T.Text
-  , mockAnythingResponseBodyOrigin  :: !T.Text
-  , mockAnythingResponseBodyUrl     :: !T.Text
+  , mockAnythingResponseBodyJson :: !Aeson.Value
+  , mockAnythingResponseBodyMethod :: !T.Text
+  , mockAnythingResponseBodyOrigin :: !T.Text
+  , mockAnythingResponseBodyUrl :: !T.Text
   }
   deriving (Generic, Show)
 

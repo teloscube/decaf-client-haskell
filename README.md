@@ -119,7 +119,7 @@ hlint app/ src/ test/
 Format codebase:
 
 ```sh
-stylish-haskell -ir app/ src/ test/
+fourmolu -i app/ src/ test/
 ```
 
 ## License

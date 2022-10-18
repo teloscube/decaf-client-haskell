@@ -1,80 +1,80 @@
--- | This module provides definitions to work with DECAF client requests.
-
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+-- | This module provides definitions to work with DECAF client requests.
 module Decaf.Client.DecafRequest where
 
-import qualified Data.Aeson                    as Aeson
-import qualified Data.ByteString.Lazy          as BL
-import qualified Data.CaseInsensitive          as CI
-import qualified Data.Text                     as T
-import qualified Data.Text.Encoding            as TE
-import           Data.Version                  (showVersion)
-import           Decaf.Client.DecafCredentials (DecafCredentials(DecafCredentialsHeader))
-import           Decaf.Client.DecafRemote      (DecafRemote(..), remoteToUrl)
-import           Decaf.Client.Internal.Utils   (commonAesonOptions, dropTrailing)
-import           GHC.Generics                  (Generic)
-import           Network.HTTP.Types
-                 ( Header
-                 , QueryText
-                 , RequestHeaders
-                 , StdMethod(DELETE, GET, PATCH, POST, PUT)
-                 )
-import           Paths_decaf_client            (version)
-import           Text.Printf                   (printf)
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.CaseInsensitive as CI
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
+import Data.Version (showVersion)
+import Decaf.Client.DecafCredentials (DecafCredentials (DecafCredentialsHeader))
+import Decaf.Client.DecafRemote (DecafRemote (..), remoteToUrl)
+import Decaf.Client.Internal.Utils (commonAesonOptions, dropTrailing)
+import GHC.Generics (Generic)
+import Network.HTTP.Types (
+  Header,
+  QueryText,
+  RequestHeaders,
+  StdMethod (DELETE, GET, PATCH, POST, PUT),
+ )
+import Paths_decaf_client (version)
+import Text.Printf (printf)
 
 
 -- * Data Definitions
--- $dataDefinitions
 
 
 -- ** DECAF API Requests
--- $decafApiRequests
 
 
 -- | Type definition for high-level encoding of DECAF client request values.
 data DecafRequest = DecafRequest
-  { decafRequestRemote        :: !DecafRemote
-  , decafRequestNamespace     :: !DecafRequestPath
-  , decafRequestCredentials   :: !DecafCredentials
-  , decafRequestUserAgent     :: !T.Text
-  , decafRequestHeaders       :: !RequestHeaders
-  , decafRequestMethod        :: !StdMethod
-  , decafRequestPath          :: !DecafRequestPath
+  { decafRequestRemote :: !DecafRemote
+  , decafRequestNamespace :: !DecafRequestPath
+  , decafRequestCredentials :: !DecafCredentials
+  , decafRequestUserAgent :: !T.Text
+  , decafRequestHeaders :: !RequestHeaders
+  , decafRequestMethod :: !StdMethod
+  , decafRequestPath :: !DecafRequestPath
   , decafRequestTrailingSlash :: !Bool
-  , decafRequestQuery         :: !QueryText
-  , decafRequestPayload       :: !(Maybe DecafRequestPayload)
+  , decafRequestQuery :: !QueryText
+  , decafRequestPayload :: !(Maybe DecafRequestPayload)
   , decafRequestCheckResponse :: !Bool
   }
 
 
 instance Show DecafRequest where
-  show x = dropTrailing '\n' $ unlines
-    [ "DecafRequest {"
-    , "  decafRequestRemote        = " <> show (decafRequestRemote x)
-    , "  decafRequestNamespace     = " <> show (decafRequestNamespace x)
-    , "  decafRequestCredentials   = " <> show (decafRequestCredentials x)
-    , "  decafRequestUserAgent     = " <> show (decafRequestUserAgent x)
-    , "  decafRequestHeaders       = " <> show (decafRequestHeaders x)
-    , "  decafRequestMethod        = " <> show (decafRequestMethod x)
-    , "  decafRequestPath          = " <> show (decafRequestPath x)
-    , "  decafRequestTrailingSlash = " <> show (decafRequestTrailingSlash x)
-    , "  decafRequestQuery         = " <> show (decafRequestQuery x)
-    , "  decafRequestPayload       = " <> show (decafRequestPayload x)
-    , "  decafRequestCheckResponse = " <> show (decafRequestCheckResponse x)
-    , "}"
-    ]
+  show x =
+    dropTrailing '\n' $
+      unlines
+        [ "DecafRequest {"
+        , "  decafRequestRemote        = " <> show (decafRequestRemote x)
+        , "  decafRequestNamespace     = " <> show (decafRequestNamespace x)
+        , "  decafRequestCredentials   = " <> show (decafRequestCredentials x)
+        , "  decafRequestUserAgent     = " <> show (decafRequestUserAgent x)
+        , "  decafRequestHeaders       = " <> show (decafRequestHeaders x)
+        , "  decafRequestMethod        = " <> show (decafRequestMethod x)
+        , "  decafRequestPath          = " <> show (decafRequestPath x)
+        , "  decafRequestTrailingSlash = " <> show (decafRequestTrailingSlash x)
+        , "  decafRequestQuery         = " <> show (decafRequestQuery x)
+        , "  decafRequestPayload       = " <> show (decafRequestPayload x)
+        , "  decafRequestCheckResponse = " <> show (decafRequestCheckResponse x)
+        , "}"
+        ]
 
 
 -- ** Request Payloads
--- $decafApiRequestPayloads
 
 
 -- | Data definition for DECAF client request payloads.
 data DecafRequestPayload = DecafRequestPayload
-  { decafRequestPayloadType    :: !T.Text         -- ^ HTTP content type.
-  , decafRequestPayloadContent :: !BL.ByteString  -- ^ HTTP payload body.
+  { decafRequestPayloadType :: !T.Text
+  -- ^ HTTP content type.
+  , decafRequestPayloadContent :: !BL.ByteString
+  -- ^ HTTP payload body.
   }
 
 
@@ -83,14 +83,13 @@ instance Show DecafRequestPayload where
 
 
 -- ** Request Paths
--- $decafApiRequestPaths
 
 
 -- | Type definition for a list of DECAF client request HTTP path segments.
 newtype DecafRequestPath = MkDecafRequestPath
   { unDecafRequestPath :: [T.Text]
   }
-  deriving Show
+  deriving (Show)
 
 
 -- >>> mkDecafRequestPath "/a/b" <> mkDecafRequestPath "/c/d"
@@ -132,12 +131,11 @@ mkDecafRequestPath = MkDecafRequestPath . filter ("" /=) . T.split ('/' ==)
 
 
 -- ** GraphQL Queries
--- $decafApiGraphqlQueries
 
 
 -- | Data definition for DECAF GrapgQL queries.
 data DecafGraphqlQuery a = MkDecafGraphqlQuery
-  { decafGraphqlQueryQuery     :: !String
+  { decafGraphqlQueryQuery :: !String
   , decafGraphqlQueryVariables :: !a
   }
   deriving (Generic, Show)
@@ -162,7 +160,6 @@ decafGraphqlQueryNoVars = flip MkDecafGraphqlQuery (Aeson.object [])
 
 
 -- * Request Initializers
--- $requestInitializers
 
 
 -- | Initializes a request with DECAF Instance URL and authentication credentials.
@@ -189,23 +186,23 @@ initRequest r c = (remote r . credentials c . header "X-DECAF-URL" (remoteToUrl 
 --
 -- This is useful to build 'DecafRequest' values using combinators.
 defaultRequest :: DecafRequest
-defaultRequest = DecafRequest
-  { decafRequestRemote        = DecafRemote "localhost" Nothing False
-  , decafRequestNamespace     = mempty
-  , decafRequestCredentials   = DecafCredentialsHeader "UNKNOWN"
-  , decafRequestUserAgent     = defaultUserAgent
-  , decafRequestHeaders       = []
-  , decafRequestMethod        = GET
-  , decafRequestPath          = mempty
-  , decafRequestTrailingSlash = False
-  , decafRequestQuery         = []
-  , decafRequestPayload       = Nothing
-  , decafRequestCheckResponse = True
-  }
+defaultRequest =
+  DecafRequest
+    { decafRequestRemote = DecafRemote "localhost" Nothing False
+    , decafRequestNamespace = mempty
+    , decafRequestCredentials = DecafCredentialsHeader "UNKNOWN"
+    , decafRequestUserAgent = defaultUserAgent
+    , decafRequestHeaders = []
+    , decafRequestMethod = GET
+    , decafRequestPath = mempty
+    , decafRequestTrailingSlash = False
+    , decafRequestQuery = []
+    , decafRequestPayload = Nothing
+    , decafRequestCheckResponse = True
+    }
 
 
 -- * Combinators
--- $combinators
 
 
 -- | Type definition of 'DecafRequest' combinator.
@@ -213,7 +210,6 @@ type DecafRequestCombinator = DecafRequest -> DecafRequest
 
 
 -- ** DECAF API Combinators
--- $combinatorsDecafAPI
 
 
 -- | Initiates a DECAF Barista API request.
@@ -247,12 +243,11 @@ apiModulePdms = post . namespace "/apis/modules/pdms/v1/graphql" . withoutTraili
 
 
 -- ** Remote Combinators
--- $combinatorsRemote
 
 
 -- | Sets the DECAF Instance 'DecafRemote' address.
 setRemote :: DecafRemote -> DecafRequestCombinator
-setRemote h request = request { decafRequestRemote = h }
+setRemote h request = request {decafRequestRemote = h}
 
 
 -- | Alias to 'setRemote'.
@@ -261,7 +256,6 @@ remote = setRemote
 
 
 -- ** Namespace Combinators
--- $combinatorsNamespace
 
 
 -- | Sets the namespace of the particular DECAF API.
@@ -282,7 +276,7 @@ remote = setRemote
 --   decafRequestCheckResponse = True
 -- }
 setNamespace :: DecafRequestPath -> DecafRequestCombinator
-setNamespace n request = request { decafRequestNamespace = n }
+setNamespace n request = request {decafRequestNamespace = n}
 
 
 -- | Sets the namespace of the particular DECAF API from a given 'T.Text' value.
@@ -307,12 +301,11 @@ namespace = setNamespace . mkDecafRequestPath
 
 
 -- ** Credentials Combinators
--- $combinatorsCredentials
 
 
 -- | Sets the authentication credentials.
 setCredentials :: DecafCredentials -> DecafRequestCombinator
-setCredentials c request = request { decafRequestCredentials = c }
+setCredentials c request = request {decafRequestCredentials = c}
 
 
 -- | Alias to 'setCredentials'.
@@ -322,11 +315,10 @@ credentials = setCredentials
 
 -- | Sets the user-agent.
 setUserAgent :: T.Text -> DecafRequestCombinator
-setUserAgent ua request = request { decafRequestUserAgent = ua}
+setUserAgent ua request = request {decafRequestUserAgent = ua}
 
 
 -- ** User-Agent Combinators
--- $combinatorsUserAgent
 
 
 -- | Alias to 'setUserAgent'.
@@ -335,14 +327,13 @@ userAgent = setUserAgent
 
 
 -- ** Header Combinators
--- $combinatorsHeader
 
 
 -- | Sets 'DecafRequest' headers.
 --
 -- This combinator removes all existing user-set headers.
 setHeaders :: RequestHeaders -> DecafRequestCombinator
-setHeaders hs request = request { decafRequestHeaders = hs }
+setHeaders hs request = request {decafRequestHeaders = hs}
 
 
 -- | Adds more 'DecafRequest' headers.
@@ -372,12 +363,11 @@ header k v = addHeader (CI.mk (TE.encodeUtf8 k), TE.encodeUtf8 v)
 
 
 -- ** Method Combinators
--- $combinatorsMethod
 
 
 -- | Sets the 'DecafRequest' method.
 setMethod :: StdMethod -> DecafRequestCombinator
-setMethod m request = request { decafRequestMethod = m }
+setMethod m request = request {decafRequestMethod = m}
 
 
 -- | Makes the 'DecafRequest' a @GET@ 'DecafRequest'.
@@ -406,12 +396,11 @@ patch = setMethod PATCH
 
 
 -- ** Path Combinators
--- $combinatorsPath
 
 
 -- | Sets the 'DecafRequest' 'DecafRequestPath'.
 setPath :: DecafRequestPath -> DecafRequestCombinator
-setPath p request = request { decafRequestPath = p}
+setPath p request = request {decafRequestPath = p}
 
 
 -- | Appends a 'DecafRequestPath' to the 'DecafRequest'\'s existing 'DecafRequestPath'.
@@ -428,7 +417,7 @@ path = addPath . mkDecafRequestPath
 -- | Makes the 'DecafRequest' 'DecafRequestPath' (not) contain a trailing slash when hitting the
 -- remote.
 setTrailingSlash :: Bool -> DecafRequestCombinator
-setTrailingSlash ts request = request { decafRequestTrailingSlash = ts }
+setTrailingSlash ts request = request {decafRequestTrailingSlash = ts}
 
 
 -- | Makes the 'DecafRequest' 'DecafRequestPath' contain a trailing slash when hitting the
@@ -444,12 +433,11 @@ withoutTrailingSlash = setTrailingSlash False
 
 
 -- ** Query Combinators
--- $combinatorsQuery
 
 
 -- | Sets the 'DecafRequest' query.
 setQuery :: QueryText -> DecafRequestCombinator
-setQuery ps request = request { decafRequestQuery = ps}
+setQuery ps request = request {decafRequestQuery = ps}
 
 
 -- | Appends a query item to 'DecafRequest' query.
@@ -473,12 +461,11 @@ query = addQuery
 
 
 -- ** Payload Combinators
--- $combinatorsPayload
 
 
 -- | Sets the 'DecafRequest' 'DecafRequestPayload'.
 setPayload :: T.Text -> BL.ByteString -> DecafRequestCombinator
-setPayload t c request = request { decafRequestPayload = Just $ DecafRequestPayload t c }
+setPayload t c request = request {decafRequestPayload = Just $ DecafRequestPayload t c}
 
 
 -- | Alias to 'setPayload'.
@@ -493,7 +480,7 @@ jsonPayload x = setPayload "application/json" $ Aeson.encode x
 
 -- | Removes any existing 'DecafRequest' 'DecafRequestPayload'.
 setNoPayload :: DecafRequestCombinator
-setNoPayload request = request { decafRequestPayload = Nothing }
+setNoPayload request = request {decafRequestPayload = Nothing}
 
 
 -- | Alias to 'setNoPayload'.
@@ -502,22 +489,20 @@ noPayload = setNoPayload
 
 
 -- ** Response Checkers
--- $responseCheckers
 
 
 -- | Indicates that we are expecting @2xx@ HTTP response code for the request.
 checkResponse :: DecafRequestCombinator
-checkResponse request = request { decafRequestCheckResponse = True }
+checkResponse request = request {decafRequestCheckResponse = True}
 
 
 -- | Indicates that we are not necessarily expecting @2xx@ HTTP response code
 -- for the request.
 noCheckResponse :: DecafRequestCombinator
-noCheckResponse request = request { decafRequestCheckResponse = False }
+noCheckResponse request = request {decafRequestCheckResponse = False}
 
 
 -- ** GraphQL Combinators
--- $graphqlCombinators
 
 
 -- | Combinator that adds GraphQL query to the request.
@@ -531,7 +516,6 @@ graphqlNoVars gql = jsonPayload (decafGraphqlQueryNoVars gql)
 
 
 -- * Internal
--- $internal
 
 
 -- | /Dummy definition./

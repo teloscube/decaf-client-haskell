@@ -1,28 +1,28 @@
--- | This module provides definitions to work with DECAF client responses.
 {-# LANGUAGE OverloadedStrings #-}
 
+-- | This module provides definitions to work with DECAF client responses.
 module Decaf.Client.DecafResponse where
 
-import           Data.Aeson          ((.:))
-import qualified Data.Aeson          as Aeson
+import Data.Aeson ((.:))
+import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.KeyMap
-import           Network.HTTP.Types  (ResponseHeaders, Status)
+import Network.HTTP.Types (ResponseHeaders, Status)
 
 
 -- | Data definition for DECAF client response values.
 data DecafResponse a = DecafResponse
-  { decafResponseStatus  :: !Status
+  { decafResponseStatus :: !Status
   , decafResponseHeaders :: !ResponseHeaders
-  , decafResponseBody    :: !a
+  , decafResponseBody :: !a
   }
-  deriving Show
+  deriving (Show)
 
 
 -- | Data definition for DECAF GraphQL query results.
-data DecafGraphqlQueryResult a =
-    DecafGraphqlQueryResultSuccess !a
+data DecafGraphqlQueryResult a
+  = DecafGraphqlQueryResultSuccess !a
   | DecafGraphqlQueryResultFailure !Aeson.Value
-  deriving Show
+  deriving (Show)
 
 
 instance Aeson.FromJSON a => Aeson.FromJSON (DecafGraphqlQueryResult a) where

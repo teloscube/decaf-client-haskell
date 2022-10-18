@@ -2,10 +2,10 @@
 
 module Main where
 
-import qualified Data.Aeson         as Aeson
-import qualified Decaf.Client       as DC
-import           Mocking            (MockAnythingResponseBody(..), runMockRequest, runMockRequestJson)
-import           Test.Hspec         (Selector, describe, hspec, it, shouldReturn, shouldThrow)
+import qualified Data.Aeson as Aeson
+import qualified Decaf.Client as DC
+import Mocking (MockAnythingResponseBody (..), runMockRequest, runMockRequestJson)
+import Test.Hspec (Selector, describe, hspec, it, shouldReturn, shouldThrow)
 
 
 main :: IO ()

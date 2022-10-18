@@ -2,15 +2,14 @@
 
 -- | This module provides definitions and functions to work with DECAF Instance
 -- remotes.
-
 module Decaf.Client.DecafRemote where
 
-import qualified Data.Aeson                  as Aeson
-import qualified Data.Char                   as C
-import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
-import qualified Network.URI                 as U
-import           Text.Read                   (readMaybe)
+import qualified Data.Aeson as Aeson
+import qualified Data.Char as C
+import qualified Data.Text as T
+import Decaf.Client.Internal.Utils (dropLeading, dropTrailing, nonEmptyString)
+import qualified Network.URI as U
+import Text.Read (readMaybe)
 
 
 -- | Type definition for addressing a remote DECAF Instance.
@@ -24,8 +23,8 @@ import           Text.Read                   (readMaybe)
 -- >>> DecafRemote "example.com" (Just 8443) True
 -- https://example.com:8443
 data DecafRemote = DecafRemote
-  { decafRemoteHost   :: !T.Text
-  , decafRemotePort   :: !(Maybe Int)
+  { decafRemoteHost :: !T.Text
+  , decafRemotePort :: !(Maybe Int)
   , decafRemoteSecure :: !Bool
   }
   deriving (Eq, Ord)
@@ -64,10 +63,10 @@ instance Aeson.ToJSON DecafRemote where
 remoteToUrl :: DecafRemote -> T.Text
 remoteToUrl (DecafRemote h (Just 80) False) = "http://" <> h
 remoteToUrl (DecafRemote h (Just 443) True) = "https://" <> h
-remoteToUrl (DecafRemote h Nothing False)   = "http://" <> h
-remoteToUrl (DecafRemote h Nothing True)    = "https://" <> h
-remoteToUrl (DecafRemote h (Just p) False)  = "http://" <> h <> ":" <> T.pack (show p)
-remoteToUrl (DecafRemote h (Just p) True)   = "https://" <> h <> ":" <> T.pack (show p)
+remoteToUrl (DecafRemote h Nothing False) = "http://" <> h
+remoteToUrl (DecafRemote h Nothing True) = "https://" <> h
+remoteToUrl (DecafRemote h (Just p) False) = "http://" <> h <> ":" <> T.pack (show p)
+remoteToUrl (DecafRemote h (Just p) True) = "https://" <> h <> ":" <> T.pack (show p)
 
 
 -- | Attempts to parse a given URL as a DECAF Instance 'DecafRemote'.
@@ -162,6 +161,6 @@ parsePort' uri = maybe err pure (mapM (readMaybe . dropLeading ':') ((nonEmptySt
 -- [Left "Unknown protocol: htt",Left "Unknown protocol: htts"]
 isSecureHttp' :: String -> Either T.Text Bool
 isSecureHttp' x = case fmap C.toLower (dropTrailing ':' x) of
-  "http"  -> Right False
+  "http" -> Right False
   "https" -> Right True
-  proto   -> Left (T.pack ("Unknown protocol: " <> proto))
+  proto -> Left (T.pack ("Unknown protocol: " <> proto))

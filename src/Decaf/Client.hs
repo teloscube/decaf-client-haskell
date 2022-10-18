@@ -1,40 +1,30 @@
 -- | @TODO: Provide documentation.@
---
-module Decaf.Client
-  ( -- * Client
+module Decaf.Client (
+  -- * Client
+  module Decaf.Client.DecafClient,
 
-    module Decaf.Client.DecafClient
+  -- * Remotes
+  module Decaf.Client.DecafRemote,
 
-    -- * Remotes
+  -- * Requests
+  module Decaf.Client.DecafRequest,
 
-  , module Decaf.Client.DecafRemote
+  -- * Responses
+  module Decaf.Client.DecafResponse,
 
-    -- * Requests
+  -- * Credentials
+  module Decaf.Client.DecafCredentials,
 
-  , module Decaf.Client.DecafRequest
+  -- * Profiles
+  module Decaf.Client.DecafProfile,
 
-    -- * Responses
+  -- * Exceptions
+  module Decaf.Client.DecafClientException,
 
-  , module Decaf.Client.DecafResponse
-
-    -- * Credentials
-
-  , module Decaf.Client.DecafCredentials
-
-    -- * Profiles
-
-  , module Decaf.Client.DecafProfile
-
-    -- * Exceptions
-
-  , module Decaf.Client.DecafClientException
-
-    -- * Low-Level Request Performers
-
-  , performDecafRequest
-  , performDecafRequestJson
-
-  ) where
+  -- * Low-Level Request Performers
+  performDecafRequest,
+  performDecafRequestJson,
+) where
 
 import Decaf.Client.DecafClient
 import Decaf.Client.DecafClientException
@@ -43,4 +33,5 @@ import Decaf.Client.DecafProfile
 import Decaf.Client.DecafRemote
 import Decaf.Client.DecafRequest
 import Decaf.Client.DecafResponse
-import Decaf.Client.Internal.Http        (performDecafRequest, performDecafRequestJson)
+import Decaf.Client.Internal.Http (performDecafRequest, performDecafRequestJson)
+

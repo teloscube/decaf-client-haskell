@@ -1,13 +1,12 @@
--- | This module provides types and functions to transcode DECAF API requests.
-
 {-# LANGUAGE DeriveGeneric #-}
 
+-- | This module provides types and functions to transcode DECAF API requests.
 module Decaf.Client.DecafCredentials where
 
-import qualified Data.Aeson                  as Aeson
-import qualified Data.Text                   as T
-import           Decaf.Client.Internal.Utils (commonAesonOptions)
-import           GHC.Generics                (Generic)
+import qualified Data.Aeson as Aeson
+import qualified Data.Text as T
+import Decaf.Client.Internal.Utils (commonAesonOptions)
+import GHC.Generics (Generic)
 
 
 -- | Data definition for available DECAF credentials types.
@@ -20,8 +19,8 @@ import           GHC.Generics                (Generic)
 -- "{\"type\":\"key\",\"value\":{\"key\":\"some-api-key\",\"secret\":\"some-api-secret\"}}"
 -- >>> Data.Aeson.encode (DecafCredentialsToken "some-api-token")
 -- "{\"type\":\"token\",\"value\":\"some-api-token\"}"
-data DecafCredentials =
-    DecafCredentialsHeader !T.Text
+data DecafCredentials
+  = DecafCredentialsHeader !T.Text
   | DecafCredentialsBasic !DecafBasicCredentials
   | DecafCredentialsKey !DecafKeyCredentials
   | DecafCredentialsToken !T.Text
@@ -34,9 +33,6 @@ instance Aeson.FromJSON DecafCredentials where
 
 instance Aeson.ToJSON DecafCredentials where
   toJSON = Aeson.genericToJSON $ commonAesonOptions "DecafCredentials"
-
-
-
 
 
 instance Show DecafCredentials where
@@ -73,7 +69,7 @@ instance Aeson.ToJSON DecafBasicCredentials where
 -- >>> Just x == Data.Aeson.decode @DecafKeyCredentials (Data.Aeson.encode x)
 -- True
 data DecafKeyCredentials = DecafKeyCredentials
-  { decafKeyCredentialsKey    :: !T.Text
+  { decafKeyCredentialsKey :: !T.Text
   , decafKeyCredentialsSecret :: !T.Text
   }
   deriving (Eq, Generic)
