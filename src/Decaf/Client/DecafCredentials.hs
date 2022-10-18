@@ -1,8 +1,6 @@
 -- | This module provides types and functions to transcode DECAF API requests.
 
-{-# LANGUAGE DataKinds   #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingVia #-}
 
 module Decaf.Client.DecafCredentials where
 

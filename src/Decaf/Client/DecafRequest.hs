@@ -1,8 +1,6 @@
 -- | This module provides definitions to work with DECAF client requests.
 
-{-# LANGUAGE DataKinds   #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Decaf.Client.DecafRequest where

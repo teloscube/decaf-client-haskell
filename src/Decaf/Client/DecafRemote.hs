@@ -143,7 +143,7 @@ parseHost' = maybe (Left "Empty host value") (Right . T.pack) . nonEmptyString .
 
 -- | Attempts to get the port from the given 'U.URIAuth'.
 parsePort' :: U.URIAuth -> Either T.Text (Maybe Int)
-parsePort' uri = maybe err pure . sequence $ (readMaybe . dropLeading ':' <$> (nonEmptyString . U.uriPort) uri)
+parsePort' uri = maybe err pure (mapM (readMaybe . dropLeading ':') ((nonEmptyString . U.uriPort) uri))
   where
     err = Left $ T.pack ("Can not parse port from URI: '" <> (show uri <> "'"))
 

@@ -27,10 +27,13 @@
   - default: false # All extension are banned by default
   - name: # Only these listed extensions can be used
     - CPP
-    - DataKinds
-    - DerivingVia
+    - DeriveGeneric
+    - GADTs
+    - OverloadedStrings
     - QuasiQuotes
     - RecordWildCards
+    - ScopedTypeVariables
+    - StandaloneDeriving
 
 ################
 # CUSTOM RULES #

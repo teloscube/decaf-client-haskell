@@ -1,6 +1,4 @@
-{-# LANGUAGE DataKinds   #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Mocking where
