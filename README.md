@@ -122,6 +122,17 @@ Format codebase:
 fourmolu -i app/ src/ test/
 ```
 
+## Release Process
+
+```console
+$ nix-shell
+[inside-nix-shell]$ ./release.sh -n <VERSION>
+```
+
+... whereby `<VERSION>` follows [Haskell PVP
+Specification](https://pvp.haskell.org/), such as `1.2.3.4`. Note that
+there is no `v` prefix.
+
 ## License
 
 [BSD 3-Clause License](./LICENSE). Copyright (c) 2020-2022, Teloscube Pte Ltd.
