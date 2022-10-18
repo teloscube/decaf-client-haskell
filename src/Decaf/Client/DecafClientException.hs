@@ -1,5 +1,4 @@
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 -- | This module provides definitions for exceptions "Decaf.Client" module can
 -- throw and related helpers.
@@ -11,7 +10,7 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import Decaf.Client.DecafRequest (DecafRequest)
 import Decaf.Client.DecafResponse (DecafResponse)
-import GHC.Stack (HasCallStack)
+import GHC.Stack (HasCallStack, callStack, prettyCallStack)
 import qualified Network.HTTP.Simple as HS
 
 
@@ -25,7 +24,17 @@ data DecafClientException where
   DecafClientHttpStatusException :: HasCallStack => DecafResponse BL.ByteString -> DecafClientException
 
 
-deriving instance Show DecafClientException
+instance Show DecafClientException where
+  show exc = case exc of
+    DecafClientIOException txt ie -> "DecafClientIOException: " <> T.unpack txt <> ". Underlying exception: " <> show ie <> stackTrace
+    DecafClientParseException txt txt' -> "DecafClientParseException: " <> T.unpack txt <> ". Underlying exception: " <> show txt' <> stackTrace
+    DecafClientRemoteException txt -> "DecafClientRemoteException: " <> T.unpack txt <> stackTrace
+    DecafClientRequestException txt -> "DecafClientRequestException: " <> T.unpack txt <> stackTrace
+    DecafClientHttpException dr he -> "DecafClientHttpException: " <> show dr <> ". Underlying exception: " <> show he <> stackTrace
+    DecafClientHttpStatusException dr -> "DecafClientHttpStatusException: " <> show dr <> stackTrace
+    where
+      stackTrace :: HasCallStack => String
+      stackTrace = "\nStack Trace:\n" <> prettyCallStack callStack
 
 
 instance Exception DecafClientException
