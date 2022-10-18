@@ -33,7 +33,6 @@
     - QuasiQuotes
     - RecordWildCards
     - ScopedTypeVariables
-    - StandaloneDeriving
 
 ################
 # CUSTOM RULES #
