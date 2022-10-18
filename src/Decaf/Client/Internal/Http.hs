@@ -1,6 +1,7 @@
 -- | This module provides machinery to abstract over the underlying
 -- "http-conduit" library.
 
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Decaf.Client.Internal.Http where

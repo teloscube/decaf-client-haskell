@@ -1,5 +1,6 @@
 -- | This module provides high-level DECAF API client and related definitions.
 
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Decaf.Client.DecafClient where

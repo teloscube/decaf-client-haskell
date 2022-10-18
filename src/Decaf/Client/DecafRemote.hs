@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- | This module provides definitions and functions to work with DECAF Instance
 -- remotes.
 

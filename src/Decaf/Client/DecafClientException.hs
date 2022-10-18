@@ -1,3 +1,6 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
 -- | This module provides definitions for exceptions "Decaf.Client" module can
 -- throw and related helpers.
 

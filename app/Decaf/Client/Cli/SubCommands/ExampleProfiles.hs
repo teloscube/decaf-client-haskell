@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Decaf.Client.Cli.SubCommands.ExampleProfiles where
 
 import           Control.Monad.IO.Class        (MonadIO(liftIO))

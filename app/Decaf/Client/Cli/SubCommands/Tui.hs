@@ -1,4 +1,6 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Decaf.Client.Cli.SubCommands.Tui where
 

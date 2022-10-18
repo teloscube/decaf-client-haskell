@@ -1,7 +1,10 @@
 -- | This module provides definitions to work on profiles.
 
 {-# LANGUAGE DataKinds   #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Decaf.Client.DecafProfile where
 

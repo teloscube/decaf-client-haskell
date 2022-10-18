@@ -1,5 +1,6 @@
 -- | This module provides definitions to work with DECAF client responses.
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Decaf.Client.DecafResponse where
 
