@@ -133,6 +133,24 @@ $ nix-shell
 Specification](https://pvp.haskell.org/), such as `1.2.3.4`. Note that
 there is no `v` prefix.
 
+## Static Compilation
+
+We are able to statically build, strip and compress the executable inside a
+Docker image. Following command performs the necessary compilation, copy the
+file to host machine and inform the user about the path to the copied file:
+
+```sh
+./compile-static.sh
+```
+
+> **IMPORTANT:** Note that everytime we update Nix sources or add a new
+> dependency to Haskell project, we must regenerate the freeze file:
+>
+> ```sh
+> cabal freeze
+> mv cabal.project.freeze cabal.project.freeze.tmpl
+> ```
+
 ## License
 
 [BSD 3-Clause License](./LICENSE). Copyright (c) 2020-2022, Teloscube Pte Ltd.
