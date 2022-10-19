@@ -1,0 +1,11 @@
+**
+
+!/app
+!/cabal.project.freeze.tmpl
+!/CHANGELOG.md
+!/decaf-client.cabal
+!/doctest.hs
+!/LICENSE
+!/README.md
+!/src
+!/test
