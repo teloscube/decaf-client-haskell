@@ -73,10 +73,20 @@ git commit -m "chore(release): ${_version}"
 _log "Tagging version..."
 git tag -a -m "Release ${_version}" "${_version}"
 
+_log "Build statically linked executable..."
+_outfile_raw="$(./compile-static.sh)"
+
+_log "Copying and renaming statically linked executable (${_outfile_raw})..."
+_outfile="decafcli-Linux-x86_64-static"
+cp "${_outfile_raw}" "${_outfile}"
+
 _log "Pushing changes to remote..."
 git push --follow-tags origin main
 
 _log "Creating the release..."
 gh release create "${_version}" --title "v${_version}" --generate-notes
+
+_log "Uploading release artifacts..."
+gh release upload "${_version}" "${_outfile}"
 
 _log "Finished!"
