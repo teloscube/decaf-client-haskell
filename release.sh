@@ -89,4 +89,7 @@ gh release create "${_version}" --title "v${_version}" --generate-notes
 _log "Uploading release artifacts..."
 gh release upload "${_version}" "${_outfile}"
 
+_log "Cleaning up release artifacts..."
+rm "${_outfile}"
+
 _log "Finished!"
