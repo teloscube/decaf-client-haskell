@@ -69,7 +69,7 @@ executables:
 tests:
   decaf-client-test:
     main:                Main.hs
-    source-dirs:         test
+    source-dirs:         tests/test
     ghc-options:
     - -Wall
     - -Wunused-packages
@@ -87,10 +87,10 @@ tests:
 
   decaf-client-doctest:
     main:                doctest.hs
-    source-dirs:         .
+    source-dirs:         tests/doctest
     ghc-options:
     - -Wall
-    - -Wunused-packages
     - -threaded
     dependencies:
-    - doctest
+    - decaf-client
+    - doctest-parallel

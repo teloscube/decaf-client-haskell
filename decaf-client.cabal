@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.7.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -97,11 +97,12 @@ test-suite decaf-client-doctest
   other-modules:
       Paths_decaf_client
   hs-source-dirs:
-      ./
-  ghc-options: -Wall -Wunused-packages -threaded
+      tests/doctest
+  ghc-options: -Wall -threaded
   build-depends:
       base >=4.7 && <5
-    , doctest
+    , decaf-client
+    , doctest-parallel
   default-language: Haskell2010
 
 test-suite decaf-client-test
@@ -111,7 +112,7 @@ test-suite decaf-client-test
       Mocking
       Paths_decaf_client
   hs-source-dirs:
-      test
+      tests/test
   ghc-options: -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

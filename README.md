@@ -101,7 +101,13 @@ nix-shell
 Build:
 
 ```sh
-cabal build
+cabal build -O0
+```
+
+Test:
+
+```sh
+cabal test -O0
 ```
 
 Open VSCode if you wish to do so:
@@ -113,7 +119,7 @@ code .
 Run hlint:
 
 ```sh
-hlint app/ src/ test/
+hlint app/ src/ tests/
 ```
 
 Format codebase:
