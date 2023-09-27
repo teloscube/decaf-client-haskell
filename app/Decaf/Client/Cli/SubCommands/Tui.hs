@@ -223,7 +223,7 @@ getBaristaVersion client = do
 getEstateVersion :: DC.DecafClient -> IO (Either T.Text T.Text)
 getEstateVersion client = do
   value <- DC.runDecafEstateJson (DC.path "version") client
-  case ACD.parseEither (ACD.at ["value"] ACD.auto) value of
+  case ACD.parseEither ACD.text value of
     Left err -> pure $ Left (T.pack err)
     Right sv -> pure $ Right sv
 
