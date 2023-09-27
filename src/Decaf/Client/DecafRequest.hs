@@ -24,6 +24,11 @@ import Paths_decaf_client (version)
 import Text.Printf (printf)
 
 
+-- $setup
+--
+-- >>> :set -XOverloadedStrings
+
+
 -- * Data Definitions
 
 
@@ -164,6 +169,8 @@ decafGraphqlQueryNoVars = flip MkDecafGraphqlQuery (Aeson.object [])
 
 -- | Initializes a request with DECAF Instance URL and authentication credentials.
 --
+-- >>> import Decaf.Client.DecafRemote (DecafRemote(..))
+-- >>> import Decaf.Client.DecafCredentials (DecafCredentials(..))
 -- >>> initRequest (DecafRemote "example.com" Nothing False) (DecafCredentialsHeader "OUCH")
 -- DecafRequest {
 --   decafRequestRemote        = http://example.com

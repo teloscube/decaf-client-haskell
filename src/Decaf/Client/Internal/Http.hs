@@ -32,6 +32,11 @@ import qualified Network.HTTP.Simple as HS
 import Network.HTTP.Types (Status (statusCode), queryTextToQuery)
 
 
+-- $setup
+--
+-- >>> :set -XOverloadedStrings
+
+
 -- * HTTP Request Runners
 
 

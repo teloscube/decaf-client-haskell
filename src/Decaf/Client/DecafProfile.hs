@@ -21,6 +21,12 @@ import GHC.Generics (Generic)
 import GHC.Stack (HasCallStack)
 
 
+-- $setup
+--
+-- >>> :set -XOverloadedStrings
+-- >>> :set -XTypeApplications
+
+
 -- | A DECAF Instance user profile for constructing a
 -- 'Decaf.Client.DecafClient.DecafClient'.
 --

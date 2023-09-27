@@ -9,6 +9,11 @@ import Decaf.Client.Internal.Utils (commonAesonOptions)
 import GHC.Generics (Generic)
 
 
+-- $setup
+--
+-- >>> :set -XOverloadedStrings
+
+
 -- | Data definition for available DECAF credentials types.
 --
 -- >>> Data.Aeson.encode (DecafCredentialsHeader "some-header-value")
