@@ -1,7 +1,8 @@
-# DECAF API Client Suite For Haskell
+# DECAF CLI Application and Haskell Client Library
 
-A Haskell client library to DECAF API and a small application demonstrating
-library usage and providing some utilities for working with DECAF instances.
+This repository mainly provides a Haskell client library for DECAF APIs and a
+small application (1) demonstrating library usage and (2) providing some
+utilities for working with DECAF Instances.
 
 > **TODO:** Provide full README.
 
@@ -36,6 +37,7 @@ $ decafcli --help
 decafcli - DECAF Command-line Client Application
 
 Usage: decafcli [--version] COMMAND
+
   DECAF Client
 
 Available options:
@@ -110,12 +112,6 @@ Test:
 cabal test -O0
 ```
 
-Open VSCode if you wish to do so:
-
-```sh
-code .
-```
-
 Run hlint:
 
 ```sh
@@ -128,6 +124,12 @@ Format codebase:
 fourmolu -i app/ src/ test/
 ```
 
+Run:
+
+```sh
+cabal run -O0 decafcli -- --help
+```
+
 ## Release Process
 
 ```console
@@ -135,9 +137,9 @@ $ nix-shell
 [inside-nix-shell]$ ./release.sh -n <VERSION>
 ```
 
-... whereby `<VERSION>` follows [Haskell PVP
-Specification](https://pvp.haskell.org/), such as `1.2.3.4`. Note that
-there is no `v` prefix.
+... where `<VERSION>` follows [Haskell PVP Specification], such as `1.2.3.4`.
+
+Note that there is no `v` prefix.
 
 ## License
 
@@ -146,3 +148,4 @@ there is no `v` prefix.
 <!-- REFERENCES -->
 
 [BSD 3-Clause License]: ./LICENSE
+[Haskell PVP Specification]: https://pvp.haskell.org
