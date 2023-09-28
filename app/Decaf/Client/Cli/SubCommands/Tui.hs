@@ -75,31 +75,31 @@ app =
     }
 
 
-handleEvent :: TuiState -> Brick.BrickEvent () e -> Brick.EventM () (Brick.Next TuiState)
-handleEvent s (Brick.VtyEvent ev) = case ev of
-  Vty.EvKey Vty.KEsc [] -> Brick.halt s
-  Vty.EvKey (Vty.KChar 'q') _ -> Brick.halt s
-  Vty.EvKey (Vty.KChar 'a') _ -> Brick.continue (s {tuiStateWorld = TuiStateWorldAbout})
-  Vty.EvKey (Vty.KChar 'r') _ -> reloadTuiProfileInfos s >>= Brick.continue
-  Vty.EvKey _ _ -> Brick.continue s
-  Vty.EvMouseDown _n _i _but _mods -> Brick.continue s
-  Vty.EvMouseUp _n _i _mBut -> Brick.continue s
-  Vty.EvResize _n _i -> Brick.continue s
-  Vty.EvPaste _bs -> Brick.continue s
-  Vty.EvLostFocus -> Brick.continue s
-  Vty.EvGainedFocus -> Brick.continue s
-handleEvent b _ = Brick.continue b
+handleEvent :: Brick.BrickEvent () e -> Brick.EventM () TuiState ()
+handleEvent (Brick.VtyEvent ev) = case ev of
+  Vty.EvKey Vty.KEsc [] -> Brick.halt
+  Vty.EvKey (Vty.KChar 'q') _ -> Brick.halt
+  Vty.EvKey (Vty.KChar 'a') _ -> Brick.modify (\s -> s {tuiStateWorld = TuiStateWorldAbout})
+  Vty.EvKey (Vty.KChar 'r') _ -> reloadTuiProfileInfos
+  Vty.EvKey _ _ -> pure ()
+  Vty.EvMouseDown _n _i _but _mods -> pure ()
+  Vty.EvMouseUp _n _i _mBut -> pure ()
+  Vty.EvResize _n _i -> pure ()
+  Vty.EvPaste _bs -> pure ()
+  Vty.EvLostFocus -> pure ()
+  Vty.EvGainedFocus -> pure ()
+handleEvent _ = pure ()
 
 
 attrMap :: Brick.AttrMap
 attrMap =
   Brick.attrMap
     Vty.defAttr
-    [ ("info", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.black})
-    , ("muted", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.cyan})
-    , ("success", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.green})
-    , ("warning", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.yellow})
-    , ("failure", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.red})
+    [ (Brick.attrName "info", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.black})
+    , (Brick.attrName "muted", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.cyan})
+    , (Brick.attrName "success", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.green})
+    , (Brick.attrName "warning", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.yellow})
+    , (Brick.attrName "failure", Vty.defAttr {Vty.attrForeColor = Vty.SetTo Vty.red})
     ]
 
 
@@ -159,20 +159,18 @@ mkProfilesTableRow TuiProfileInfo {..} =
   , widget tuiProfileInfoCountPolicy
   ]
   where
-    widget (Left err) = Brick.withAttr "failure" $ Brick.txt err
-    widget (Right sv) = Brick.withAttr "success" $ Brick.txt sv
+    widget (Left err) = Brick.withAttr (Brick.attrName "failure") $ Brick.txt err
+    widget (Right sv) = Brick.withAttr (Brick.attrName "success") $ Brick.txt sv
 
 
 -- * Event Logic
 
 
-reloadTuiProfileInfos :: TuiState -> Brick.EventM () TuiState
-reloadTuiProfileInfos state@TuiState {..} = do
+reloadTuiProfileInfos :: Brick.EventM () TuiState ()
+reloadTuiProfileInfos = do
+  TuiState {..} <- Brick.get
   infos <- liftIO $ getTuiProfileInfos tuiStateProfiles
-  pure $
-    state
-      { tuiStateWorld = TuiStateWorldProfileInfos infos
-      }
+  Brick.modify (\s -> s {tuiStateWorld = TuiStateWorldProfileInfos infos})
 
 
 getTuiProfileInfos :: [DC.DecafProfile] -> IO [TuiProfileInfo]
@@ -225,7 +223,7 @@ getBaristaVersion client = do
 getEstateVersion :: DC.DecafClient -> IO (Either T.Text T.Text)
 getEstateVersion client = do
   value <- DC.runDecafEstateJson (DC.path "version") client
-  case ACD.parseEither (ACD.at ["value"] ACD.auto) value of
+  case ACD.parseEither ACD.text value of
     Left err -> pure $ Left (T.pack err)
     Right sv -> pure $ Right sv
 

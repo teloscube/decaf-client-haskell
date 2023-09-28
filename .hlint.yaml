@@ -9,37 +9,37 @@
 #######################
 
 - modules:
-  - {name: Control.Monad.Error, within: []}
-  - {name: [Data.Aeson], as: Aeson}
-  - {name: Data.ByteString, as: B }
-  - {name: Data.ByteString.Char8, as: BC }
-  - {name: Data.ByteString.Lazy, as: BL }
-  - {name: Data.ByteString.Lazy.Char8, as: BLC }
-  - {name: Data.List, as: List }
-  - {name: Data.Text, as: T }
-  - {name: Data.Text.Lazy, as: TL }
-  - {name: Data.Text.Encoding, as: TE }
+    - { name: Control.Monad.Error, within: [] }
+    - { name: [Data.Aeson], as: Aeson }
+    - { name: Data.ByteString, as: B }
+    - { name: Data.ByteString.Char8, as: BC }
+    - { name: Data.ByteString.Lazy, as: BL }
+    - { name: Data.ByteString.Lazy.Char8, as: BLC }
+    - { name: Data.List, as: List }
+    - { name: Data.Text, as: T }
+    - { name: Data.Text.Lazy, as: TL }
+    - { name: Data.Text.Encoding, as: TE }
 
 ##########################
 # EXTENSION RESTRICTIONS #
 ##########################
 
 - extensions:
-  - default: false # All extension are banned by default
-  - name: # Only these listed extensions can be used
-    - DeriveGeneric
-    - GADTs
-    - OverloadedStrings
-    - QuasiQuotes
-    - RecordWildCards
-    - ScopedTypeVariables
+    - default: false # All extension are banned by default
+    - name: # Only these listed extensions can be used
+        - DeriveGeneric
+        - GADTs
+        - OverloadedStrings
+        - QuasiQuotes
+        - RecordWildCards
+        - ScopedTypeVariables
 
 ################
 # CUSTOM RULES #
 ################
 
 # Replace a $ b $ c with a . b $ c
-- group: {name: dollar, enabled: true}
+- group: { name: dollar, enabled: true }
 
 # Generalise map to fmap, ++ to <>
-- group: {name: generalise, enabled: true}
+- group: { name: generalise, enabled: true }

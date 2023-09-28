@@ -12,6 +12,11 @@ import qualified Network.URI as U
 import Text.Read (readMaybe)
 
 
+-- $setup
+--
+-- >>> :set -XOverloadedStrings
+
+
 -- | Type definition for addressing a remote DECAF Instance.
 --
 -- >>> DecafRemote "example.com" Nothing False
