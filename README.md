@@ -141,4 +141,8 @@ there is no `v` prefix.
 
 ## License
 
-[BSD 3-Clause License](./LICENSE). Copyright (c) 2020-2022, Teloscube Pte Ltd.
+[BSD 3-Clause License]. Copyright (c) 2020-2023, Teloscube Pte Ltd.
+
+<!-- REFERENCES -->
+
+[BSD 3-Clause License]: ./LICENSE
