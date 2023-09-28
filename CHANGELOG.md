@@ -1,16 +1,52 @@
 # CHANGELOG
 
 
+<a name="0.0.2"></a>
+## [0.0.2](https://github.com/teloscube/decaf-client-haskell/compare/0.0.1...0.0.2) (2023-09-28)
+
+### Chore
+
+* update copyright year
+* update .gitignore
+* drop static build
+* drop old Nix setup in favour of a simpler setup (broken)
+* cleanup release artifacts
+* upload statically compiled executable to release
+* **build:** add static compilation script
+* **dev:** reformat {.hlint,package}.yaml file
+* **test:** revisit test setup
+
+### Docs
+
+* update README
+
+### Feat
+
+* add multipart/form-data support
+
+### Fix
+
+* adopt /version endpoint response type change in DECAF Estate API
+
+### Refactor
+
+* adopt breaking changes introduced in brick v1.0
+
+### Test
+
+* fix doctests
+
+
 <a name="0.0.1"></a>
 ## [0.0.1](https://github.com/teloscube/decaf-client-haskell/compare/0.0.0.5...0.0.1) (2022-10-18)
 
 ### Chore
 
+* attend compiler warnings (mainly unusued defs/imports)
 * fix release script
 * add release script, mention it in README
 * adopt fourmolu, drop stylish-haskell, reformat codebase
 * remove unnecessary import and dependency
-* attend compiler warnings (mainly unusued defs/imports)
 * revisit hlint configuration, remove redundant language pragmas
 * remove default extensions in favour of explicit language pragmas
 * adopt telos.nix (Nix helpers)
@@ -18,6 +54,7 @@
 * **deps:** drop Aeson <2 support
 * **deps:** revisit dependencies, refine how they are declared
 * **dev:** switch from haskell.nix to haskell4nix
+* **release:** 0.0.1
 
 ### Fix
 
@@ -29,13 +66,13 @@
 
 ### Chore
 
-* bump development version to 0.0.0.5
+* remove explicit Stack 19.11 YAML file
 * purge examples directory, update README for Microlot examples
-* add cabal file for v0.0.0.5
 * revisit language pragmas and language extensions lists
 * remove deriving-aeson dependency
 * remove haskell4nix Nix module
-* remove explicit Stack 19.11 YAML file
+* add cabal file for v0.0.0.5
+* bump development version to 0.0.0.5
 * **build:** bump haskell.nix dependency
 * **deps:** adopt Stack lts-19.11
 * **dev:** sideload development tools from nixpkgs
@@ -49,16 +86,16 @@
 
 ### Chore
 
-* bump development version to 0.0.0.4
 * depend on yaml instead of Aeson-yaml. Exit with exitSuccess instead of exitFailure
-* add example for Token Authentication
-* make the command work without an option
-* upgrade to lts-18.28
-* fix hlint warnings
-* use string interpolation to generate script body
-* fix hlint warnings
-* revisit DecafRemote constructor signature, fix tests
 * add profiles.yaml.tmpl file as a reference
+* bump development version to 0.0.0.4
+* revisit DecafRemote constructor signature, fix tests
+* fix hlint warnings
+* add example for Token Authentication
+* use string interpolation to generate script body
+* make the command work without an option
+* fix hlint warnings
+* upgrade to lts-18.28
 * **build:** nixify
 * **cli:** add header, basic and key authorization headers
 * **cli:** separate graphq url from graphiql. Add console url.
@@ -98,22 +135,22 @@
 
 ### Chore
 
-* improve Profile module definitions
-* bump development version to 0.0.0.3
-* update copyright notice and LICENSE text
-* remove example application from build configuration
 * rename ChangeLog.md to CHANGELOG.md
+* bump development version to 0.0.0.3
+* remove example application from build configuration
+* improve Profile module definitions
+* update copyright notice and LICENSE text
 * **build:** do not use -Werror, use -Wunused-packages, revisit deps
 * **deps:** upgrade to lts-18.27
-* **dev:** revisit default language extensions list
+* **dev:** write IDE info when compiling
 * **dev:** add Weeder configuration
 * **dev:** add HLint configuration, fix lint warnings
 * **dev:** add .editorconfig
-* **dev:** write IDE info when compiling
+* **dev:** revisit default language extensions list
 * **docs:** fix Haddock warnings
 * **release:** 0.0.0.3
-* **test:** fix doctests
 * **test:** fix doctest location
+* **test:** fix doctests
 
 ### Feat
 
@@ -123,24 +160,24 @@
 
 ### Refactor
 
-* change data constructor names for Credentials type
-* rename monadic DecafClient constructor, add pure one
+* create Decaf.Client.Internal.Error
+* revisit Decaf.Client.Internal.Barista
 * put DecafClient and constructor in its own internal module
 * add DecafClientException data definition and helpers
 * fix Aeson.{FromJSON,ToJSON} instances of Credentials data type
 * add value accessor to DecafClientError newtype
 * revisit import statements
-* rename Types to Credentials, revisit Decaf.Client exports
 * add response/request related definitions in respective modules
-* move relevant definitions from Types to Remote module
-* create Decaf.Client.Internal.Error
+* change data constructor names for Credentials type
+* rename monadic DecafClient constructor, add pure one
+* rename Types to Credentials, revisit Decaf.Client exports
 * create Decaf.Client.Internal.Apis module
 * revisit Decaf.Client.Internal.*
 * revisit Decaf.Client.Internal.Pdms
 * revisit Decaf.Client.Internal.Microlot
 * revisit Decaf.Client.Internal.Http
 * revisit Decaf.Client.Internal.Combinators
-* revisit Decaf.Client.Internal.Barista
+* move relevant definitions from Types to Remote module
 * remove redundant Utils definitions
 * **main:** refactor decafcli application for batch Microlot query runner
 
@@ -167,11 +204,11 @@ changed. Call-sites must adopt new data definition.
 
 * update CHANGELOG template
 * replace `DecafClientM` with `MonadError DecafClientError`
-* bump development version to 0.0.0.2
 * adopt GHC 2021 extension set, revisit imports
 * upgrade to lts-18.0
 * implement pdms client and add example usage
 * add an example for using both Barista and Microlot
+* bump development version to 0.0.0.2
 * **release:** 0.0.0.2
 * **style:** apply reformatting, update doc comments
 * **test:** fix tests, move doctest.hs under test directory
@@ -191,19 +228,19 @@ changed. Call-sites must adopt new data definition.
 
 ### Chore
 
-* init repository
-* init codebase
+* refactor the module for DECAF response type
 * reformat and apply hlint hints
-* add DECAF Microlot client, refactor Decaf.Client.Internal
+* define DECAF API response data type, redefine client runners
+* init codebase
 * allow client builds to use given `Remote`s
 * refactor to use 'Remote' DECAF deployment URL definition
 * adopt MonadError for request builder, CLI arg parser for Main
 * update the Main application
-* add DecafClient convenience type and smart constructor
+* add DECAF Microlot client, refactor Decaf.Client.Internal
 * re-export high-level definitions from top module
-* refactor the module for DECAF response type
-* define DECAF API response data type, redefine client runners
+* init repository
 * refactor Decaf.Client.Internal.{Http,Microlot}
+* add DecafClient convenience type and smart constructor
 * refactor the library using combinator approach
 * reformat code
 * simplify Barista client API
