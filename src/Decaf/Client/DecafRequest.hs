@@ -14,6 +14,7 @@ import Decaf.Client.DecafCredentials (DecafCredentials (DecafCredentialsHeader))
 import Decaf.Client.DecafRemote (DecafRemote (..), remoteToUrl)
 import Decaf.Client.Internal.Utils (commonAesonOptions, dropTrailing)
 import GHC.Generics (Generic)
+import qualified Network.HTTP.Client.MultipartFormData as Http.Client
 import Network.HTTP.Types (
   Header,
   QueryText,
@@ -47,6 +48,7 @@ data DecafRequest = DecafRequest
   , decafRequestTrailingSlash :: !Bool
   , decafRequestQuery :: !QueryText
   , decafRequestPayload :: !(Maybe DecafRequestPayload)
+  , decafRequestParts :: !(Maybe [Http.Client.Part])
   , decafRequestCheckResponse :: !Bool
   }
 
@@ -66,6 +68,7 @@ instance Show DecafRequest where
         , "  decafRequestTrailingSlash = " <> show (decafRequestTrailingSlash x)
         , "  decafRequestQuery         = " <> show (decafRequestQuery x)
         , "  decafRequestPayload       = " <> show (decafRequestPayload x)
+        , "  decafRequestParts         = " <> maybe "None" (const "Some") (decafRequestParts x)
         , "  decafRequestCheckResponse = " <> show (decafRequestCheckResponse x)
         , "}"
         ]
@@ -183,6 +186,7 @@ decafGraphqlQueryNoVars = flip MkDecafGraphqlQuery (Aeson.object [])
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
+--   decafRequestParts         = None
 --   decafRequestCheckResponse = True
 -- }
 initRequest :: DecafRemote -> DecafCredentials -> DecafRequest
@@ -205,6 +209,7 @@ defaultRequest =
     , decafRequestTrailingSlash = False
     , decafRequestQuery = []
     , decafRequestPayload = Nothing
+    , decafRequestParts = Nothing
     , decafRequestCheckResponse = True
     }
 
@@ -280,6 +285,7 @@ remote = setRemote
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
+--   decafRequestParts         = None
 --   decafRequestCheckResponse = True
 -- }
 setNamespace :: DecafRequestPath -> DecafRequestCombinator
@@ -301,6 +307,7 @@ setNamespace n request = request {decafRequestNamespace = n}
 --   decafRequestTrailingSlash = False
 --   decafRequestQuery         = []
 --   decafRequestPayload       = Nothing
+--   decafRequestParts         = None
 --   decafRequestCheckResponse = True
 -- }
 namespace :: T.Text -> DecafRequestCombinator
@@ -493,6 +500,19 @@ setNoPayload request = request {decafRequestPayload = Nothing}
 -- | Alias to 'setNoPayload'.
 noPayload :: DecafRequestCombinator
 noPayload = setNoPayload
+
+
+-- ** Multipart/Form-Data Combinators
+
+
+-- | Sets multipart/form-data parts for 'DecafRequest'.
+setParts :: [Http.Client.Part] -> DecafRequestCombinator
+setParts ps request = request {decafRequestParts = Just ps}
+
+
+-- | Sets no multipart/form-data parts for 'DecafRequest'.
+setNoParts :: DecafRequestCombinator
+setNoParts request = request {decafRequestParts = Nothing}
 
 
 -- ** Response Checkers

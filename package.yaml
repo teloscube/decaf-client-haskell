@@ -29,6 +29,7 @@ library:
     - bytestring
     - case-insensitive
     - exceptions
+    - http-client
     - http-conduit
     - http-types
     - network-uri

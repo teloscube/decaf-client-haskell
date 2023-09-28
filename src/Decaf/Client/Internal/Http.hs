@@ -27,6 +27,7 @@ import Decaf.Client.DecafRequest (DecafRequest (..), DecafRequestPayload (..), u
 import Decaf.Client.DecafResponse (DecafResponse (..))
 import Decaf.Client.Internal.Utils (compose)
 import GHC.Stack (HasCallStack)
+import qualified Network.HTTP.Client.MultipartFormData as Http.Client
 import qualified Network.HTTP.Conduit as HC
 import qualified Network.HTTP.Simple as HS
 import Network.HTTP.Types (Status (statusCode), queryTextToQuery)
@@ -56,7 +57,7 @@ performDecafRequest
   => DecafRequest
   -> m (DecafResponse BL.ByteString)
 performDecafRequest request = do
-  response <- mkResponse <$> (HS.httpLBS (compileRequest request) `catch` throwHttpException request)
+  response <- mkResponse <$> (HS.httpLBS =<< compileRequest request `catch` throwHttpException request)
   when (decafRequestCheckResponse request) (assert2xx response)
   pure response
 
@@ -118,8 +119,14 @@ type RequestFieldSetter = DecafRequest -> HS.Request -> HS.Request
 
 
 -- | Compiles a DECAF client 'DecafRequest' into a "http-conduit" 'H.Request'.
-compileRequest :: DecafRequest -> HS.Request
-compileRequest request = compiler request HS.defaultRequest
+compileRequest :: MonadIO m => DecafRequest -> m HS.Request
+compileRequest request = do
+  let bareRequest = compiler request HS.defaultRequest
+  case decafRequestParts request of
+    Nothing -> pure bareRequest
+    Just sp -> do
+      modifiedRequest <- Http.Client.formDataBody sp bareRequest
+      pure $ HS.setRequestMethod (BC.pack (show (decafRequestMethod request))) modifiedRequest
 
 
 -- | Request compiler.

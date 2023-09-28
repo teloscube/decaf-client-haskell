@@ -13,7 +13,7 @@ homepage:       https://github.com/teloscube/decaf-client-haskell#readme
 bug-reports:    https://github.com/teloscube/decaf-client-haskell/issues
 author:         Vehbi Sinan Tunalioglu
 maintainer:     vst@vsthost.com
-copyright:      2020-2022 Teloscube Pte Ltd
+copyright:      2020-2023 Teloscube Pte Ltd
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -49,6 +49,7 @@ library
     , bytestring
     , case-insensitive
     , exceptions
+    , http-client
     , http-conduit
     , http-types
     , network-uri
